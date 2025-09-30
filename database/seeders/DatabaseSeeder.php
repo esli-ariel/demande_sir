@@ -15,17 +15,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Création des rôles par défaut de l'application
-    Role::create(['name' => 'admin']);
-    Role::create(['name' => 'user']);
-    Role::create(['name' => 'respo_structure']);
-    Role::create(['name' => 'structure_specialise']);
-    Role::create(['name' => 'technicien']);
+    
         // User::factory(10)->create();
 
-       // User::factory()->create([
-       //     'name' => 'Test User',
-       //     'prenom' => 'Test User',
-        //    'email' => 'test@example.com',
-        //]);
+     //  User::factory()->create([
+      // 'name' => 'Test User',
+      // 'name' => 'Test User',
+       //'prenom' => 'Test User',
+       // 'email' => 'test@example.com',
+       // ]);
     }
 }

@@ -14,7 +14,7 @@
             <textarea name="situation_existante" placeholder="Situation existante" class="w-full p-2 border"></textarea>
             <textarea name="situation_souhaitee" placeholder="Situation souhaitée" class="w-full p-2 border"></textarea>
 
-            <button type="submit" class="px-4 py-2 text-white bg-green-500 rounded">Enregistrer</button>
+            <button type="submit" class="px-4 py-2 rounded text-green bg-white-500">Enregistrer</button>
         </form>
     </div>
 </x-app-layout>

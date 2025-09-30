@@ -16,13 +16,13 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+//Route::get('/', function () {
+//    return view('dashboard');
+//})->name('dashboard');
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::resource('users', UserController::class);
-});
+
+
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -32,4 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('demandes', DemandeController::class);
 });
 
+// Gestion des utilisateurs (admin uniquement)
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('users', UserController::class);
+});
 require __DIR__.'/auth.php';

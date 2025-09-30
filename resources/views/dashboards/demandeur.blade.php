@@ -20,11 +20,22 @@
    
     <div class="py-6">
         <h3 class="mb-4 text-lg font-bold">Mes demandes</h3>
-        <ul>
+      <!--  <ul>
             @foreach($demandes as $demande)
                 <li>{{ $demande->objet }} - Statut : {{ $demande->statut }}</li>
             @endforeach
-        </ul>
+        </ul>-->
+        <ul>
+    @foreach($demandes as $demande)
+        <li class="mb-2">
+            {{ $demande->objet }} - 
+            <span class="{{ $demande->getStatutBadgeClass() }}">
+                {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
+            </span>
+        </li>
+    @endforeach
+</ul>
+
     </div>
 
 </x-app-layout>

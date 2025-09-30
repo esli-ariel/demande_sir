@@ -31,7 +31,11 @@
                         <td>{{ $demande->id }}</td>
                         <td>{{ $demande->user->name }}</td>
                         <td>{{ $demande->objet }}</td>
-                        <td>{{ $demande->statut }}</td>
+                        <td>
+                            <span class="{{ $demande->getStatutBadgeClass() }}">
+                            {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
+                            </span>
+                        £</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -20,11 +20,27 @@
    
     <div class="py-6">
         <h3 class="mb-4 text-lg font-bold">Demandes à exécuter</h3>
-        <ul>
+        <!--<ul>
             @foreach($demandes as $demande)
                 <li>{{ $demande->objet }} - Statut : {{ $demande->statut }}</li>
             @endforeach
+        </ul>-->
+                <ul>
+            @foreach($demandes as $demande)
+                <li class="mb-2">
+                    {{ $demande->objet }} - 
+                    <span class="{{ $demande->getStatutBadgeClass() }}">
+                        {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
+                    </span>
+
+                    <form action="{{ route('demandes.valider', $demande) }}" method="POST" class="inline">
+                        @csrf
+                        <x-primary-button type="submit" class="px-2 py-1 text-white bg-green-600 rounded">Exécuter</x-primary-button>
+                    </form>
+                </li>
+            @endforeach
         </ul>
+
     </div>
 
 </x-app-layout>

@@ -21,7 +21,11 @@
                     <tr>
                         <td>{{ $demande->id }}</td>
                         <td>{{ $demande->objet }}</td>
-                        <td>{{ $demande->statut }}</td>
+                        <td>
+                            <span class="{{ $demande->getStatutBadgeClass() }}">
+                        {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
+                    </span>
+                        </td>
                         <td>
                             <a href="{{ route('demandes.show', $demande) }}" class="text-blue-600">Voir</a> |
                             <a href="{{ route('demandes.edit', $demande) }}" class="text-green-600">Modifier</a> |

@@ -66,14 +66,14 @@ class DemandeController extends Controller
     public function show(Demande $demande)
     {
         //
-          $this->authorize('view', $demande);
+        $this->authorize('view', $demande);
         return view('demandes.show', compact('demande'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Demande $demande)
     {
         //
         $this->authorize('view', $demande);
@@ -86,7 +86,7 @@ class DemandeController extends Controller
     public function update(Request $request, Demande $demande)
     {
         //
-         $this->authorize('update', $demande);
+        $this->authorize('update', $demande);
 
         $validated = $request->validate([
             'objet' => 'required|string|max:255',
@@ -98,6 +98,9 @@ class DemandeController extends Controller
 
         return redirect()->route('demandes.index')
             ->with('success', 'Demande mise à jour.');
+        
+           //  return redirect()->route('demandes.show', $demande)
+        //->with('success', 'Demande mise à jour.');
     }
 
     /**

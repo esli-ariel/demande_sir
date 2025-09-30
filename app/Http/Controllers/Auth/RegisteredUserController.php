@@ -48,7 +48,9 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
+
         // Après la création de l'utilisateur (role user)
-        $user->roles()->attach(2);
+        //$user->roles()->attach(1);
+        // Tous les inscrits deviennent "demandeur" par défau
     }
 }
