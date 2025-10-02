@@ -22,12 +22,11 @@
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->roles->pluck('name')->join(', ') }}</td>
                     <td>
-                        <a href="{{ route('users.edit', $user) }}" class="text-green-600">Modifier</a> |
+                        <a href="{{ route('users.edit', $user) }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out border border-transparent rounded-md bg-lime-800 hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Modifier</a> |
                         <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline">
                             @csrf @method('DELETE')
-                            <button type="submit" class="text-red-600">Supprimer</button>
+                            <button type="submit" class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700">Supprimer</button>
                         </form>
-                    </td>
                 </tr>
                 @endforeach
             </tbody>

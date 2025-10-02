@@ -17,7 +17,7 @@
                 @endforeach
             </select>
 
-            <button type="submit" class="px-4 py-2 text-white bg-green-500 rounded">Créer</button>
+            <button type="submit" class="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">Créer</button>
         </form>
     </div>
 </x-app-layout>

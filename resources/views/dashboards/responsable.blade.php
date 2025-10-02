@@ -27,26 +27,56 @@
                      Statut : {{ $demande->statut }}</li>
             @endforeach
         </ul>-->
-        <ul>
-    @foreach($demandes as $demande)
-        <li class="mb-2">
-            {{ $demande->objet }} - 
-            <span class="{{ $demande->getStatutBadgeClass() }}">
-                {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
-            </span>
+       <div class="py-6">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="p-6 bg-white shadow-sm sm:rounded-lg">
+                
+                <h3 class="mb-4 text-lg font-bold">Demandes en attente de validation</h3>
 
-            <form action="{{ route('demandes.valider', $demande) }}" method="POST" class="inline">
-                @csrf
-                <button type="submit" class="px-2 py-1 text-white bg-green-500 rounded">Valider</button>
-            </form>
+                @if($demandes->isEmpty())
+                    <p class="text-gray-500">Aucune demande en attente.</p>
+                @else
+                    <table class="w-full border border-collapse border-gray-200">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-3 py-2 border">ID</th>
+                                <th class="px-3 py-2 border">Objet</th>
+                                <th class="px-3 py-2 border">Demandeur</th>
+                                <th class="px-3 py-2 border">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($demandes as $demande)
+                                <tr>
+                                    <td class="px-3 py-2 border">{{ $demande->id }}</td>
+                                    <td class="px-3 py-2 border">{{ $demande->objet }}</td>
+                                    <td class="px-3 py-2 border">{{ $demande->user->name }}</td>
+                                    <td class="flex gap-2 px-3 py-2 border">
+                                        <!-- Bouton Valider -->
+                                        <form action="{{ route('demandes.valider', $demande) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1 text-white bg-green-500 rounded">
+                                                Valider
+                                            </button>
+                                        </form>
 
-            <form action="{{ route('demandes.rejeter', $demande) }}" method="POST" class="inline">
-                @csrf
-                <button type="submit" class="px-2 py-1 text-white bg-red-500 rounded">Rejeter</button>
-            </form>
-        </li>
-    @endforeach
-</ul>
+                                        <!-- Bouton Rejeter -->
+                                        <form action="{{ route('demandes.rejeter', $demande) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1 text-white bg-red-500 rounded">
+                                                Rejeter
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+
+            </div>
+        </div>
+    </div>
 
     </div>
 

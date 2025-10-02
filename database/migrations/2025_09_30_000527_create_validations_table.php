@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('demande_id')->constrained()->onDelete('cascade');
             $table->foreignId('validator_id')->constrained('users')->onDelete('cascade');
-            $table->enum('type', ['responsable', 'service_technique', 'cas', 'reception']);
+            $table->enum('type', ['responsable_S', 'service_technique', 'cas', 'reception']);
             $table->enum('statut', ['accord', 'refus'])->nullable();
             $table->text('commentaire')->nullable();
             $table->timestamp('date_validation')->nullable();

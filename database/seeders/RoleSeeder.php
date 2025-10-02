@@ -17,10 +17,7 @@ class RoleSeeder extends Seeder
         Role::firstOrCreate(['name' => 'demandeur']);
         Role::firstOrCreate(['name' => 'structure_specialise']);
 
-         $user = User::find(1); // l’utilisateur avec ID 1
-    $user->assignRole('admin');
     }
 
-   
 }
 

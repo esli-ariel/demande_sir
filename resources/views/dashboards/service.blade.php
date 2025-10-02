@@ -1,46 +1,39 @@
 <x-app-layout>
-   <!-- <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-green-800 text--800">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot> -->
-     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Dashboard Service Technique</h2>
+    <x-slot name="header">
+        <h2 class="text-xl font-semibold">Tableau de bord - Service Technique</h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+    <div class="py-6">
+        <h3 class="mb-4 text-lg font-bold">Demandes à traiter</h3>
+
+        @forelse($demandes as $demande)
+            <div class="p-4 mb-3 border rounded">
+                <p><strong>ID :</strong> {{ $demande->id }}</p>
+                <p><strong>Objet :</strong> {{ $demande->objet }}</p>
+                <p><strong>Statut :</strong> {{ ucfirst($demande->statut) }}</p>
+
+                <div class="flex gap-2 mt-2">
+                    @if($demande->statut === 'validee_responsable')
+                        <form action="{{ route('demandes.traiter', $demande) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="px-3 py-1 text-white bg-yellow-500 rounded">
+                                Mettre en traitement
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($demande->statut === 'en_cours_traitement')
+                        <form action="{{ route('demandes.cloturer', $demande) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="px-3 py-1 text-white bg-blue-500 rounded">
+                                Clôturer
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
-        </div>
+        @empty
+            <p class="text-gray-500">Aucune demande en attente.</p>
+        @endforelse
     </div>
-   
-    <div class="py-6">
-        <h3 class="mb-4 text-lg font-bold">Demandes à exécuter</h3>
-        <!--<ul>
-            @foreach($demandes as $demande)
-                <li>{{ $demande->objet }} - Statut : {{ $demande->statut }}</li>
-            @endforeach
-        </ul>-->
-                <ul>
-            @foreach($demandes as $demande)
-                <li class="mb-2">
-                    {{ $demande->objet }} - 
-                    <span class="{{ $demande->getStatutBadgeClass() }}">
-                        {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
-                    </span>
-
-                    <form action="{{ route('demandes.valider', $demande) }}" method="POST" class="inline">
-                        @csrf
-                        <x-primary-button type="submit" class="px-2 py-1 text-white bg-green-600 rounded">Exécuter</x-primary-button>
-                    </form>
-                </li>
-            @endforeach
-        </ul>
-
-    </div>
-
 </x-app-layout>

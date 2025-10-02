@@ -14,6 +14,7 @@
                     <th>Objet</th>
                     <th>Statut</th>
                     <th>Actions</th>
+                    <th>Soumissions</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,13 +28,34 @@
                     </span>
                         </td>
                         <td>
-                            <a href="{{ route('demandes.show', $demande) }}" class="text-blue-600">Voir</a> |
-                            <a href="{{ route('demandes.edit', $demande) }}" class="text-green-600">Modifier</a> |
+                            
+                        <!-- Dans demandes/index.blade.php par exemple -->
+                            @can('view', $demande)
+                                <a href="{{ route('demandes.show', $demande) }}" class="text-blue-500">Voir</a>
+                            @endcan
+
+                            @can('update', $demande)
+                                <a href="{{ route('demandes.edit', $demande) }}" class="text-green-500">Modifier</a>
+                            @endcan
+
+                            @can('delete', $demande)
                             <form action="{{ route('demandes.destroy', $demande) }}" method="POST" class="inline">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="text-red-600">Supprimer</button>
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-500">Supprimer</button>
                             </form>
+                            @endcan
                         </td>
+                        <td>
+                            @if($demande->statut === 'brouillon')
+                                <form action="{{ route('demandes.submit', $demande) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded">
+                                    Soumettre au responsable
+                                    </button>
+                                </form>
+                            @endif
+                        </td>  
                     </tr>
                 @endforeach
             </tbody>

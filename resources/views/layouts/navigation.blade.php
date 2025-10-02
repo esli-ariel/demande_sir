@@ -21,7 +21,12 @@
                         {{ __('Demandes') }}
                     </x-nav-link>
                 </div>
-
+                <!-- Gestion utilisateurs (admin uniquement) -->
+                    @role('admin')
+                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                            {{ __('Utilisateurs') }}
+                        </x-nav-link>
+                    @endrole
 
             </div>
 

@@ -115,4 +115,17 @@ class DemandeController extends Controller
         return redirect()->route('demandes.index')
             ->with('success', 'Demande supprimée.');
     }
+    public function submit(Demande $demande)
+{
+    if ($demande->user_id !== auth()->id()) {
+        abort(403, 'Accès interdit.');
+    }
+
+    $demande->update([
+        'statut' => 'en_attente_validation'
+    ]);
+
+    return redirect()->route('demandes.index')
+        ->with('success', 'Demande soumise au responsable.');
+}
 }
