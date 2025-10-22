@@ -5,8 +5,12 @@ use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WorkflowController;
+use App\Http\Controllers\DemandePieceJointeController;
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AdminController;
 
 //Route::get('/', function () {
 //    return view('welcome');
@@ -58,7 +62,12 @@ Route::middleware(['auth', 'role:demandeur'])->group(function () {
     // CRUD demandes
     Route::resource('demandes', DemandeController::class)->except(['destroy']); 
     // un demandeur ne peut pas supprimer, à adapter selon ton besoin
+    
 });
+Route::middleware(['auth', 'role:demandeur'])->group(function () {
+    Route::get('/demandeur', [DemandeController::class, 'dashboardDemandeur'])->name('dashboard.demandeur');
+});
+
 
 // =====================
 // Routes RESPONSABLE
@@ -106,5 +115,65 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::post('/demandes/{demande}/submit', [DemandeController::class, 'submit'])
     ->name('demandes.submit')
     ->middleware(['auth', 'role:demandeur']);
+
+
+// =====================
+// Routes workflow 
+// =====================
+Route::middleware(['auth'])->group(function () {
+    Route::resource('demandes', DemandeController::class);
+
+    // Workflow
+    Route::post('/demandes/{demande}/validerExploitation', [WorkflowController::class, 'validerExploitation'])->name('demandes.validerExploitation');
+    Route::post('/demandes/{demande}/rejeterExploitation', [WorkflowController::class, 'rejeterExploitation'])->name('demandes.rejeterExploitation');
+
+    Route::post('/demandes/{demande}/valider-dts', [WorkflowController::class, 'validerDts'])->name('demandes.valider_dts');
+    Route::post('/demandes/{demande}/rejeter-dts', [WorkflowController::class, 'rejeterDts'])->name('demandes.rejeter_dts');
+
+    Route::post('/demandes/{demande}/valider-structure', [WorkflowController::class, 'validerStructure'])->name('demandes.valider_structure');
+    Route::post('/demandes/{demande}/rejeter-structure', [WorkflowController::class, 'rejeterStructure'])->name('demandes.rejeter_structure');
+
+    Route::post('/demandes/{demande}/valider-controle', [WorkflowController::class, 'validerControle'])->name('demandes.valider_controle');
+    Route::post('/demandes/{demande}/rejeter-controle', [WorkflowController::class, 'rejeterControle'])->name('demandes.rejeter_controle');
+
+    Route::post('/demandes/{demande}/traiter-agent', [WorkflowController::class, 'traiterAgent'])->name('demandes.traiter_agent');
+    Route::post('/demandes/{demande}/cloturer-reception', [WorkflowController::class, 'cloturerReception'])->name('demandes.cloturer_reception');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::get('/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
+Route::get('/dashboard/demandeur', [DashboardController::class, 'demandeur'])->name('dashboard.demandeur');
+Route::get('/dashboard/exploitation', [DashboardController::class, 'exploitation'])->name('dashboard.exploitation');
+Route::get('/dashboard/dts', [DashboardController::class, 'dts'])->name('dashboard.dts');
+Route::get('/dashboard/structure', [DashboardController::class, 'structure'])->name('dashboard.structure');
+Route::get('/dashboard/controle', [DashboardController::class, 'controle'])->name('dashboard.controle');
+Route::get('/dashboard/service', [DashboardController::class, 'service'])->name('dashboard.service');
+Route::get('/dashboard/reception', [DashboardController::class, 'reception'])->name('dashboard.reception');
+
+
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('dashboard.admin');
+});
+
+
+
+Route::delete('/pieces/{piece}', [DemandePieceJointeController::class, 'destroy'])->name('pieces.destroy');
+
+Route::middleware(['auth', 'role:exploitant'])->group(function () {
+    Route::get('/exploitation/demandes', [DemandeController::class, 'indexExploitation'])
+        ->name('demandes.index_exploitation');
+});
+
+
+Route::middleware(['auth', 'role:dts'])->group(function () {
+    Route::get('/dts/demandes', [DemandeController::class, 'indexDTS'])
+        ->name('demandes.index_dts');
+});
+
 
 require __DIR__.'/auth.php';
