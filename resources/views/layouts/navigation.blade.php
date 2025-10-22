@@ -16,18 +16,43 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                @role('demandeur')
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('demandes.index')" :active="request()->routeIs('demandes.*')">
                         {{ __('Demandes') }}
                     </x-nav-link>
                 </div>
+                @endrole
                 <!-- Gestion utilisateurs (admin uniquement) -->
+                    @role('admin')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                            {{ __('Utilisateurs') }}
+                        </x-nav-link>
+                    </div>
+                    @endrole
+     <!-- Gestion d (admin uniquement) -->
                     @role('admin')
                         <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
                     @endrole
+                    @role('exploitant')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('demandes.index_exploitation')" :active="request()->routeIs('demandes.index_exploitation')">
+                            {{ __('Demandes à valider') }}
+                        </x-nav-link>
+                    </div>
+                    @endrole
+                    @role('dts')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('demandes.index_dts')" :active="request()->routeIs('demandes.index_dts')">
+                            {{ __('Demandes à valider (DTS)') }}
+                        </x-nav-link>
+                    </div>
+                    @endrole
 
+                    
             </div>
 
             <!-- Settings Dropdown -->

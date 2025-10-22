@@ -4,12 +4,22 @@
     </x-slot>
 
     <div class="py-6">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
         <a href="{{ route('users.create') }}" class="px-4 py-2 text-white bg-blue-500 rounded">Nouvel utilisateur</a>
 
         <table class="w-full mt-4 border table-auto">
             <thead>
                 <tr class="bg-gray-200">
                     <th>Nom</th>
+                    <th>Prenom</th>
                     <th>Email</th>
                     <th>Rôle</th>
                     <th>Actions</th>
@@ -19,6 +29,7 @@
                 @foreach($users as $user)
                 <tr>
                     <td>{{ $user->name }}</td>
+                    <td>{{ $user->prenom }}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->roles->pluck('name')->join(', ') }}</td>
                     <td>
@@ -32,4 +43,9 @@
             </tbody>
         </table>
     </div>
+     <!-- Bouton retour -->
+    <a href="{{ url()->previous() }}" 
+       class="inline-block px-4 py-2 mt-4 text-white bg-gray-600 rounded hover:bg-gray-700">
+       ← Retour
+    </a>
 </x-app-layout>

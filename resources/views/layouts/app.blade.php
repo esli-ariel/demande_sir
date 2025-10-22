@@ -14,7 +14,8 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased
+                bg-[url('public/images/Raffinerie-SIR.jpeg')] bg-center bg-no-repeat bg-fixed bg-contain "">
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
 
@@ -40,6 +41,7 @@
         {{ session('error') }}
     </div>
 @endif
+  
 
                 {{ $slot }}
             </main>

@@ -27,16 +27,16 @@ class UserSeeder extends Seeder
         // Assigner le rôle admin
        $admin->assignRole('admin');
 
-       // Responsable
-        $responsable = User::firstOrCreate(
-            ['email' => 'responsable@example.com'],
+       // dts
+        $dts = User::firstOrCreate(
+            ['email' => 'dts@example.com'],
             [
-                'name' => 'Responsable Test',
-                'prenom' => 'Responsable',
+                'name' => 'dts Test',
+                'prenom' => 'dts',
                 'password' => Hash::make('password123'),
             ]
         );
-        $responsable->assignRole('responsable_S');
+        $dts->assignRole('dts');
 
         // Service technique
         $service = User::firstOrCreate(
@@ -59,7 +59,50 @@ class UserSeeder extends Seeder
             ]
         );
         $demandeur->assignRole('demandeur');
+       
+        // Exploitant
+
+    $responsable = User::firstOrCreate(
+        ['email' => 'responsable@example.com'],
+        ['name' => 'Responsable Exploitation',
+            'prenom' => 'Responsable exploitation',
+        'password' => Hash::make('password123')
+        ]
+    );
+    $responsable->assignRole('exploitant');
+
+     //structure_specialisee
+
+    $structure_specialisee = User::firstOrCreate(
+        ['email' => 'structure@example.com'],
+        ['name' => 'structure_specialisee',
+            'prenom' => 'structure_specialisee',
+            'password' => Hash::make('password123')
+        ]
+    );
+    $structure_specialisee->assignRole('structure_specialisee');
     
+     //controle_avancee
+    $controle_avancee = User::firstOrCreate(
+        ['email' => 'controle_avancee@example.com'],
+        ['name' => 'controle_avancee',
+            'prenom' => 'controle_avancee',
+        'password' => Hash::make('password123')
+        ]
+    );
+    $controle_avancee->assignRole('controle_avancee');
+
+        //chef_structure
+    $chef_structure = User::firstOrCreate(
+        ['email' => 'chef@example.com'],
+        ['name' => 'chef_structure',
+            'prenom' => 'chef_structure',
+         'password' => Hash::make('password123')
+        ]
+    );
+    $chef_structure->assignRole('chef_structure');
+
+
     }
 }
 
