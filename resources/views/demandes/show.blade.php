@@ -43,13 +43,13 @@
             {{ ucfirst(str_replace('_',' ', $demande->statut)) }}
         </span>
     </div>
-<div class="mt-6 bg-white p-6 rounded-lg shadow-md">
-    <h3 class="text-lg font-semibold mb-4">📎 Pièces jointes</h3>
+<div class="p-6 mt-6 bg-white rounded-lg shadow-md">
+    <h3 class="mb-4 text-lg font-semibold">📎 Pièces jointes</h3>
 
     @if($demande->piecesJointes->count() > 0)
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @foreach($demande->piecesJointes as $piece)
-                <div class="border rounded-lg shadow-sm overflow-hidden bg-gray-50">
+                <div class="overflow-hidden border rounded-lg shadow-sm bg-gray-50">
                     <div class="p-2 text-sm text-gray-700">
                         <strong>{{ basename($piece->chemin_fichier) }}</strong>
                         <p class="text-xs text-gray-500">
@@ -59,7 +59,7 @@
                     </div>
 
                     {{-- 🔍 Prévisualisation selon le type --}}
-                    <div class="bg-white p-2 border-t">
+                    <div class="p-2 bg-white border-t">
                         @php
                             $extension = strtolower($piece->type_document);
                             $url = asset('storage/' . $piece->chemin_fichier);
@@ -67,7 +67,7 @@
 
                         @if(in_array($extension, ['jpg','jpeg','png','gif']))
                             {{-- 🖼️ Image directement affichée --}}
-                            <img src="{{ $url }}" alt="Pièce jointe" class="w-full h-48 object-cover rounded">
+                            <img src="{{ $url }}" alt="Pièce jointe" class="object-cover w-full h-48 rounded">
                         @elseif($extension === 'pdf')
                             {{-- 📄 Aperçu PDF avec iframe --}}
                             <iframe src="{{ $url }}" class="w-full h-64 border-0 rounded" allowfullscreen></iframe>
@@ -77,7 +77,7 @@
                                     class="w-full h-64 border-0 rounded" allowfullscreen></iframe>
                         @else
                             {{-- 🗂️ Fichiers non prévisualisables --}}
-                            <p class="text-gray-500 italic p-2">
+                            <p class="p-2 italic text-gray-500">
                                 Ce type de fichier ne peut pas être prévisualisé.
                             </p>
                         @endif
@@ -86,8 +86,20 @@
             @endforeach
         </div>
     @else
-        <p class="text-gray-500 italic">Aucune pièce jointe disponible.</p>
+        <p class="italic text-gray-500">Aucune pièce jointe disponible.</p>
     @endif
+</div>
+<div class="p-6 mt-6 bg-white rounded-lg shadow-md"> 
+    @if($demande->structuresSpecialisees->count() > 0)
+    <p><b>Structures spécialisées concernées :</b></p>
+    <ul class="list-disc list-inside">
+        @foreach($demande->structuresSpecialisees as $structure)
+            <li>{{ $structure->nom }}</li>
+        @endforeach
+    </ul>
+@else
+    <p><i>Aucune structure spécialisée sélectionnée.</i></p>
+@endif
 </div>
 
     <!-- Bouton soumettre -->

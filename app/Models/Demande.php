@@ -80,6 +80,12 @@ class Demande extends Model
         default                       => 'text-gray-600 bg-gray-100 px-2 py-1 rounded',
     };
 }
+// Demande.php
+public function structuresSpecialisees()
+{
+    return $this->belongsToMany(StructureSpecialisee::class, 'demande_structure_specialisee', 'demande_id', 'structure_id');
+}
+
 
 
 }

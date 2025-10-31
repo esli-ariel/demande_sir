@@ -48,13 +48,47 @@ class WorkflowController extends Controller
     }
 
     // ===================== DTS =====================
-    public function validerDts(Request $request, Demande $demande)
-    {
-        Gate::authorize('validerDts', $demande);
+   public function validerDTS(Request $request, Demande $demande)
+{
+    Gate::authorize('validerDTS', $demande);
 
-        $this->enregistrerValidation($demande, 'dts', 'accord', $request, 'validee_dts');
-        return back()->with('success', 'Demande validée par la DTS.');
+    $demande->statut = 'validee_dts';
+    $demande->save();
+
+    $structures = $demande->structuresSpecialisees;
+
+    if ($structures->isNotEmpty()) {
+        // Envoi vers les structures sélectionnées
+        foreach ($structures as $structure) {
+            // On enregistre une ligne de validation "en attente"
+            $demande->validations()->create([
+                'user_id' => $structure->id,
+                'role' => 'structure_specialisee',
+                'decision' => null,
+                'visa' => null,
+                'commentaire' => null,
+                'date_validation' => null,
+            ]);
+        }
+
+        return back()->with('success', 'Demande validée par la DTS et envoyée aux structures spécialisées sélectionnées.');
+    } else {
+        // Aucune structure : envoi direct au contrôle avancé
+        $demande->validations()->create([
+            'user_id' => Auth::id(),
+            'role' => 'dts',
+            'decision' => 'accord',
+            'visa' => $request->visa ?? Auth::user()->name,
+            'commentaire' => $request->commentaire ?? '',
+            'date_validation' => now(),
+        ]);
+
+        $demande->update(['statut' => 'validee_controle_avance']);
+
+        return back()->with('success', 'Demande validée par la DTS et envoyée au Contrôle Avancé.');
     }
+}
+
 
     public function rejeterDts(Request $request, Demande $demande)
     {
@@ -65,30 +99,52 @@ class WorkflowController extends Controller
     }
 
     // ===================== STRUCTURES SPÉCIALISÉES =====================
-    public function validerStructure(Request $request, Demande $demande)
-    {
-        Gate::authorize('validerStructure', $demande);
+public function validerOuRejeterStructure(Request $request, Demande $demande)
+{
+    Gate::authorize('validerStructureSpecialisee', $demande);
 
-        $this->enregistrerValidation($demande, 'structure_specialisee', 'accord', $request);
+    $validated = $request->validate([
+        'decision' => 'required|in:accord,refus',
+        'visa' => 'required|string|max:255',
+        'commentaire' => 'nullable|string',
+    ]);
 
-        // Vérifier si toutes les structures spécialisées ont validé
-        $totalStructures = \Spatie\Permission\Models\Role::where('name','structure_specialisee')->count();
-        $validations = $demande->validations()->where('role','structure_specialisee')->where('decision','accord')->count();
+    // 1️⃣ Enregistrer la décision de cette structure
+    $demande->validations()->create([
+        'user_id' => Auth::id(),
+        'role' => 'structure_specialisee',
+        'decision' => $validated['decision'],
+        'visa' => $validated['visa'],
+        'commentaire' => $validated['commentaire'],
+        'date_validation' => now(),
+    ]);
 
-        if ($validations >= $totalStructures) {
-            $demande->update(['statut' => 'validee_structure_specialisee']);
-        }
+    // 2️⃣ Vérifier si une structure a refusé
+    $refus = $demande->validations()
+        ->where('role', 'structure_specialisee')
+        ->where('decision', 'refus')
+        ->exists();
 
-        return back()->with('success', 'Validation enregistrée par une Structure spécialisée.');
+    if ($refus) {
+        $demande->update(['statut' => 'refusee_structure_specialisee']);
+        return back()->with('error', 'Une structure spécialisée a refusé : demande rejetée.');
     }
 
-    public function rejeterStructure(Request $request, Demande $demande)
-    {
-        Gate::authorize('validerStructure', $demande);
+    // 3️⃣ Vérifier si toutes les structures ont validé
+    $total = $demande->structuresSpecialisees()->count();
+    $validees = $demande->validations()
+        ->where('role', 'structure_specialisee')
+        ->where('decision', 'accord')
+        ->count();
 
-        $this->enregistrerValidation($demande, 'structure_specialisee', 'refus', $request, 'refusee_structure_specialisee');
-        return back()->with('error', 'Demande rejetée par une Structure spécialisée.');
+    if ($validees === $total && $total > 0) {
+        $demande->update(['statut' => 'validee_structure_specialisee']);
+        return back()->with('success', 'Toutes les structures spécialisées ont validé : envoi au Contrôle Avancé.');
     }
+
+    // 4️⃣ Sinon, on attend les autres structures
+    return back()->with('info', 'Validation enregistrée. En attente des autres structures spécialisées.');
+}
 
     // ===================== CONTRÔLE AVANCÉ =====================
     public function validerControle(Request $request, Demande $demande)

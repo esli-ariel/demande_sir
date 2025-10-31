@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Demande;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\DemandePieceJointe;
 use App\Models\User;
-
+use App\Models\StructureSpecialisee;
+use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -32,6 +34,17 @@ class DemandeController extends Controller
         });
     }
 
+    if (Auth::user()->hasRole('structure_specialisee')) {
+    $structure = StructureSpecialisee::where('user_id', Auth::id())->first();
+
+    $demandes = $structure
+        ? $structure->demandes()->where('statut', 'validee_dts')->get()
+        : collect(); // aucune structure associée
+} else {
+    $demandes = Demande::all();
+}
+
+
     // 🎯 Filtre par statut
     if ($request->filled('statut')) {
         $query->where('statut', $request->statut);
@@ -54,6 +67,10 @@ class DemandeController extends Controller
     public function create()
     {
         //
+        // On récupère uniquement les utilisateurs ayant le rôle 'structure_specialisee'
+    $structures = User::role('structure_specialisee')->get();
+
+    return view('demandes.create', compact('structures'));
         return view('demandes.create');
     }
 
@@ -81,6 +98,11 @@ class DemandeController extends Controller
     $validated['statut'] = 'brouillon'; // par défaut
 
     $demande = Demande::create($validated);
+
+     // 🔗 Attacher les structures sélectionnées
+    if ($request->has('structures_specialisees')) {
+        $demande->structuresSpecialisees()->attach($request->input('structures_specialisees'));
+    }
 
         // 🔹 Enregistrement des pièces jointes
     if ($request->hasFile('pieces_jointes')) {
@@ -239,6 +261,8 @@ public function indexDTS()
 
 public function admin()
     {
+        // debug rapide : écrire dans le log
+    Log::info('DashboardController@admin called', ['user_id' => auth()->id()]);
         // ⚠️ Sécurité : éviter erreurs si pas encore de données
         $totalDemandes = Demande::count() ?? 0;
 
@@ -283,17 +307,54 @@ public function indexStructure()
     return view('demandes.index_structure', compact('demandes'));
 }
 
-public function validerStructure(Demande $demande)
+public function validerOuRejeterStructure(Request $request, Demande $demande)
 {
-    $demande->update(['statut' => 'validee_structure_specialisee']);
-    return back()->with('success', '✅ Demande validée par la structure spécialisée.');
+    // Vérifie que l'utilisateur est bien une structure spécialisée
+    Gate::authorize('validerStructureSpecialisee', $demande);
+
+    $validated = $request->validate([
+        'decision' => 'required|in:accord,refus',
+        'visa' => 'required|string|max:255',
+        'commentaire' => 'nullable|string',
+    ]);
+
+    // 1️⃣ Enregistrer la décision individuelle de cette structure
+    $demande->validations()->create([
+        'user_id' => Auth::id(),
+        'role' => 'structure_specialisee',
+        'decision' => $validated['decision'],
+        'visa' => $validated['visa'],
+        'commentaire' => $validated['commentaire'],
+        'date_validation' => now(),
+    ]);
+
+    // 2️⃣ Vérifier si une structure a refusé
+    $refus = $demande->validations()
+        ->where('role', 'structure_specialisee')
+        ->where('decision', 'refus')
+        ->exists();
+
+    if ($refus) {
+        $demande->update(['statut' => 'refusee_structure_specialisee']);
+        return back()->with('error', '❌ Une structure spécialisée a refusé — la demande est rejetée.');
+    }
+
+    // 3️⃣ Vérifier si toutes les structures ont validé
+    $total = $demande->structuresSpecialisees()->count();
+    $validees = $demande->validations()
+        ->where('role', 'structure_specialisee')
+        ->where('decision', 'accord')
+        ->count();
+
+    if ($validees === $total && $total > 0) {
+        $demande->update(['statut' => 'validee_structure_specialisee']);
+        return back()->with('success', '✅ Toutes les structures spécialisées ont validé — demande envoyée au contrôle avancé.');
+    }
+
+    // 4️⃣ Sinon, on attend encore des validations
+    return back()->with('info', 'Validation enregistrée — en attente des autres structures.');
 }
 
-public function rejeterStructure(Demande $demande)
-{
-    $demande->update(['statut' => 'refusee_structure_specialisee']);
-    return back()->with('success', '❌ Demande refusée par la structure spécialisée.');
-}
 
 
 ////////////////////////////////////////////////////////////
@@ -303,6 +364,12 @@ public function indexControle()
 {
     $demandes = Demande::where('statut', 'validee_structure_specialisee')->get();
     return view('demandes.index_controle', compact('demandes'));
+}
+
+public function indexCloture()
+{
+    $demandes = Demande::where('statut', 'terminée_agent')->get();
+    return view('demandes.cloture', compact('demandes'));
 }
 
 public function validerControle(Request $request, Demande $demande)
@@ -352,5 +419,6 @@ public function traiter(Request $request, Demande $demande)
 
     return back()->with('success', 'modification effectuée et enregistrer .');
 }
+
 
 }

@@ -31,12 +31,8 @@
                         </x-nav-link>
                     </div>
                     @endrole
-     <!-- Gestion d (admin uniquement) -->
-                    @role('admin')
-                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                            {{ __('Utilisateurs') }}
-                        </x-nav-link>
-                    @endrole
+                <!-- Gestion d (admin uniquement) -->
+                   
                     @role('exploitant')
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('demandes.index_exploitation')" :active="request()->routeIs('demandes.index_exploitation')">
@@ -48,6 +44,34 @@
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('demandes.index_dts')" :active="request()->routeIs('demandes.index_dts')">
                             {{ __('Demandes à valider (DTS)') }}
+                        </x-nav-link>
+                    </div>
+                    @endrole
+                    @role('structure_specialisee')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('demandes.index_structure')" :active="request()->routeIs('demandes.index_structure')">
+                            {{ __('Demandes à valider (Structures spécialisées)') }}
+                        </x-nav-link>
+                    </div>
+                    @endrole
+                    @role('controle_avancee')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('demandes.index_controle')" :active="request()->routeIs('demandes.index_controle')">
+                            {{ __('Demandes à valider (controle Avancée)') }}
+                        </x-nav-link>
+                    </div>
+                    @endrole
+                    @role('service_technique')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('demandes.index_service')" :active="request()->routeIs('demandes.index_service')">
+                            {{ __('Demandes à Executer (service_technique)') }}
+                        </x-nav-link>
+                    </div>
+                    @endrole
+                    @role('controle_avancee')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('demandes.cloture')" :active="request()->routeIs('demandes.cloture')">
+                            {{ __('Demandes à cloturer (controle avancée)') }}
                         </x-nav-link>
                     </div>
                     @endrole

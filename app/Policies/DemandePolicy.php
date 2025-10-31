@@ -88,7 +88,7 @@ class DemandePolicy
     /**
      * Détermine si une Structure spécialisée peut valider
      */
-    public function validerStructure(User $user, Demande $demande): bool
+    public function validerOuRejeterStructure(User $user, Demande $demande): bool
     {
         return $user->hasRole('structure_specialisee') && $demande->statut === 'validee_dts';
     }

@@ -4,9 +4,9 @@
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
-<div class="relative min-h-screen bg-gray-100 overflow-hidden">
+<div class="relative min-h-screen overflow-hidden bg-gray-100">
         {{-- Image de fond filigrane --}}
-        <div class="absolute inset-0 opacity-10 z-0"
+        <div class="absolute inset-0 z-0 opacity-10"
              style="background-image: url('{{ asset('images/Raffinerie-SIR.jpeg') }}');
                     background-repeat: no-repeat;
                     background-position: center;
@@ -14,15 +14,15 @@
         </div>
     {{-- Contenu principal --}}
         <div class="relative z-10 py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="p-6 overflow-hidden bg-white shadow-xl sm:rounded-lg">
 
                     {{-- ======= SECTION 1 : STATISTIQUES DES DEMANDES ======= --}}
-                    <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">
+                    <h3 class="pb-2 mb-4 text-lg font-bold text-gray-800 border-b">
                         Statistiques générales sur les demandes
                     </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
                         <div class="p-4 bg-green-100 border-l-4 border-green-600 rounded shadow">
                             <h4 class="text-lg font-semibold">Total des demandes</h4>
                             <p class="text-3xl font-bold text-green-700">{{ $totalDemandes ?? 0 }}</p>
@@ -50,11 +50,11 @@
                     </div>
 
                     {{-- ======= SECTION 2 : STATISTIQUES UTILISATEURS ======= --}}
-                    <h3 class="text-lg font-bold mt-10 mb-4 text-gray-800 border-b pb-2">
+                    <h3 class="pb-2 mt-10 mb-4 text-lg font-bold text-gray-800 border-b">
                         Statistiques sur les utilisateurs
                     </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
                         <div class="p-4 bg-indigo-100 border-l-4 border-indigo-600 rounded shadow">
                             <h4 class="text-lg font-semibold">Administrateurs</h4>
                             <p class="text-3xl font-bold text-indigo-700">{{ $admins ?? 0 }}</p>
@@ -70,7 +70,7 @@
                             <p class="text-3xl font-bold text-pink-700">{{ $demandeurs ?? 0 }}</p>
                         </div>
 
-                        <div class="p-4 bg-cyan-100 border-l-4 border-cyan-600 rounded shadow">
+                        <div class="p-4 border-l-4 rounded shadow bg-cyan-100 border-cyan-600">
                             <h4 class="text-lg font-semibold">Agents techniques</h4>
                             <p class="text-3xl font-bold text-cyan-700">{{ $agents ?? 0 }}</p>
                         </div>

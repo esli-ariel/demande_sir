@@ -34,20 +34,27 @@
                                 </span>
                             </div>
                         </div>
-
+                        
                         @role('structure_specialisee')
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <form action="{{ route('demandes.validerStructure', $demande) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="px-3 py-1 text-white bg-green-600 rounded">Valider</button>
-                            </form>
-                            <form action="{{ route('demandes.rejeterStructure', $demande) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="px-3 py-1 text-white bg-red-600 rounded">Refuser</button>
-                            </form>
-                            <a href="{{ route('demandes.show', $demande) }}" class="ml-2 text-blue-600 underline">Voir</a>
-                        </div>
-                        @endrole
+<form action="{{ route('demandes.validerStructure', $demande) }}" method="POST" class="space-y-2">
+    @csrf
+    <label class="block">Visa</label>
+    <input type="text" name="visa" class="w-full p-2 border rounded" required>
+
+    <label class="block">Commentaire</label>
+    <textarea name="commentaire" class="w-full p-2 border rounded"></textarea>
+
+    <div class="flex gap-2 mt-2">
+        <button name="decision" value="accord" class="px-4 py-2 text-white bg-green-600 rounded">
+            ✅ Valider
+        </button>
+        <button name="decision" value="refus" class="px-4 py-2 text-white bg-red-600 rounded">
+            ❌ Refuser
+        </button>
+    </div>
+</form>
+@endrole
+
                     </div>
                 @empty
                     <p class="text-gray-500">Aucune demande à valider pour le moment.</p>
