@@ -102,6 +102,18 @@
 @endif
 </div>
 
+            {{-- ✅ Structures spécialisées sélectionnées --}}
+            <h3 class="mb-2 font-semibold">Structures spécialisées concernées :</h3>
+            @if($demande->structuresSpecialisees->isNotEmpty())
+                <ul class="pl-5 list-disc">
+                    @foreach($demande->structuresSpecialisees as $structure)
+                        <li>{{ $structure->nom }}</li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="italic text-gray-500">Aucune structure spécialisée sélectionnée.</p>
+            @endif
+
     <!-- Bouton soumettre -->
             @if($demande->statut === 'brouillon')
                 <form action="{{ route('demandes.submit', $demande) }}" method="POST">

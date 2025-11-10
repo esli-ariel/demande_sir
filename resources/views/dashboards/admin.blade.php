@@ -1,84 +1,102 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-green-800 text--800">
-            {{ __('Dashboard') }}
+        <h2 class="text-xl font-semibold leading-tight text-green-800">
+            {{ __('Tableau de bord - Administration') }}
         </h2>
     </x-slot>
-<div class="relative min-h-screen overflow-hidden bg-gray-100">
-        {{-- Image de fond filigrane --}}
+
+    <div class="relative min-h-screen overflow-hidden bg-gray-100">
+        {{-- Filigrane --}}
         <div class="absolute inset-0 z-0 opacity-10"
              style="background-image: url('{{ asset('images/Raffinerie-SIR.jpeg') }}');
                     background-repeat: no-repeat;
                     background-position: center;
-                    background-size: 110%;">
+                    background-size: cover;">
         </div>
-    {{-- Contenu principal --}}
-        <div class="relative z-10 py-12">
+
+        {{-- Contenu principal --}}
+        <div class="relative z-10 py-10">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="p-6 overflow-hidden bg-white shadow-xl sm:rounded-lg">
+                <div class="p-6 bg-white rounded-lg shadow-xl">
 
-                    {{-- ======= SECTION 1 : STATISTIQUES DES DEMANDES ======= --}}
-                    <h3 class="pb-2 mb-4 text-lg font-bold text-gray-800 border-b">
-                        Statistiques générales sur les demandes
+                    {{-- SECTION 1 : STATISTIQUES GÉNÉRALES --}}
+                    <h3 class="pb-2 mb-6 text-lg font-bold text-gray-800 border-b">
+                        📈 Statistiques générales des demandes
                     </h3>
 
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
-                        <div class="p-4 bg-green-100 border-l-4 border-green-600 rounded shadow">
-                            <h4 class="text-lg font-semibold">Total des demandes</h4>
-                            <p class="text-3xl font-bold text-green-700">{{ $totalDemandes ?? 0 }}</p>
+                        <x-stat-card color="green" label="Total" :value="$totalDemandes ?? 0" icon="📄" />
+                        <x-stat-card color="blue" label="Validées" :value="$demandesValidees ?? 0" icon="✅" />
+                        <x-stat-card color="red" label="Refusées" :value="$demandesRefusees ?? 0" icon="❌" />
+                        <x-stat-card color="yellow" label="En attente" :value="$demandesAttente ?? 0" icon="⏳" />
+                    </div>
+
+                    {{-- GRAPHIQUES PRINCIPAUX --}}
+                    <div class="grid grid-cols-1 gap-8 mt-10 md:grid-cols-2">
+                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
+                            <h4 class="mb-2 font-semibold text-center text-gray-700">Répartition des demandes</h4>
+                            <canvas id="chartDemandes"></canvas>
                         </div>
 
-                        <div class="p-4 bg-blue-100 border-l-4 border-blue-600 rounded shadow">
-                            <h4 class="text-lg font-semibold">Demandes validées</h4>
-                            <p class="text-3xl font-bold text-blue-700">{{ $demandesValidees ?? 0 }}</p>
-                        </div>
-
-                        <div class="p-4 bg-red-100 border-l-4 border-red-600 rounded shadow">
-                            <h4 class="text-lg font-semibold">Demandes refusées</h4>
-                            <p class="text-3xl font-bold text-red-700">{{ $demandesRefusees ?? 0 }}</p>
-                        </div>
-
-                        <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded shadow">
-                            <h4 class="text-lg font-semibold">En attente</h4>
-                            <p class="text-3xl font-bold text-yellow-700">{{ $demandesAttente ?? 0 }}</p>
+                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
+                            <h4 class="mb-2 font-semibold text-center text-gray-700">Évolution mensuelle</h4>
+                            <canvas id="chartEvolution"></canvas>
                         </div>
                     </div>
 
-                    {{-- Graphique Chart.js --}}
-                    <div class="mt-8">
-                        <canvas id="chartDemandes"></canvas>
-                    </div>
-
-                    {{-- ======= SECTION 2 : STATISTIQUES UTILISATEURS ======= --}}
-                    <h3 class="pb-2 mt-10 mb-4 text-lg font-bold text-gray-800 border-b">
-                        Statistiques sur les utilisateurs
+                    {{-- SECTION 2 : STATISTIQUES UTILISATEURS --}}
+                    <h3 class="pb-2 mt-12 mb-6 text-lg font-bold text-gray-800 border-b">
+                        👥 Statistiques sur les utilisateurs
                     </h3>
 
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
-                        <div class="p-4 bg-indigo-100 border-l-4 border-indigo-600 rounded shadow">
-                            <h4 class="text-lg font-semibold">Administrateurs</h4>
-                            <p class="text-3xl font-bold text-indigo-700">{{ $admins ?? 0 }}</p>
+                        <x-stat-card color="indigo" label="Administrateurs" :value="$admins ?? 0" icon="🛠️" />
+                        <x-stat-card color="teal" label="Responsables" :value="$responsables ?? 0" icon="📋" />
+                        <x-stat-card color="pink" label="Demandeurs" :value="$demandeurs ?? 0" icon="🙋‍♂️" />
+                        <x-stat-card color="blue" label="Agents" :value="$agents ?? 0" icon="👷" />
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-8 mt-10 md:grid-cols-2">
+                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
+                            <h4 class="mb-2 font-semibold text-center text-gray-700">Répartition des utilisateurs</h4>
+                            <canvas id="chartUsers"></canvas>
                         </div>
 
-                        <div class="p-4 bg-teal-100 border-l-4 border-teal-600 rounded shadow">
-                            <h4 class="text-lg font-semibold">Responsables</h4>
-                            <p class="text-3xl font-bold text-teal-700">{{ $responsables ?? 0 }}</p>
-                        </div>
-
-                        <div class="p-4 bg-pink-100 border-l-4 border-pink-600 rounded shadow">
-                            <h4 class="text-lg font-semibold">Demandeurs</h4>
-                            <p class="text-3xl font-bold text-pink-700">{{ $demandeurs ?? 0 }}</p>
-                        </div>
-
-                        <div class="p-4 border-l-4 rounded shadow bg-cyan-100 border-cyan-600">
-                            <h4 class="text-lg font-semibold">Agents techniques</h4>
-                            <p class="text-3xl font-bold text-cyan-700">{{ $agents ?? 0 }}</p>
+                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
+                            <h4 class="mb-2 font-semibold text-center text-gray-700">Taux de validation (%)</h4>
+                            <canvas id="chartTaux"></canvas>
                         </div>
                     </div>
 
-                    {{-- Graphique Chart.js utilisateurs --}}
-                    <div class="mt-8">
-                        <canvas id="chartUsers"></canvas>
+                    {{-- TABLE DES DEMANDES --}}
+                    <div class="mt-12">
+                        <h3 class="mb-4 text-lg font-bold">📋 Liste récente des demandes</h3>
+                        <div class="overflow-x-auto rounded-lg shadow bg-gray-50">
+                            <table class="w-full border-collapse">
+                                <thead class="text-white bg-green-700">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">#</th>
+                                        <th class="px-4 py-2 text-left">Demandeur</th>
+                                        <th class="px-4 py-2 text-left">Objet</th>
+                                        <th class="px-4 py-2 text-left">Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($demandes as $demande)
+                                        <tr class="border-b hover:bg-gray-100">
+                                            <td class="px-4 py-2">{{ $demande->id }}</td>
+                                            <td class="px-4 py-2">{{ $demande->user->name }}</td>
+                                            <td class="px-4 py-2">{{ $demande->objet_modif }}</td>
+                                            <td class="px-4 py-2">
+                                                <span class="{{ $demande->getStatutBadgeClass() }}">
+                                                    {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                 </div>
@@ -86,61 +104,92 @@
         </div>
     </div>
 
-    {{-- Script pour Chart.js --}}
+    {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx1 = document.getElementById('chartDemandes');
-        new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: ['Validées', 'Refusées', 'En attente'],
-                datasets: [{
-                    label: 'État des demandes',
-                    data: [{{ $demandesValidees ?? 0 }}, {{ $demandesRefusees ?? 0 }}, {{ $demandesAttente ?? 0 }}],
-                    backgroundColor: ['#16a34a', '#dc2626', '#facc15']
-                }]
-            },
+        // Données principales
+        const valides = {{ $demandesValidees ?? 0 }};
+        const refusees = {{ $demandesRefusees ?? 0 }};
+        const attente = {{ $demandesAttente ?? 0 }};
+        const total = {{ $totalDemandes ?? 1 }};
+        const tauxValidation = ((valides / total) * 100).toFixed(1);
+        const tauxRefus = ((refusees / total) * 100).toFixed(1);
+        const evolutionLabels = {!! json_encode($labels) !!};
+        const evolutionData = {!! json_encode($data) !!};
+        
+        // Diagramme des demandes
+        new Chart(document.getElementById('chartDemandes'), {
+            type: 'doughnut',
+            data: {     
+                    labels: ['Validées', 'Refusées', 'En attente'],
+                datasets:       [{
+                    data: [valides, refusees, attente],
+                    backgroundColor: ['#22c55e', '#ef4444', '#facc15']
+                    }]
+                },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
 
-        const ctx2 = document.getElementById('chartUsers');
-        new Chart(ctx2, {
-            type: 'pie',
-            data: {
+        // Évolution mensuelle (exemple statique à remplacer par des vraies données)
+
+    
+
+    new Chart(document.getElementById('chartEvolution'), {
+        type: 'line',
+        data: {
+            labels: evolutionLabels,
+            datasets: [{
+                label: 'Demandes créées',
+                data: evolutionData,
+                borderColor: '#16a34a',
+                backgroundColor: '#bbf7d0',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+
+
+        // Diagramme des utilisateurs
+        new Chart(document.getElementById('chartUsers'), {
+        type: 'pie',
+                data: {
                 labels: ['Admins', 'Responsables', 'Demandeurs', 'Agents'],
                 datasets: [{
-                    label: 'Répartition des utilisateurs',
                     data: [{{ $admins ?? 0 }}, {{ $responsables ?? 0 }}, {{ $demandeurs ?? 0 }}, {{ $agents ?? 0 }}],
                     backgroundColor: ['#4f46e5', '#0d9488', '#db2777', '#06b6d4']
+                    }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Taux de validation
+        new Chart(document.getElementById('chartTaux'), {
+            type: 'bar',
+            data: {
+                labels: ['Taux de validation', 'Taux de refus'],
+                datasets: [{
+                    data: [tauxValidation, tauxRefus],
+                    backgroundColor: ['#16a34a', '#dc2626']
                 }]
             },
+            options: {
+                scales: { y: { beginAtZero: true, max: 100 } },
+                plugins: { legend: { display: false } }
+            }
         });
     </script>
-    <div class="py-6">
-        <h3 class="mb-4 text-lg font-bold">Toutes les demandes</h3>
-        <table class="w-full border table-auto">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th>ID</th>
-                    <th>Demandeur</th>
-                    <th>Objet</th>
-                    <th>Statut</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($demandes as $demande)
-                    <tr>
-                        <td>{{ $demande->id }}</td>
-                        <td>{{ $demande->user->name }}</td>
-                        <td>{{ $demande->objet_modif }}</td>
-                        <td>
-                            <span class="{{ $demande->getStatutBadgeClass() }}">
-                            {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
-                            </span>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-    </div>
+
+    {{-- Composant carte statistique --}}
+    @once
+        @push('components')
+            @component('components.stat-card')
+            @endcomponent
+        @endpush
+    @endonce
 </x-app-layout>

@@ -10,6 +10,10 @@ use App\Models\DemandePieceJointe;
 use App\Models\User;
 use App\Models\StructureSpecialisee;
 use Illuminate\Support\Facades\Gate;
+use App\Notifications\DemandeStatutChangeNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\DemandeClotureeNotification;
+
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -368,7 +372,7 @@ public function indexControle()
 
 public function indexCloture()
 {
-    $demandes = Demande::where('statut', 'terminée_agent')->get();
+    $demandes = Demande::where('statut', 'terminee_agent')->get();
     return view('demandes.cloture', compact('demandes'));
 }
 
@@ -376,20 +380,74 @@ public function validerControle(Request $request, Demande $demande)
 {
     $request->validate([
         'numero_dma' => 'required|string|max:50',
+        'visa' => 'required|string',
+        'commentaire' => 'nullable|string',
     ]);
 
     $demande->update([
         'statut' => 'validee_controle_avancee',
         'numero_dma' => $request->numero_dma,
+        'visa_controle_avance' => $request->visa,
+        'commentaire_controle_avance' => $request->commentaire,
     ]);
 
+   // Notification interne
+    $demande->user->notify(new DemandeStatutChangeNotification(
+        $demande,
+        'validée par le controle avancé,bientot prise en charge par le service technique',
+        $request->commentaire
+    ));
+    
     return back()->with('success', '✅ Demande validée par le contrôle avancé.');
 }
 
-public function rejeterControle(Demande $demande)
+public function rejeterControle(Demande $demande, Request $request)
 {
-    $demande->update(['statut' => 'refusee_controle_avancee']);
+
+     $request->validate([
+        'visa' => 'required|string',
+        'commentaire' => 'required|string',
+    ]);
+
+    $demande->update([
+        'statut' => 'refusee_controle_avancee',
+        'visa_controle_avance' => $request->visa,
+        'commentaire_controle_avance' => $request->commentaire,
+    ]);
+
+      // Notification interne
+    $demande->user->notify(new DemandeStatutChangeNotification(
+        $demande,
+        'rejetée par le contrôle avancé',
+        $request->commentaire
+    ));
+
     return back()->with('success', '❌ Demande refusée par le contrôle avancé.');
+}
+
+
+public function cloturer(Request $request, Demande $demande)
+{
+    $request->validate([
+        'analyse' => 'required|string|max:500',
+        'visa' => 'nullable|string|max:50',
+    ]);
+
+    // Mise à jour du statut
+    $demande->update([
+        'statut' => 'cloturee_receptionnee',
+        'analyse_finale' => $request->analyse,
+        'visa_controle_avance' => $request->visa,
+        'date_cloture' => now(),
+    ]);
+
+    // Notification in-app pour le demandeur
+    $demande->user->notify(new DemandeClotureeNotification($demande));
+
+    // (Optionnel) archivage dans une table séparée ou colonne "archivee"
+    $demande->update(['archivee' => true]);
+
+    return back()->with('success', 'Demande clôturée et notifiée avec succès.');
 }
 
 

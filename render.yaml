@@ -1,7 +1,7 @@
 # render.yaml - Déploiement Laravel avec storage, Breeze et MySQL
 services:
   - type: web
-    name: laravel-app
+    name: SIR-Gestion DMA-app
     env: php
     plan: free
     buildCommand: |

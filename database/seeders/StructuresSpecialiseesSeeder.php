@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class StructuresSpecialiseesSeeder extends Seeder
 {
@@ -15,7 +16,23 @@ class StructuresSpecialiseesSeeder extends Seeder
     public function run(): void
     {
         //
+        // Récupérer tous les utilisateurs ayant le rôle 'structure'
+        $structures = User::role('structure_specialisee')->get();
 
+        foreach ($structures as $user) {
+            DB::table('structures_specialisees')->updateOrInsert(
+                ['id' => $user->id],
+                [
+                    'nom' => $user->name,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
+
+        $this->command->info('Structures spécialisées synchronisées avec succès !');
+
+       
     
         $role = Role::firstOrCreate(['name' => 'structure_specialisee']);
 
@@ -45,6 +62,8 @@ class StructuresSpecialiseesSeeder extends Seeder
 
             $user->assignRole($role);
         }
+
+
     }
 
     

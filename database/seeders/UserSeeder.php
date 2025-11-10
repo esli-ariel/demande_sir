@@ -97,7 +97,7 @@ class UserSeeder extends Seeder
         ['email' => 'chef@example.com'],
         ['name' => 'chef_structure',
             'prenom' => 'chef_structure',
-         'password' => Hash::make('password123')
+        'password' => Hash::make('password123')
         ]
     );
     $chef_structure->assignRole('chef_structure');

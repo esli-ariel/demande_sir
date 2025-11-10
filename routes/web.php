@@ -224,4 +224,23 @@ Route::get('/dashboard/controle', [DashboardController::class, 'controleAvance']
     ->name('dashboard.controle')
     ->middleware(['auth', 'role:controle_avancee']);
 
+Route::get('/dashboard/demandeur', [DashboardController::class, 'dashboardDemandeur'])
+    ->middleware(['auth', 'role:demandeur'])
+    ->name('dashboard.demandeur');
+
+
+//route cloture controle avancée
+Route::middleware(['role:controle_avancee'])->group(function () {
+    Route::get('/demandes/cloture', [DemandeController::class, 'indexCloture'])->name('demandes.cloture');
+    Route::post('/demandes/{demande}/cloturer', [DemandeController::class, 'cloturer'])->name('demandes.cloturer');
+});
+
+//routes notification
+Route::get('/notifications', function () {
+    $notifications = auth()->user()->notifications;
+    return view('notifications.index', compact('notifications'));
+})->name('notifications.index');
+
+
+
 require __DIR__.'/auth.php';

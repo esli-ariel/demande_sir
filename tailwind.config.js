@@ -23,4 +23,23 @@ export default {
 
     plugins: [forms],
     }
+    
 }
+// tailwind.config.js
+module.exports = {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+  ],
+  safelist: [
+    {
+      pattern: /bg-(red|green|orange|blue|gray|yellow|indigo|teal|pink|blue|purple)-(100|600|700)/,
+    },
+    {
+      pattern: /border-(red|green|orange|blue|gray|yellow|indigo|teal|pink|blue|purple)-(600)/,
+    },
+    {
+      pattern: /text-(red|green|orange|blue|gray|yellow|indigo|teal|pink|blue|purple)-(700)/,
+    },
+  ],
+};

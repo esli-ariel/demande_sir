@@ -27,30 +27,14 @@
 
                 {{-- Statistiques globales --}}
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-                    <div class="p-4 bg-blue-100 border border-blue-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-blue-800">Total des demandes</h4>
-                        <p class="mt-2 text-3xl font-bold text-blue-900">{{ $stats['total'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-yellow-100 border border-yellow-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-yellow-800">En cours (validation)</h4>
-                        <p class="mt-2 text-3xl font-bold text-yellow-900">{{ $stats['en_cours_validation'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-green-100 border border-green-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-green-800">Validées</h4>
-                        <p class="mt-2 text-3xl font-bold text-green-900">{{ $stats['validees'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-red-100 border border-red-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-red-800">Rejetées</h4>
-                        <p class="mt-2 text-3xl font-bold text-red-900">{{ $stats['rejetees'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-gray-100 border border-gray-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-gray-800">Clôturées</h4>
-                        <p class="mt-2 text-3xl font-bold text-gray-900">{{ $stats['cloturees'] ?? 0 }}</p>
-                    </div>
+                    
+                    <x-stat-card color="green" label="Total" :value="$stats['total'] ?? 0" icon="📄" />
+                    <x-stat-card color="blue" label="Validées" :value="$stats['validees'] ?? 0" icon="✅" />
+                    <x-stat-card color="red" label="Refusées" :value="$stats['rejetees'] ?? 0" icon="❌" />
+                    <x-stat-card color="yellow" label="En attente" :value="$stats['en_cours_validation'] ?? 0" icon="⏳" />
+                    <x-stat-card color="teal" label="Cloturés" :value="$stats['cloturees'] ?? 0" icon="" />
+                    <x-stat-card color="indigo" label="Validées" :value="$demandesValidees ?? 0" icon="✅" />
+                    
                 </div>
 
                 {{-- Liste des demandes --}}

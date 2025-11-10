@@ -7,6 +7,8 @@ use App\Models\Demande;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 
 class DashboardController extends Controller
@@ -21,8 +23,60 @@ class DashboardController extends Controller
         if ($user->hasRole('admin')) {
             $demandes = Demande::with('user')->latest()->get();
 
+           
+          // Statistiques principales
+    $totalDemandes = \App\Models\Demande::count();
+    $demandesValidees = \App\Models\Demande::where('statut', 'cloturee_receptionnee')->count();
+    $demandesRefusees = \App\Models\Demande::wherein('statut', ['refusee','refusee_exploitation','refusee_dts','refusee_structure_specialisee','refusee_controle_avancee','terminee_agent'])->count();
+    $demandesAttente = \App\Models\Demande::wherein('statut', ['en_attente','soumise','validee_exploitation','validee_dts','validee_structure_specialisee','validee_controle_avancee'])->count();
+
+    // Statistiques utilisateurs
+    $admins = \App\Models\User::role('admin')->count();
+    $responsables = \App\Models\User::role('controle_avancee')->count();
+    $demandeurs = \App\Models\User::role('demandeur')->count();
+    $agents = \App\Models\User::role('service_technique')->count();
+
+    // 🔥 Nouvelle section : évolution mensuelle
+    $evolutionMensuelle = \App\Models\Demande::select(
+            DB::raw('MONTH(created_at) as mois'),
+            DB::raw('COUNT(*) as total')
+        )
+        ->whereYear('created_at', Carbon::now()->year)
+        ->groupBy('mois')
+        ->orderBy('mois')
+        ->get();
+
+    // Préparer les données pour Chart.js
+    $labels = [];
+    $data = [];
+
+    // Générer les mois de Janvier à Décembre
+    for ($m = 1; $m <= 12; $m++) {
+        $labels[] = Carbon::create()->month($m)->translatedFormat('M'); // ex: Jan, Fév, Mar
+        $count = $evolutionMensuelle->firstWhere('mois', $m)->total ?? 0;
+        $data[] = $count;
+    }
+
+    // Récupérer toutes les demandes
+    $demandes = \App\Models\Demande::with('user')->latest()->take(10)->get();
+
+    return view('dashboards.admin', compact(
+        'totalDemandes',
+        'demandesValidees',
+        'demandesRefusees',
+        'demandesAttente',
+        'admins',
+        'responsables',
+        'demandeurs',
+        'agents',
+        'demandes',
+        'labels',
+        'data',
+        'evolutionMensuelle'
+    ));
+
+
             
-            return view('dashboards.admin', compact('demandes'));
         } 
         
        // elseif ($user->hasRole('demandeur')) {
@@ -35,8 +89,56 @@ class DashboardController extends Controller
 
         // Cas DEMANDEUR → il ne voit que ses propres demandes
         if ($user->hasRole('demandeur')) {
-            $demandes = Demande::where('user_id', $user->id)->get();
-            return view('dashboards.demandeur', compact('demandes'));
+
+            $user = Auth::user();
+
+        // Si l'utilisateur est un demandeur → il ne voit que ses demandes
+        
+        $demandes = Demande::where('user_id', $user->id)->get();
+
+        // Calcul des statistiques
+        $totalDemandes = $demandes->count();
+        $demandesValidees = $demandes->wherein('statut', ['validee_controle_avancee','terminee_agent','cloturee_receptionnee'])->count();
+        $demandesRejetees = $demandes->wherein('statut', ['refusee_dts','refusee_controle_avancee', 'refusee_exploitation', 'rejetee_structure_specialisee','refusee_controle_avancee',])->count();
+        $demandesEnCours = $demandes->wherein('statut', ['soumis','validee_exploitation','validee_controle_avancee','validee_dts','validee_structure_specialisee',])->count();
+
+        // Taux de validation (évite la division par 0)
+        $tauxValidation = $totalDemandes > 0 ? round(($demandesValidees / $totalDemandes) * 100, 2) : 0;
+
+        // Répartition par statut pour les graphiques
+        $repartition = [
+            'validée' => $demandesValidees,
+            'rejetée' => $demandesRejetees,
+            'en cours' => $demandesEnCours,
+        ];
+
+        // Statistiques par mois (si tu veux afficher un graphique mensuel)
+        $statsMensuelles = Demande::selectRaw('MONTH(created_at) as mois, COUNT(*) as total')
+            ->when($user->role === 'demandeur', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->groupBy('mois')
+            ->orderBy('mois')
+            ->get();
+
+        $labelsMois = $statsMensuelles->pluck('mois')->map(function ($m) {
+            return date('F', mktime(0, 0, 0, $m, 1));
+        });
+
+        $valeursMois = $statsMensuelles->pluck('total');
+
+        return view('dashboards.demandeur', compact(
+            'totalDemandes',
+            'demandesValidees',
+            'demandesRejetees',
+            'demandesEnCours',
+            'tauxValidation',
+            'repartition',
+            'labelsMois',
+            'valeursMois',
+            'demandes'
+        ));
+    
         }
 
         // Cas EXPLOITATION → il voit les demandes "soumise"
@@ -148,9 +250,27 @@ class DashboardController extends Controller
         'terminee_agent'])->get();
 
 
+            $stats = [
+        'total'      => \App\Models\Demande::whereIn('statut', [
+            'validee_controle_avancee',
+            'en_cours_traitement',
+            'terminee_agent'
+        ])->count(),
 
-        
-            return view('dashboards.service', compact('demandes'));
+        'en_cours'   => \App\Models\Demande::where('statut', 'en_cours_traitement')->count(),
+
+        'validees'   => \App\Models\Demande::where('statut', 'validee_controle_avancee')->count(),
+
+        'terminees'  => \App\Models\Demande::where('statut', 'terminee_agent')->count(),
+    ];
+
+    $demandes = \App\Models\Demande::whereIn('statut', [
+        'validee_controle_avancee',
+        'en_cours_traitement',
+        'terminee_agent'
+    ])->latest()->get();
+
+            return view('dashboards.service', compact('demandes','stats'));
         }
 
         // Cas RÉCEPTION → il voit les demandes terminées par les agents
@@ -167,61 +287,107 @@ public function dashboardDemandeur()
 {
     $user = Auth::user();
 
-    $demandes = Demande::where('user_id', $user->id)->latest()->get();
 
-    // Statistiques calculées
-    $stats = [
-        'total'       => $demandes->count(),
-        'en_attente'  => $demandes->whereIn('statut', ['soumise', 'en_attente_validation'])->count(),
-        'validees'    => $demandes->whereIn('statut', [
-            'validee_exploitation',
-            'validee_dts',
-            'validee_structure_specialisee',
-            'validee_controle_avancee',
-            'cloturee_receptionnee'
-        ])->count(),
-        'rejetees'    => $demandes->where(fn($d) => str_contains($d->statut, 'refusee'))->count(),
-    ];
+        // Si l'utilisateur est un demandeur → il ne voit que ses demandes
+            $demandes = Demande::where('user_id', $user->id)->get();
+        // Calcul des statistiques
+        $totalDemandes = $demandes->count();
+        $demandesValidees = $demandes->wherein('statut', ['validee_controle_avancee','terminee_agent'])->count();
+        $demandesRejetees = $demandes->wherein('statut', ['refusee_controle_avancee', 'refusee_exploitation', 'rejetee_structure_specialisee'])->count();
+        $demandesEnCours = $demandes->wherein('statut', ['soumis','',''])->count();
 
-    return view('dashboards.demandeur', compact('demandes', 'stats'));
-}
-public function admin()
-    {
+        // Taux de validation (évite la division par 0)
+        $tauxValidation = $totalDemandes > 0 ? round(($demandesValidees / $totalDemandes) * 100, 2) : 0;
 
-        // debug rapide : écrire dans le log
-    Log::info('DashboardController@admin called', ['user_id' => auth()->id()]);
-        // ⚠️ Sécurité : éviter erreurs si pas encore de données
-        $totalDemandes = Demande::count() ?? 0;
+        // Répartition par statut pour les graphiques
+        $repartition = [
+            'validée' => $demandesValidees,
+            'rejetée' => $demandesRejetees,
+            'en cours' => $demandesEnCours,
+        ];
 
-        $demandesValidees = Demande::where('statut', 'LIKE', '%validee%')->count() ?? 0;
-        $demandesRefusees = Demande::where('statut', 'LIKE', '%refusee%')->count() ?? 0;
-        $demandesAttente = Demande::whereIn('statut', ['soumise', 'brouillon'])->count() ?? 0;
+        // Statistiques par mois (si tu veux afficher un graphique mensuel)
+        $statsMensuelles = Demande::selectRaw('MONTH(created_at) as mois, COUNT(*) as total')
+            ->when($user->role === 'demandeur', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->groupBy('mois')
+            ->orderBy('mois')
+            ->get();
 
-        // Comptage des rôles (via Spatie)
-        $admins = User::role('admin')->count() ?? 0;
-        $responsables = User::role('structure_specialisee')->count() ?? 0;
-        $demandeurs = User::role('demandeur')->count() ?? 0;
-        $agents = User::role('service_technique')->count() ?? 0;
+        $labelsMois = $statsMensuelles->pluck('mois')->map(function ($m) {
+            return date('F', mktime(0, 0, 0, $m, 1));
+        });
 
-        // Statistiques mensuelles (janvier à décembre)
-        $mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-        $statsMensuelles = [];
-        foreach (range(1, 12) as $m) {
-            $statsMensuelles[] = Demande::whereMonth('created_at', $m)->count();
-        }
+        $valeursMois = $statsMensuelles->pluck('total');
 
-        return view('dashboards.admin', compact(
+        return view('dashboards.demandeur', compact(
             'totalDemandes',
             'demandesValidees',
-            'demandesRefusees',
-            'demandesAttente',
-            'admins',
-            'responsables',
-            'demandeurs',
-            'agents',
-            'mois',
-            'statsMensuelles'
+            'demandesRejetees',
+            'demandesEnCours',
+            'tauxValidation',
+            'repartition',
+            'labelsMois',
+            'valeursMois',
+            'demandes'
         ));
+    }
+
+public function admin()
+    {
+        // ⚠️ Sécurité : éviter erreurs si pas encore de données
+        $user = auth()->user();
+
+    // Statistiques principales
+    $totalDemandes = \App\Models\Demande::count();
+    $demandesValidees = \App\Models\Demande::where('statut', 'cloturee_receptionnee')->count();
+    $demandesRefusees = \App\Models\Demande::wherein('statut', ['refusee','refusee_exploitation','refusee_dts','refusee_structure_specialisee','refusee_controle_avancee','terminee_agent'])->count();
+    $demandesAttente = \App\Models\Demande::wherein('statut', ['en_attente','soumise','validee_exploitation','validee_dts','validee_structure_specialisee','validee_controle_avancee'])->count();
+
+    // Statistiques utilisateurs
+    $admins = \App\Models\User::role('admin')->count();
+    $responsables = \App\Models\User::role('responsable')->count();
+    $demandeurs = \App\Models\User::role('demandeur')->count();
+    $agents = \App\Models\User::role('agent')->count();
+
+    // 🔥 Nouvelle section : évolution mensuelle
+    $evolutionMensuelle = \App\Models\Demande::select(
+            DB::raw('MONTH(created_at) as mois'),
+            DB::raw('COUNT(*) as total')
+        )
+        ->whereYear('created_at', Carbon::now()->year)
+        ->groupBy('mois')
+        ->orderBy('mois')
+        ->get();
+
+    // Préparer les données pour Chart.js
+    $labels = [];
+    $data = [];
+
+    // Générer les mois de Janvier à Décembre
+    for ($m = 1; $m <= 12; $m++) {
+        $labels[] = Carbon::create()->month($m)->translatedFormat('M'); // ex: Jan, Fév, Mar
+        $count = $evolutionMensuelle->firstWhere('mois', $m)->total ?? 0;
+        $data[] = $count;
+    }
+
+    // Récupérer toutes les demandes
+    $demandes = \App\Models\Demande::with('user')->latest()->take(10)->get();
+
+    return view('dashboards.admin', compact(
+        'totalDemandes',
+        'demandesValidees',
+        'demandesRefusees',
+        'demandesAttente',
+        'admins',
+        'responsables',
+        'demandeurs',
+        'agents',
+        'demandes',
+        'labels',
+        'data'
+    ));
     }
     
     public function exploitation()
@@ -346,7 +512,7 @@ public function serviceTechnique()
         'terminee_agent'
     ])->latest()->get();
 
-    return view('dashboards.service_technique', compact('stats', 'demandes'));
+    return view('dashboards.service', compact('stats', 'demandes'));
 }
 
 

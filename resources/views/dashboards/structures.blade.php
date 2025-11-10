@@ -8,7 +8,7 @@
              style="background-image: url('{{ asset('images/Raffinerie-SIR.jpeg') }}');
                     background-repeat: no-repeat;
                     background-position: center;
-                    background-size: 110%;">
+                    background-size: cover;">
         </div>
 
         <div class="relative z-10 py-12">
@@ -16,29 +16,19 @@
 
                 {{-- Statistiques globales --}}
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="p-4 bg-blue-100 border border-blue-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-blue-800">Total des demandes</h4>
-                        <p class="mt-2 text-3xl font-bold text-blue-900">{{ $stats['total'] ?? 0 }}</p>
-                    </div>
-                    <div class="p-4 bg-yellow-100 border border-yellow-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-yellow-800">En attente</h4>
-                        <p class="mt-2 text-3xl font-bold text-yellow-900">{{ $stats['en_attente'] ?? 0 }}</p>
-                    </div>
-                    <div class="p-4 bg-green-100 border border-green-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-green-800">Validées</h4>
-                        <p class="mt-2 text-3xl font-bold text-green-900">{{ $stats['traitees'] ?? 0 }}</p>
-                    </div>
-                    <div class="p-4 bg-red-100 border border-red-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-red-800">Rejetées</h4>
-                        <p class="mt-2 text-3xl font-bold text-red-900">{{ $stats['rejetees'] ?? 0 }}</p>
-                    </div>
+
+                        <x-stat-card color="green" label="Total" :value="$stats['total'] ?? 0" icon="📄" />
+                        <x-stat-card color="blue" label="Validées" :value="$stats['en_attente'] ?? 0" icon="✅" />
+                        <x-stat-card color="red" label="Refusées" :value="$stats['traitees'] ?? 0" icon="❌" />
+                        <x-stat-card color="yellow" label="En attente" :value="$stats['rejetees'] ?? 0" icon="⏳" />
+                    
                 </div>
 
-                {{-- Graphique --}}
+                {{-- Graphique 
                 <div class="p-6 bg-white shadow-sm sm:rounded-lg">
                     <h3 class="mb-4 text-lg font-bold text-gray-700">📊 Nombre de demandes par structure</h3>
                     <canvas id="chartStructures"></canvas>
-                </div>
+                </div> --}}
 
                 {{-- Dernières demandes --}}
                 <div class="p-6 bg-white shadow-sm sm:rounded-lg">
@@ -61,7 +51,7 @@
                                     @foreach($demandes as $demande)
                                         <tr class="text-sm hover:bg-gray-50">
                                             <td class="px-4 py-2 border">{{ $demande->id }}</td>
-                                            <td class="px-4 py-2 border">{{ $demande->objet }}</td>
+                                            <td class="px-4 py-2 border">{{ $demande->objet_modif }}</td>
                                             <td class="px-4 py-2 border">{{ $demande->structure->nom ?? 'N/A' }}</td>
                                             <td class="px-4 py-2 border">
                                                 <span class="{{ $demande->getStatutBadgeClass() }}">
@@ -81,5 +71,5 @@
         </div>
     </div>
 
-   
+
 </x-app-layout>

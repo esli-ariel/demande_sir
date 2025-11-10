@@ -4,16 +4,16 @@
     </x-slot>
 
     <div class="relative min-h-screen overflow-hidden bg-gray-100">
-        {{-- Image de fond filigrane --}}
+        {{-- Image de fond --}}
         <div class="absolute inset-0 z-0 opacity-10"
              style="background-image: url('{{ asset('images/Raffinerie-SIR.jpeg') }}');
                     background-repeat: no-repeat;
                     background-position: center;
-                    background-size: 110%;">
+                    background-size: cover;">
         </div>
 
-        <div class="relative z-10 py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-8">
+        <div class="relative z-10 py-8">
+            <div class="mx-auto space-y-8 max-w-7xl sm:px-6 lg:px-8">
 
                 {{-- Message de bienvenue --}}
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
@@ -25,39 +25,35 @@
                     </div>
                 </div>
 
-                {{-- Statistiques --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="p-4 bg-blue-100 border border-blue-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-blue-800">Total de mes demandes</h4>
-                        <p class="mt-2 text-3xl font-bold text-blue-900">{{ $stats['total'] ?? 0 }}</p>
-                    </div>
+                {{-- Cartes statistiques --}}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <x-stat-card color="blue" label="Total" :value="$totalDemandes ?? 0" icon="📄" />
+                    <x-stat-card color="yellow" label="En attente" :value="$demandesEnCours ?? 0" icon="⏳" />
+                    <x-stat-card color="green" label="Validées" :value="$demandesValidees ?? 0" icon="✅" />
+                    <x-stat-card color="red" label="Rejetées" :value="$demandesRejetees ?? 0" icon="❌" />
+                </div>
 
-                    <div class="p-4 bg-yellow-100 border border-yellow-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-yellow-800">En attente</h4>
-                        <p class="mt-2 text-3xl font-bold text-yellow-900">{{ $stats['en_attente'] ?? 0 }}</p>
+                {{-- Graphiques compacts --}}
+                <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2">
+                    <div class="p-4 bg-white rounded-lg shadow-sm">
+                        <h4 class="mb-2 font-semibold">Répartition des demandes</h4>
+                        <canvas id="repartitionChart" class="w-full h-48"></canvas>
                     </div>
-
-                    <div class="p-4 bg-green-100 border border-green-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-green-800">Validées</h4>
-                        <p class="mt-2 text-3xl font-bold text-green-900">{{ $stats['validees'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-red-100 border border-red-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-red-800">Rejetées</h4>
-                        <p class="mt-2 text-3xl font-bold text-red-900">{{ $stats['rejetees'] ?? 0 }}</p>
+                    <div class="p-4 bg-white rounded-lg shadow-sm">
+                        <h4 class="mb-2 font-semibold">Taux de validation (%)</h4>
+                        <canvas id="tauxChart" class="w-full h-48"></canvas>
                     </div>
                 </div>
 
-                {{-- Liste des demandes --}}
-                <div class="bg-white shadow-sm sm:rounded-lg p-6">
+                {{-- Tableau des demandes --}}
+                <div class="p-4 mt-6 bg-white rounded-lg shadow-sm">
                     <h3 class="mb-4 text-lg font-bold text-gray-700">📁 Mes demandes</h3>
-
                     @if($demandes->isEmpty())
                         <p class="text-gray-500">Vous n’avez encore soumis aucune demande.</p>
                     @else
                         <div class="overflow-x-auto">
                             <table class="min-w-full border border-gray-200 rounded-lg">
-                                <thead class="bg-gray-100 text-gray-700 text-sm uppercase">
+                                <thead class="text-sm text-gray-700 uppercase bg-gray-100">
                                     <tr>
                                         <th class="px-4 py-2 border">#</th>
                                         <th class="px-4 py-2 border">Objet</th>
@@ -89,4 +85,35 @@
             </div>
         </div>
     </div>
+
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Répartition des demandes
+        new Chart(document.getElementById('repartitionChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Validées', 'Rejetées', 'En attente'],
+                datasets: [{
+                    data: [{{ $demandesValidees }}, {{ $demandesRejetees }}, {{ $demandesEnCours }}],
+                    backgroundColor: ['#22c55e', '#ef4444', '#facc15']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Taux de validation
+        new Chart(document.getElementById('tauxChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Validées', 'Rejetées'],
+                datasets: [{
+                    data: [{{ $demandesValidees }}, {{ $demandesRejetees }}],
+                    backgroundColor: ['#22c55e', '#ef4444']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    </script>
+
 </x-app-layout>

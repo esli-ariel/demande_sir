@@ -6,7 +6,7 @@
     <div class="relative min-h-screen overflow-hidden bg-gray-100">
         {{-- Image de fond --}}
         <div class="absolute inset-0 z-0 opacity-10"
-             style="background-image: url('{{ asset('images/service-technique.jpg') }}');
+             style="background-image: url('{{ asset('images/Raffinerie-sir.jpeg') }}');
                     background-repeat: no-repeat;
                     background-position: center;
                     background-size: cover;">
@@ -27,25 +27,13 @@
 
                 {{-- Statistiques globales --}}
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="p-4 bg-blue-100 border border-blue-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-blue-800">Total des demandes</h4>
-                        <p class="mt-2 text-3xl font-bold text-blue-900">{{ $stats['total'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-yellow-100 border border-yellow-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-yellow-800">En cours</h4>
-                        <p class="mt-2 text-3xl font-bold text-yellow-900">{{ $stats['en_cours'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-green-100 border border-green-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-green-800">Validées</h4>
-                        <p class="mt-2 text-3xl font-bold text-green-900">{{ $stats['validees'] ?? 0 }}</p>
-                    </div>
-
-                    <div class="p-4 bg-gray-100 border border-gray-300 rounded-lg shadow">
-                        <h4 class="text-sm font-semibold text-gray-800">Terminées</h4>
-                        <p class="mt-2 text-3xl font-bold text-gray-900">{{ $stats['terminees'] ?? 0 }}</p>
-                    </div>
+                   
+                    <x-stat-card color="green" label="Total" :value="$stats['total'] ?? 0" icon="📄" />
+                    <x-stat-card color="blue" label="Validées" :value="$stats['validees'] ?? 0" icon="✅" />
+                    <x-stat-card color="indigo" label="Terminées" :value="$stats['terminees'] ?? 0" icon="❌" />
+                    <x-stat-card color="yellow" label="En attente" :value="$stats['en_cours'] ?? 0" icon="⏳" />
+                        
+                
                 </div>
 
                 {{-- Liste des demandes --}}

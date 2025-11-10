@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold">Dashboard Exploitation</h2>
+        <h2 class="text-xl font-semibold">Demandes</h2>
     </x-slot>
 
     <div class="py-12">
@@ -125,7 +125,7 @@
                                     </button>
                                 </form>
                             @endif
-                            <a href="{{ route('demandes.show', $demande) }}" class="ml-2 text-blue-600 underline">Voir la demande</a>
+                           
                         </div>
                     </div>
                 @empty

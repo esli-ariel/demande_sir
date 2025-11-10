@@ -13,14 +13,16 @@
 
         <div class="relative z-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="p-6 bg-white shadow-sm sm:rounded-lg">
-                <h3 class="mb-4 text-lg font-bold text-gray-700">Demandes à approuver par le Contrôle avancé</h3>
+                <h3 class="mb-4 text-lg font-bold text-gray-700">
+                    🧾 Demandes à approuver par le Contrôle avancé
+                </h3>
 
                 @forelse($demandes as $demande)
-                    <div class="p-4 mb-4 border rounded bg-gray-50 hover:shadow">
+                    <div class="p-4 mb-6 transition border rounded bg-gray-50 hover:shadow-md">
                         <div class="flex justify-between">
                             <div>
                                 <p class="font-semibold">#{{ $demande->id }} — {{ $demande->structure }}</p>
-                                <p>Objet : {{ $demande->objet_modif }}</p>
+                                <p>Objet : {{ $demande->objet_modif ?? $demande->objet }}</p>
                             </div>
                             <div>
                                 <span class="{{ $demande->getStatutBadgeClass() }}">
@@ -29,18 +31,38 @@
                             </div>
                         </div>
 
-                        @role('controle_avance')
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <form action="{{ route('demandes.validerControle', $demande) }}" method="POST">
-                                @csrf
-                                <input name="numero_dma" placeholder="Numéro DMA" class="p-1 border rounded" required />
-                                <button type="submit" class="px-3 py-1 text-white bg-green-600 rounded">Valider</button>
-                            </form>
-                            <form action="{{ route('demandes.rejeterControle', $demande) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="px-3 py-1 text-white bg-red-600 rounded">Refuser</button>
-                            </form>
-                        </div>
+                        {{-- Actions pour le Contrôle avancé --}}
+                        @role('controle_avancee')
+                       <div class="grid gap-4 mt-4 md:grid-cols-2">
+    {{-- ✅ Validation --}}
+    <form action="{{ route('demandes.valider_controle', $demande) }}" method="POST" class="p-3 border rounded bg-green-50">
+        @csrf
+        <label class="block text-sm font-semibold text-gray-700">Signature / Visa :</label>
+        <input name="visa" class="w-full p-2 mt-1 border rounded" placeholder="Ex: Visa du Contrôle" required>
+
+        <label class="block mt-2 text-sm font-semibold text-gray-700">Commentaire (optionnel) :</label>
+        <textarea name="commentaire" class="w-full p-2 mt-1 border rounded" placeholder="Ajoutez un commentaire"></textarea>
+
+        <button type="submit" class="w-full px-4 py-2 mt-3 text-white bg-green-600 rounded hover:bg-green-700">
+            ✅ Valider la demande
+        </button>
+    </form>
+
+    {{-- ❌ Rejet --}}
+    <form action="{{ route('demandes.rejeter_controle', $demande) }}" method="POST" class="p-3 border rounded bg-red-50">
+        @csrf
+        <label class="block text-sm font-semibold text-gray-700">Signature / Visa :</label>
+        <input name="visa" class="w-full p-2 mt-1 border rounded" placeholder="Ex: Visa du Contrôle" required>
+
+        <label class="block mt-2 text-sm font-semibold text-gray-700">Motif du rejet :</label>
+        <textarea name="commentaire" class="w-full p-2 mt-1 border rounded" required placeholder="Expliquez la raison du rejet"></textarea>
+
+        <button type="submit" class="w-full px-4 py-2 mt-3 text-white bg-red-600 rounded hover:bg-red-700">
+            ❌ Rejeter la demande
+        </button>
+    </form>
+</div>
+
                         @endrole
                     </div>
                 @empty

@@ -61,6 +61,7 @@ class WorkflowController extends Controller
         // Envoi vers les structures sélectionnées
         foreach ($structures as $structure) {
             // On enregistre une ligne de validation "en attente"
+            $this->enregistrerValidation($demande, 'dts', 'accord', $request, 'validee_dts');
             $demande->validations()->create([
                 'user_id' => $structure->id,
                 'role' => 'structure_specialisee',
@@ -74,7 +75,9 @@ class WorkflowController extends Controller
         return back()->with('success', 'Demande validée par la DTS et envoyée aux structures spécialisées sélectionnées.');
     } else {
         // Aucune structure : envoi direct au contrôle avancé
+         $this->enregistrerValidation($demande, 'dts', 'accord', $request, 'validee_dts');
         $demande->validations()->create([
+            'validator_id' => auth()->id(),
             'user_id' => Auth::id(),
             'role' => 'dts',
             'decision' => 'accord',
