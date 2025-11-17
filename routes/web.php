@@ -105,7 +105,8 @@ Route::middleware(['auth', 'role:service_technique'])->group(function () {
 // =====================
 Route::middleware(['auth', 'role:admin'])->group(function () {
     // Gestion utilisateurs
-    Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class)
+    ;
 
     // Vue globale sur toutes les demandes
     Route::get('/admin/demandes', [DemandeController::class, 'all'])
@@ -227,6 +228,8 @@ Route::get('/dashboard/controle', [DashboardController::class, 'controleAvance']
 Route::get('/dashboard/demandeur', [DashboardController::class, 'dashboardDemandeur'])
     ->middleware(['auth', 'role:demandeur'])
     ->name('dashboard.demandeur');
+
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 
 
 //route cloture controle avancée

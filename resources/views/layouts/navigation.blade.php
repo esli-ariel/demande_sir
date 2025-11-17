@@ -205,7 +205,7 @@ document.getElementById('notifButton').onclick = () => {
                     
                     @role('controle_avancee')
                         <x-nav-link :href="route('demandes.cloture')" :active="request()->routeIs('demandes.cloture')" class="text-white hover:text-orange-200">
-                            {{ __('Demandes à cloturer ') }}
+                            {{ __('Cloture ') }}
                         </x-nav-link>
                     @endrole
                     

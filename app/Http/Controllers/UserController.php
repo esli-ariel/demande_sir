@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -18,6 +19,8 @@ class UserController extends Controller
     {
         $roles = Role::all();
         return view('admin.create', compact('roles'));
+    
+        
     }
 
     public function store(Request $request)
@@ -27,7 +30,7 @@ class UserController extends Controller
             'prenom' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
-            'role' => 'required',
+            'role' => 'required|in:demandeur',
         ]);
 
         $user = User::create([
@@ -36,10 +39,12 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
         ]);
-
         $user->assignRole($validated['role']);
 
-        return redirect()->route('admin.index')->with('success', 'Utilisateur créé avec succès.');
+         // 🧠 Si c’est un admin connecté → il crée un user avec un rôle choisi
+        return redirect()->route('admin.index')
+                        ->with('success', 'Utilisateur créé avec succès.');
+
     }
 
     public function edit(User $user)

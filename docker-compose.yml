@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: demande_sir-app:latest
+    container_name: demande_sir-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost:8080
+      # Base de données
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: demande_sir
+      DB_USERNAME: demande_sir
+      DB_PASSWORD: demande_sir
+    volumes:
+      - ./:/app
+      - storage:/app/storage
+      - vendor:/app/vendor
+      - node_modules:/app/node_modules
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: demande_sir-mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    environment:
+      MYSQL_DATABASE: demande_sir
+      MYSQL_USER: demande_sir
+      MYSQL_PASSWORD: demande_sir
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "33060:3306"
+    command: ["--default-authentication-plugin=mysql_native_password", "--collation-server=utf8mb4_unicode_ci", "--character-set-server=utf8mb4"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+  storage:
+  vendor:
+  node_modules:

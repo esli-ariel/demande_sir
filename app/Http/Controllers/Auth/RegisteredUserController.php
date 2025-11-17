@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
+
 
 class RegisteredUserController extends Controller
 {
@@ -19,7 +21,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+       
+        // Public → seulement "demandeur"
+        $roles = Role::where('name', 'demandeur')->get();
+    
+        return view('auth.register',compact('roles'));
     }
 
     /**
@@ -34,6 +40,16 @@ class RegisteredUserController extends Controller
             'prenom' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+             'role' => [
+            'required',
+            function ($attribute, $value, $fail) {
+                if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+                    if ($value !== 'demandeur') {
+                        $fail('Rôle non autorisé.');
+                    }
+                }
+            }
+        ]
         ]);
 
         $user = User::create([
@@ -42,12 +58,14 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $user->assignRole($request->role);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+       return redirect()->route('dashboard.demandeur')
+        ->with('success', 'Inscription réussie ! Bienvenue.');
 
         // Après la création de l'utilisateur (role user)
         //$user->roles()->attach(1);
