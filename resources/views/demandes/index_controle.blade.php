@@ -61,6 +61,11 @@
             ❌ Rejeter la demande
         </button>
     </form>
+    {{-- 🔹 Bouton Voir --}}
+                            <a href="{{ route('demandes.show', $demande) }}" 
+                            class="px-3 py-1 text-white bg-blue-600 rounded hover:bg-blue-700">
+                                Voir
+                            </a>
 </div>
 
                         @endrole

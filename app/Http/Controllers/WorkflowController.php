@@ -86,7 +86,7 @@ class WorkflowController extends Controller
             'date_validation' => now(),
         ]);
 
-        $demande->update(['statut' => 'validee_controle_avance']);
+        $demande->update(['statut' => 'validee_structure_specialisee']);
 
         return back()->with('success', 'Demande validée par la DTS et envoyée au Contrôle Avancé.');
     }

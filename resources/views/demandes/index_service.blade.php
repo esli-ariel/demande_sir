@@ -27,7 +27,13 @@
                                 <input type="date" name="date_debut" class="p-1 border rounded" required>
                                 <input type="date" name="date_fin" class="p-1 border rounded" required>
                                 <textarea name="travaux_realises" placeholder="Travaux effectués" class="w-64 p-1 border rounded" required></textarea>
-                                <button type="submit" class="px-3 py-1 text-white bg-green-600 rounded">Clôturer</button>
+                                <button type="submit" class="px-3 py-1 text-white bg-green-600 rounded">Enregistrer</button>
+                                
+                                {{-- 🔹 Bouton Voir --}}
+                                <a href="{{ route('demandes.show', $demande) }}" 
+                                    class="px-3 py-1 text-white bg-blue-600 rounded hover:bg-blue-700">
+                                    Voir
+                                </a>
                             </form>
                         </div>
                         @endrole

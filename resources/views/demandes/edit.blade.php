@@ -13,7 +13,7 @@
 
         <div class="relative z-10 px-6 py-10 sm:px-12 lg:px-24">
 
-            {{-- 🔔 Gestion des erreurs --}}
+           {{-- 🔔 Gestion des erreurs --}}
             @if ($errors->any())
                 <div class="p-4 mb-6 text-red-800 bg-red-100 border border-red-300 rounded">
                     <ul class="list-disc list-inside">

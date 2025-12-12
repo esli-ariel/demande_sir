@@ -69,7 +69,7 @@ class DemandeTestSeeder extends Seeder
                 'validee_dts','refusee_dts',
                 'validee_structure_specialisee','refusee_structure_specialisee',
                 'validee_controle_avancee','refusee_controle_avancee',
-                'en_cours_traitement','terminee_agent','cloturee_receptionnee'
+                'en_cours_traitement','terminee_agent','cloturee','cloturee_receptionnee'
         ];
 
         foreach ($statuts as $statut) {

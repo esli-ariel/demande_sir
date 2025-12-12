@@ -114,7 +114,14 @@ class DemandePolicy
      */
     public function cloturer(User $user, Demande $demande): bool
     {
-        return $user->hasRole('reception') && $demande->statut === 'en_cours_traitement';
+        return $user->hasRole('controle_avancee') && $demande->statut === 'terminee_traitement';
+    }
+    /**
+     * Détermine si la réception peut clôturer
+     */
+    public function receptionner(User $user, Demande $demande): bool
+    {
+        return $user->hasRole('demandeur') && $demande->statut === 'cloturee';
     }
 
     /**

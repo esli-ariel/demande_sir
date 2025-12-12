@@ -66,6 +66,11 @@
                             {{ __('Demandes à cloturer ') }}
                         </x-nav-link>
                     @endrole
+                    @role('demandeur')
+                        <x-nav-link :href="route('demandes.cloture')" :active="request()->routeIs('demandes.cloture')" class="text-white hover:text-orange-200">
+                            {{ __('Demandes à cloturer ') }}
+                        </x-nav-link>
+                    @endrole
                 </div>
             </div>
 

@@ -38,8 +38,8 @@ class ValidationController extends Controller
     // Exécution par le service technique
     public function traiter(Demande $demande)
     {
-        $demande->update(['statut' => 'cloturee']);
-        return redirect()->route('dashboard')->with('success', 'Demande exécutée et clôturée.');
+        $demande->update(['statut' => 'terminee_agent']);
+        return redirect()->route('dashboard')->with('success', 'Demande exécutée.');
     }
     // Clôture par le service technique
     public function cloturer(Demande $demande)
