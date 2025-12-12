@@ -143,7 +143,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/demandes/{demande}/rejeter-controle', [WorkflowController::class, 'rejeterControle'])->name('demandes.rejeter_controle');
 
     Route::post('/demandes/{demande}/traiter-agent', [WorkflowController::class, 'traiterAgent'])->name('demandes.traiter_agent');
-    Route::post('/demandes/{demande}/cloturer-reception', [WorkflowController::class, 'cloturerReception'])->name('demandes.cloturer_reception');
+
+    Route::post('/demandes/{demande}/cloturer-reception', [WorkflowController::class, 'cloturer'])->name('demandes.cloturer_reception');
+    Route::post('/demandes/{demande}/cloture-demandeur',[WorkflowController::class, 'reception'])->name('demande.cloture.demandeur');
+
+Route::post('/demandes/{demande}/cloture-controle',[WorkflowController::class, 'Cloturer'])->name('demande.cloture.controle');
+
 });
 Route::post('/demandes/{demande}/valider-structure', [DemandeController::class, 'validerOuRejeterStructure'])
     ->name('demandes.validerStructure')
@@ -199,9 +204,14 @@ Route::middleware(['auth', 'role:service_technique'])->group(function () {
         ->name('demandes.index_service');
 });
 
-Route::middleware(['auth', 'role:controle_avancée'])->group(function () {
+Route::middleware(['auth', 'role:controle_avancee'])->group(function () {
     Route::get('/cloture/demandes', [DemandeController::class, 'indexCloture'])
         ->name('demandes.cloture');
+});
+
+Route::middleware(['auth','role:demandeur'])->group(function () {
+    Route::get('/reception/demandes', [DemandeController::class, 'indexReception'])
+    ->name('demandes.cloture');
 });
 
 //statistisques
@@ -236,6 +246,12 @@ Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 Route::middleware(['role:controle_avancee'])->group(function () {
     Route::get('/demandes/cloture', [DemandeController::class, 'indexCloture'])->name('demandes.cloture');
     Route::post('/demandes/{demande}/cloturer', [DemandeController::class, 'cloturer'])->name('demandes.cloturer');
+});
+
+//route cloture demandeur
+Route::middleware(['role:demandeur'])->group(function () {
+    Route::get('/demandes/cloture', [DemandeController::class, 'indexReception'])->name('demandes.cloture');
+    Route::post('/demandes/{demande}/receptionner', [DemandeController::class, 'receptionner'])->name('demandes.receptionner');
 });
 
 //routes notification

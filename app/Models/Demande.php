@@ -75,6 +75,7 @@ class Demande extends Model
 
         // 📦 Réception finale
         'cloturee_receptionnee'       => 'text-teal-100 bg-gray-500 px-2 py-1 rounded',
+        'cloturee'                    => 'text-fuchsia-100 bg-gray-500 px-2 py-1 rounded',
 
         // Défaut si jamais un statut inconnu arrive
         default                       => 'text-gray-600 bg-gray-100 px-2 py-1 rounded',

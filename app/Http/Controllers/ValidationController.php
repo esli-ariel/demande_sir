@@ -48,4 +48,10 @@ class ValidationController extends Controller
 
         return back()->with('success', 'Demande clôturée.');
     }
+     public function receptionner(Demande $demande)
+    {
+        $demande->update(['statut' => 'cloturee_receptionnee']);
+
+        return back()->with('success', 'Demande clôturée et receptionnée.');
+    }
 }

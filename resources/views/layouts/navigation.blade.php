@@ -213,6 +213,11 @@ document.getElementById('notifButton').onclick = () => {
                             {{ __('Cloture ') }}
                         </x-nav-link>
                     @endrole
+                    @role('demandeur')
+                        <x-nav-link :href="route('demandes.cloture')" :active="request()->routeIs('demandes.cloture')" class="text-white hover:text-orange-200">
+                            {{ __('Cloture ') }}
+                        </x-nav-link>
+                    @endrole
                     
             <div class="px-4 pt-2 mt-2 border-t border-green-500">
                 <div>👤 {{ Auth::user()->prenom }} {{ Auth::user()->name }}</div>

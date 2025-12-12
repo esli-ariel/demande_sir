@@ -478,5 +478,15 @@ public function traiter(Request $request, Demande $demande)
     return back()->with('success', 'modification effectuée et enregistrer .');
 }
 
+public function indexReception()
+{
+    $demandes = Demande::where('statut', 'cloturee')->get();
+    return view('demandes.cloture', compact('demandes'));
+}
 
 }
+
+//////////////////////////
+
+
+
