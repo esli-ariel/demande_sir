@@ -1242,3 +1242,6 @@ html[data-admin-theme='dark'] .requester-receipt-note { color:#D8D8E0; }
 html[data-admin-theme='dark'] .requester-dashboard .admin-kpi:nth-child(4) .admin-kpi-icon { color:#61CF91; }
 .staff-button-danger { background:#DC2626;color:#fff; }
 .staff-button-danger:hover { background:#B91C1C;color:#fff; }
+
+.staff-completion-kpis .admin-kpi:nth-child(4) { --kpi-color:var(--sir-green); }
+html[data-admin-theme='dark'] .staff-completion-kpis .admin-kpi:nth-child(4) .admin-kpi-icon { color:#61CF91; }

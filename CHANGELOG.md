@@ -6,6 +6,8 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Espace réception : Clôture définitive après travaux, réservée à la réception ; visa, historique et notification ; demandeur en consultation. Circuit complet testé.
+
 - Espace chef de structure : Consultation après validation exploitation, suivi des dossiers en cours, clôturés et refusés, sans nouveau pouvoir de décision.
 
 - Espace service technique : Démarrage et fin des travaux distincts, dates cohérentes, compte rendu et historique des interventions.

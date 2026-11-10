@@ -21,9 +21,9 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-002 | Haute | Préparer et démarrer l’environnement local | Terminé | Application accessible et démarrage documenté sans secrets |
 | DMA-003 | Haute | Nettoyer les routes et contrôler les accès | À faire | Routes cohérentes, accès autorisés et interdits vérifiés pour les rôles concernés |
 | DMA-004 | Haute | Corriger la création des demandes et les pièces jointes | Terminé | Création vérifiée sans fichier, avec un fichier et avec plusieurs fichiers |
-| DMA-005 | Haute | Fiabiliser les validations des structures spécialisées | À faire | Affectations et décisions multiples conformes au circuit confirmé |
-| DMA-006 | Haute | Compléter et raccorder clôture et réception | À faire | Actions reliées à des méthodes existantes et parcours final vérifié |
-| DMA-007 | Normale | Vérifier tableaux de bord et notifications | À faire | Statistiques, destinataires et liens cohérents avec les demandes et les rôles |
+| DMA-005 | Haute | Fiabiliser les validations des structures spécialisées | Terminé | Affectations et décisions multiples conformes au circuit confirmé |
+| DMA-006 | Haute | Compléter et raccorder clôture et réception | Terminé | Actions reliées à des méthodes existantes et parcours final vérifié |
+| DMA-007 | Normale | Vérifier tableaux de bord et notifications | À vérifier | Statistiques, destinataires et liens cohérents avec les demandes et les rôles |
 | DMA-008 | Haute | Vérifier le parcours complet avant livraison | À faire | Création, validation, refus, traitement et réception vérifiés ; anomalies bloquantes corrigées |
 | DMA-011 | Normale | Ajouter les modes jour et nuit à l’administration | Terminé | Bascule accessible dans la navbar, préférence mémorisée, retour au jour et affichage mobile vérifiés |
 | DMA-012 | Haute | Harmoniser les autres pages de l’administration | Terminé | Listes et formulaires utilisateurs/demandes, fiche DMA, profil et notifications harmonisés ; 12 tests réussis et revue visuelle effectuée |
@@ -31,20 +31,21 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-014 | Haute | Refaire le rôle exploitation | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-015 | Haute | Refaire le rôle DTS | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-016 | Haute | Refaire le rôle structures spécialisées | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
-| DMA-017 | Haute | Refaire le rôle contrôle avancé | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
+| DMA-017 | Haute | Refaire le rôle contrôle avancé | Terminé | Pages rendues, droits et transitions couverts par tests isolés ; point de contrôle Git dédié |
 | DMA-018 | Haute | Refaire le rôle service technique | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-019 | Haute | Refaire le rôle chef de structure | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
+| DMA-020 | Haute | Refaire le rôle réception | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 
 ## Constats de la première lecture
 
-Ces constats proviennent du code et n’ont pas encore été reproduits dans l’application.
+Constats initiaux et état après les corrections des rôles.
 
 - `routes/web.php` : routes et noms déclarés plusieurs fois, avec des protections différentes ; certaines actions visent des méthodes absentes du contrôleur ciblé.
 - `DemandeController::store` : problème de redirection et d’arrêt après le premier fichier corrigé dans DMA-012/DMA-013 ; cas sans fichier et avec plusieurs fichiers couverts par tests isolés.
-- `WorkflowController::validerDTS` : enregistrements répétés de la décision DTS et utilisation d’identifiants de structures comme identifiants d’utilisateurs.
-- Clôture et réception : plusieurs implémentations et statuts coexistent ; le parcours attendu doit être confirmé avant correction.
+- DTS et structures : décision DTS unique et affectation explicite des comptes aux structures corrigées ; décisions multiples et refus couverts par tests isolés.
+- Clôture et réception : parcours raccordé ; réception clôture définitivement après travaux. Le demandeur suit la réception sans pouvoir clôturer. Le contrôle avancé peut vérifier les travaux avant réception.
 
 ## Journal de travail
 

@@ -171,6 +171,13 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications :** 35 tests réussis, 274 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
 - **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
 
+## 2026-11-10 — Rôle réception
+
+- **Tâche :** DMA-020.
+- **Travail réalisé :** Clôture définitive après travaux, réservée à la réception ; visa, historique et notification ; demandeur en consultation. Circuit complet testé.
+- **Vérifications :** 37 tests réussis, 320 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
+- **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

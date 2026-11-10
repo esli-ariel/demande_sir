@@ -73,15 +73,13 @@ it('keeps an incomplete request as a draft', function () {
     expect($demande->fresh()->statut)->toBe('brouillon');
 });
 
-it('scopes reception to the owner and records confirmation only once', function () {
-    $mine = ($this->makeDemande)($this->requester, ['statut' => 'cloturee', 'objet_modif' => 'Ma réception']);
-    $other = ($this->makeDemande)($this->other, ['statut' => 'cloturee', 'objet_modif' => 'Autre réception']);
+it('shows only owned receptions and reserves final closure to reception staff', function () {
+    $mine = ($this->makeDemande)($this->requester, ['statut'=>'cloturee','objet_modif'=>'Ma réception']);
+    $other = ($this->makeDemande)($this->other, ['statut'=>'cloturee','objet_modif'=>'Autre réception']);
     $this->get(route('demandeur.receptions'))->assertOk()->assertSee('Ma réception')->assertDontSee('Autre réception');
-    $this->post(route('demandes.receptionner', $other), ['visa_demandeur' => 'Test'])->assertForbidden();
-    $this->post(route('demandes.receptionner', $mine), ['visa_demandeur' => 'Test', 'commentaire' => 'Bien reçu'])->assertRedirect(route('demandes.show', $mine));
-    expect($mine->fresh()->statut)->toBe('cloturee_receptionnee')->and(DB::table('demandes_validations')->count())->toBe(1);
-    $this->post(route('demandes.receptionner', $mine), ['visa_demandeur' => 'Test'])->assertForbidden();
-    expect(DB::table('demandes_validations')->count())->toBe(1)->and($other->fresh()->statut)->toBe('cloturee');
+    $this->get(route('demandes.show',$mine))->assertOk()->assertDontSee('Confirmer la réception');
+    foreach ([$mine,$other] as $demande) $this->post(route('demandes.receptionner',$demande),['visa_demandeur'=>'Test'])->assertForbidden();
+    expect($mine->fresh()->statut)->toBe('cloturee')->and(DB::table('demandes_validations')->count())->toBe(0);
 });
 
 it('prevents removing an attachment after submission', function () {

@@ -195,3 +195,45 @@ it('shows the chief only requests already approved by exploitation without decis
     $this->post(route('demandes.traiter_agent',$visible),['visa'=>'Test'])->assertForbidden();
     $this->get(route('staff.demandes',['vue'=>'mes_decisions']))->assertOk()->assertViewHas('demandes',fn($items)=>$items->total()===2);
 });
+
+it('lets reception definitively close completed works once and notify the requester', function () {
+    Role::firstOrCreate(['name'=>'reception','guard_name'=>'web']);$this->staff->syncRoles(['reception']);
+    $early=($this->makeDemande)(['statut'=>'en_cours_traitement','objet_modif'=>'Travaux non terminés']);
+    $done=($this->makeDemande)(['statut'=>'terminee_agent','objet_modif'=>'Travaux réceptionnables']);
+    foreach (['dashboard','dashboard.reception','notifications.index','profile.edit'] as $route) $this->get(route($route))->assertOk();
+    $this->get(route('staff.demandes'))->assertOk()->assertSee('Travaux réceptionnables')->assertDontSee('Travaux non terminés');
+    $this->get(route('demandes.show',$early))->assertForbidden();
+    $this->post(route('reception.cloturer',$early),['visa'=>'Test'])->assertForbidden();
+    $this->get(route('demandes.show',$done))->assertOk()->assertSee('Clôturer définitivement la DMA');
+    $this->post(route('reception.cloturer',$done),[])->assertSessionHasErrors('visa');
+    $this->post(route('reception.cloturer',$done),['visa'=>'Réception Test','commentaire'=>'Travaux reçus'])->assertSessionHasNoErrors();
+    expect($done->fresh()->statut)->toBe('cloturee_receptionnee')->and(DB::table('demandes_validations')->where('role','reception')->count())->toBe(1)->and($this->owner->notifications()->count())->toBe(1);
+    $this->post(route('reception.cloturer',$done),['visa'=>'Test'])->assertForbidden();
+    $this->get(route('demandes.show',$done))->assertOk()->assertDontSee('Clôturer définitivement la DMA');
+    $this->get(route('staff.demandes',['vue'=>'mes_decisions']))->assertOk()->assertSee('Travaux réceptionnables');
+    $legacy=($this->makeDemande)(['statut'=>'cloturee']);
+    $this->post(route('demandes.cloturer_reception',$legacy),['visa'=>'Test'])->assertSessionHasNoErrors();
+    expect($legacy->fresh()->statut)->toBe('cloturee_receptionnee');
+    $this->actingAs($this->owner)->post(route('reception.cloturer',($this->makeDemande)(['statut'=>'terminee_agent'])),['visa'=>'Test'])->assertForbidden();
+});
+
+it('carries one DMA through the entire approval work and final reception circuit', function () {
+    $accounts=['exploitant'=>$this->staff];
+    foreach (['dts','structure_specialisee','controle_avancee','service_technique','reception'] as $role) {
+        Role::firstOrCreate(['name'=>$role,'guard_name'=>'web']);
+        $account=User::create(['name'=>$role,'prenom'=>'Test','email'=>$role.'-circuit@example.invalid','password'=>'test-password']);$account->assignRole($role);$accounts[$role]=$account;
+    }
+    $structure=DB::table('structures_specialisees')->insertGetId(['nom'=>'Structure circuit']);
+    $accounts['structure_specialisee']->structuresSpecialisees()->attach($structure);
+    $demande=($this->makeDemande)();$demande->structuresSpecialisees()->attach($structure);
+    foreach ([['exploitant','demandes.validerExploitation','validee_exploitation'],['dts','demandes.valider_dts','validee_dts'],['structure_specialisee','demandes.validerStructure','validee_structure_specialisee'],['controle_avancee','demandes.valider_controle','validee_controle_avancee']] as [$role,$route,$status]) {
+        $this->actingAs($accounts[$role])->post(route($route,$demande),['visa'=>'Circuit','decision'=>'accord','structure_id'=>$structure])->assertSessionHasNoErrors()->assertRedirect();
+        expect($demande->fresh()->statut)->toBe($status);
+    }
+    $this->actingAs($accounts['service_technique'])->post(route('demandes.traiter_agent',$demande),['visa'=>'Circuit','date_debut'=>'2026-11-10'])->assertSessionHasNoErrors();
+    $this->post(route('travaux.terminer',$demande),['visa'=>'Circuit','date_fin'=>'2026-11-11','travaux_realises'=>'Modification du circuit'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('terminee_agent');
+    $this->actingAs($accounts['reception'])->post(route('reception.cloturer',$demande),['visa'=>'Circuit','commentaire'=>'Conforme'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('cloturee_receptionnee')->and(DB::table('demandes_validations')->where('demande_id',$demande->id)->count())->toBe(7);
+    $this->actingAs($this->owner)->get(route('demandes.show',$demande))->assertOk()->assertSee('Clôturée et réceptionnée')->assertSee('Modification du circuit');
+});

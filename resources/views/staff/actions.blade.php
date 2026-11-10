@@ -24,3 +24,10 @@
 @endcan
 @endforeach
 @endif
+
+@if($staffRole === 'reception')
+@can('receptionner', $demande)
+<section class="admin-panel requester-next-action"><div class="admin-panel-heading"><h2>Clôture définitive</h2></div><form class="admin-form" method="POST" action="{{ route('reception.cloturer', $demande) }}" onsubmit="return confirm('Clôturer définitivement cette DMA après réception des travaux ?');">@csrf
+<div class="admin-form-grid"><div><label for="final-visa">Votre visa de réception</label><input id="final-visa" name="visa" value="{{ old('visa', auth()->user()->prenom.' '.auth()->user()->name) }}" maxlength="255" required></div><div><label for="final-comment">Compte rendu de réception</label><textarea id="final-comment" name="commentaire" rows="3" maxlength="5000">{{ old('commentaire') }}</textarea></div></div><div class="admin-form-actions"><button class="admin-button admin-button-orange">Clôturer définitivement la DMA</button></div></form></section>
+@endcan
+@endif

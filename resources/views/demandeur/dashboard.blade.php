@@ -7,7 +7,7 @@
             ['Total de mes demandes', $total, route('demandes.index'), 'M7 3h7l4 4v14H6V3h1Zm7 0v5h5M9 12h6M9 16h6'],
             ['Brouillons à compléter', $summary['brouillons'], route('demandes.index', ['statut' => 'brouillon']), 'm4 16 12-12 4 4-12 12H4v-4Z'],
             ['Dans le circuit', $active, '#repartition', 'M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4'],
-            ['Réceptions à confirmer', $receipts, route('demandeur.receptions'), 'm7 12 3 3 7-7M20 12a8 8 0 1 1-8-8']
+            ['Réceptions attendues', $receipts, route('demandeur.receptions'), 'm7 12 3 3 7-7M20 12a8 8 0 1 1-8-8']
         ] as [$label, $value, $url, $path])
         <a class="admin-kpi" href="{{ $url }}"><div class="admin-kpi-top"><span class="admin-kpi-label">{{ $label }}</span><span class="admin-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $path }}"/></svg></span></div><strong>{{ $value }}</strong></a>
         @endforeach

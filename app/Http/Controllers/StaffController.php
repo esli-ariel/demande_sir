@@ -20,6 +20,10 @@ class StaffController extends Controller
         $decisions = DemandeValidation::where('user_id', $request->user()->id)->where('role', $role);
         $processed = (clone $decisions)->distinct()->count('demande_id');
         $refused = (clone $decisions)->where('decision', 'refus')->distinct()->count('demande_id');
+        if ($role === 'reception') {
+            $processed = (clone $query)->where('statut','cloturee_receptionnee')->count();
+            $refused = (clone $decisions)->distinct()->count('demande_id');
+        }
         if ($role === 'chef_structure') {
             $processed = (clone $query)->where('statut','cloturee_receptionnee')->count();
             $refused = (clone $query)->whereIn('statut',\App\Support\DmaStatus::GROUPS['refusees'])->count();

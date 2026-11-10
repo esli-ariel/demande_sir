@@ -143,7 +143,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/demandes/{demande}/traiter-agent', [WorkflowController::class, 'traiterAgent'])->name('demandes.traiter_agent');
 
-    Route::post('/demandes/{demande}/cloturer-reception', [WorkflowController::class, 'cloturer'])->name('demandes.cloturer_reception');
+    Route::post('/demandes/{demande}/cloturer-reception', [WorkflowController::class, 'cloturerReception'])->name('demandes.cloturer_reception');
     Route::post('/demandes/{demande}/cloture-demandeur',[WorkflowController::class, 'reception'])->name('demande.cloture.demandeur');
 
 Route::post('/demandes/{demande}/cloture-controle',[WorkflowController::class, 'Cloturer'])->name('demande.cloture.controle');
@@ -166,7 +166,7 @@ Route::get('/dashboard/dts', [DashboardController::class, 'dts'])->name('dashboa
 Route::get('/dashboard/structure', [DashboardController::class, 'structure'])->name('dashboard.structure');
 Route::get('/dashboard/controle', [DashboardController::class, 'controle'])->name('dashboard.controle');
 Route::get('/dashboard/service', [DashboardController::class, 'serviceTechnique'])->middleware(['auth','role:service_technique'])->name('dashboard.service');
-Route::get('/dashboard/reception', [DashboardController::class, 'reception'])->name('dashboard.reception');
+Route::get('/dashboard/reception', [\App\Http\Controllers\StaffController::class, 'dashboard'])->middleware(['auth','role:reception'])->name('dashboard.reception');
 
 
 
@@ -271,3 +271,5 @@ require __DIR__.'/auth.php';
 Route::post('/demandes/{demande}/terminer-travaux', [WorkflowController::class, 'terminerTravaux'])->middleware(['auth','role:service_technique'])->name('travaux.terminer');
 
 Route::get('/dashboard/chef', [\App\Http\Controllers\StaffController::class, 'dashboard'])->middleware(['auth','role:chef_structure'])->name('dashboard.chef');
+
+Route::post('/demandes/{demande}/reception-finale', [WorkflowController::class, 'cloturerReception'])->middleware(['auth','role:reception'])->name('reception.cloturer');

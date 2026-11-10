@@ -7,7 +7,7 @@ Couleurs de référence validées le **2026-11-10** :
 | Vert SIR | `#2E8B57` | Actions principales, carte d’activité, accent de navigation et graphiques |
 | Orange SIR | `#FF8C00` | Actions secondaires importantes, onglet actif, bordures et accents graphiques |
 
-Les variables `--sir-green` et `--sir-orange` de `resources/css/admin.css` sont les références pour l’espace admin. Les noms Tailwind `sir-green` et `sir-orange` utilisent les mêmes valeurs.
+Les variables `--sir-green` et `--sir-orange` de `resources/css/admin.css` sont les références pour tous les espaces. Les noms Tailwind `sir-green` et `sir-orange` utilisent les mêmes valeurs.
 
 ## Lisibilité
 
@@ -21,7 +21,7 @@ Ne pas utiliser de texte blanc de petite taille sur `#FF8C00` ou `#2E8B57` : le 
 
 ## Application
 
-Charte appliquée aux dashboards, à la navbar et aux pages de l’administration et du demandeur. Étendre ces mêmes références aux autres rôles lors de leur refonte.
+Charte appliquée aux dashboards, à la navbar et aux pages de tous les rôles : administration, demandeur, exploitation, DTS, structures spécialisées, contrôle avancé, service technique, chef de structure et réception.
 
 ## Statuts des demandes
 

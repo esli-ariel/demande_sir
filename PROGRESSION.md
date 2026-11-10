@@ -5,11 +5,11 @@ Dernière mise à jour : **2026-11-10**
 ## Où en est-on ?
 
 - Version de travail : **0.1.0-dev**, définie dans [VERSION](VERSION).
-- Phase : refonte des espaces admin et demandeur ; fiabilisation du circuit métier à poursuivre.
+- Phase : espaces de tous les rôles harmonisés ; recette fonctionnelle avant livraison à poursuivre.
 - Base de reprise : commit `b3971f5`, branche `main`.
 - Dépôt récupéré en local et ouvert dans VS Code.
 - Environnement local démarré avec PHP et le serveur MySQL déjà installé, sans Docker. Base existante `bd_demande1` connectée : 28 utilisateurs et 34 demandes au contrôle initial.
-- Page de connexion et fichiers CSS/JS vérifiés (HTTP 200). Toutes les migrations du dépôt sont déjà appliquées. La commande `migrate --seed` a ensuite été exécutée avec succès : `RoleSeeder` et `UserSeeder`, 28 utilisateurs, 34 demandes et 9 rôles après exécution. Le parcours après connexion reste à vérifier.
+- Page de connexion et fichiers CSS/JS vérifiés (HTTP 200). Toutes les migrations du dépôt sont déjà appliquées. La commande `migrate --seed` a ensuite été exécutée avec succès : `RoleSeeder` et `UserSeeder`, 28 utilisateurs, 34 demandes et 9 rôles après exécution. Les espaces de chaque rôle ont ensuite été vérifiés.
 - Dashboard administrateur refondu (DMA-010) : recherche, filtres, pagination, consultation et affichage mobile vérifiés. Après revue : accents orange SIR ajoutés et textes explicatifs secondaires retirés.
 - Modes jour/nuit disponibles dans la navbar admin (DMA-011), préférence mémorisée et rendu mobile vérifié.
 - Autres pages admin harmonisées (DMA-012) : utilisateurs, demandes, fiche DMA, profil et notifications. Douze tests réussis (62 assertions) dans une base isolée.
@@ -25,7 +25,8 @@ Dernière mise à jour : **2026-11-10**
 - Rôle contrôle avancé livré : DMA-017, 33 tests réussis (229 assertions) ; point de contrôle dédié sur `main`.
 - Rôle service technique livré : DMA-018, 34 tests réussis (253 assertions) ; point de contrôle dédié sur `main`.
 - Rôle chef de structure livré : DMA-019, 35 tests réussis (274 assertions) ; point de contrôle dédié sur `main`.
-- Prochaine action : revue manuelle de l’espace demandeur, puis confirmation des fonctionnalités manquantes et du circuit métier attendu.
+- Rôle réception livré : DMA-020, 37 tests réussis (320 assertions) ; point de contrôle dédié sur `main`.
+- Prochaine action : recette métier avec le porteur du projet, identification des parties encore manquantes et nettoyage des routes historiques restantes.
 
 ## État des fonctionnalités
 
@@ -33,12 +34,12 @@ Dernière mise à jour : **2026-11-10**
 
 | Partie | État constaté | Reste à faire |
 | --- | --- | --- |
-| Connexion, utilisateurs et rôles | Présent dans le code, non validé | Vérifier les accès de chaque rôle |
-| Création et modification des demandes | Présent, anomalies repérées | Corriger puis vérifier avec et sans pièces jointes |
-| Circuit de validation | Présent, incohérences repérées | Confirmer les étapes métier et vérifier les transitions |
-| Travaux du service technique | Présent, non validé | Vérifier les dates, les travaux et les statuts |
-| Clôture et réception | Présent, incohérences repérées | Clarifier les acteurs et raccorder les actions |
-| Tableaux de bord et notifications | Dashboard admin refondu et vérifié sur le périmètre DMA-010 ; autres vues non validées | Vérifier les autres dashboards et les notifications |
+| Connexion, utilisateurs et rôles | Espaces et accès couverts par tests isolés | Compléter la recette métier des comptes existants |
+| Création et modification des demandes | Vérifiées avec et sans pièces jointes | Recette utilisateur |
+| Circuit de validation | Transitions et affectations des structures testées | Recette métier et audit des routes anciennes |
+| Travaux du service technique | Début et fin distincts, dates et compte rendu testés | Recette utilisateur |
+| Clôture et réception | Réception clôture définitivement après travaux, contrôle final possible avant réception | Recette métier |
+| Tableaux de bord et notifications | Espaces harmonisés pour les neuf rôles, notifications de suivi vérifiées | Compléter la recette métier |
 | Autres parties manquantes | À préciser | Recueillir les besoins avant de créer les tâches |
 
 ## Étapes vers la première livraison
@@ -48,7 +49,7 @@ Dernière mise à jour : **2026-11-10**
 | Organiser le suivi | DMA-009 | Terminé | Fichiers de suivi créés et liens vérifiés |
 | Définir les parties manquantes | DMA-001 | À préciser | Périmètre et circuit métier confirmés |
 | Démarrer en local | DMA-002 | Terminé | Application accessible et procédure documentée |
-| Corriger et compléter le parcours | DMA-003 à DMA-007 | À faire | Critères de chaque tâche vérifiés |
+| Corriger et compléter le parcours | DMA-003 à DMA-007 | À vérifier | Critères de chaque tâche vérifiés |
 | Valider la première livraison | DMA-008 | À faire | Parcours complet vérifié, anomalies bloquantes corrigées |
 
 Les statuts détaillés et les critères de fin se trouvent dans [SUIVI_PROJET.md](SUIVI_PROJET.md). Mettre ce résumé à jour quand une tâche change l’état d’une étape.
@@ -56,11 +57,11 @@ Les statuts détaillés et les critères de fin se trouvent dans [SUIVI_PROJET.m
 ## Points à clarifier
 
 - Quelles parties ne sont pas encore créées ?
-- Quel est le circuit exact de validation, de refus, de clôture et de réception ?
+- Quelles règles supplémentaires de périmètre métier doivent être appliquées aux équipes ? Chef : visibilité après exploitation ; réception : clôture définitive après travaux, règles confirmées.
 - Quels scénarios doivent être opérationnels pour la première livraison ?
 
 Le périmètre étant encore à préciser, aucun pourcentage global ni date de fin ne sont annoncés.
 
 ## Dernière séance
 
-Refonte du dashboard administrateur (DMA-010). Voir [JOURNAL.md](JOURNAL.md) et [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md).
+Refonte des rôles exploitation à réception (DMA-014 à DMA-020), 37 tests réussis et 320 assertions sur base isolée, avec scénario complet. Voir [JOURNAL.md](JOURNAL.md) et [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md).

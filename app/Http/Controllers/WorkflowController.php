@@ -64,7 +64,7 @@ class WorkflowController extends Controller
             $locked->user?->notify(new \App\Notifications\DemandeStatutChangeNotification($locked, \App\Support\DmaStatus::label($status), $data['commentaire'] ?? null));
         });
 
-        return back()->with('success', $decision === 'accord' ? 'Avis favorable enregistré.' : 'Refus enregistré.');
+        return back()->with('success', $role === 'reception' ? 'DMA clôturée définitivement. Le demandeur a été notifié.' : ($decision === 'accord' ? 'Avis favorable enregistré.' : 'Refus enregistré.'));
     }
 
     // ===================== DTS =====================
@@ -168,40 +168,7 @@ class WorkflowController extends Controller
     // ===================== RÉCEPTION =====================
     public function cloturerReception(Request $request, Demande $demande)
     {
-        Gate::authorize('cloturer', $demande);
-
-        // Visa du demandeur
-        if ($request->filled('visa_demandeur')) {
-            DemandeValidation::create([
-                'demande_id'      => $demande->id,
-                'role'            => 'reception_demandeur',
-                'user_id'         => Auth::id(),
-                'decision'        => 'accord',
-                'visa'            => $request->visa_demandeur,
-                'commentaire'     => $request->commentaire,
-                'date_validation' => now(),
-            ]);
-        }
-
-        // Visa du responsable d’intervention
-        if ($request->filled('visa_responsable')) {
-            DemandeValidation::create([
-                'demande_id'      => $demande->id,
-                'role'            => 'reception_responsable',
-                'user_id'         => Auth::id(),
-                'decision'        => 'accord',
-                'visa'            => $request->visa_responsable,
-                'commentaire'     => $request->commentaire,
-                'date_validation' => now(),
-            ]);
-        }
-
-        // Vérifier si les deux validations réception sont présentes
-        $visas = $demande->validations()->whereIn('role',['reception_demandeur','reception_responsable'])->count();
-        if ($visas >= 2) {
-            $demande->update(['statut' => 'cloturee_receptionnee']);
-        }
-
-        return back()->with('success', 'Réception enregistrée.');
+        return $this->decide($request, $demande, 'receptionner', 'reception', 'accord', 'cloturee_receptionnee');
     }
+    public function reception(Request $request, Demande $demande) { return $this->cloturerReception($request, $demande); }
 }

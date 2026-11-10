@@ -35,10 +35,5 @@ class ValidationController extends Controller
     public function traiter(Request $request, Demande $demande) { return app(WorkflowController::class)->traiterAgent($request, $demande); }
     // Clôture par le service technique
     public function cloturer(Request $request, Demande $demande) { return app(WorkflowController::class)->terminerTravaux($request, $demande); }
-     public function receptionner(Demande $demande)
-    {
-        $demande->update(['statut' => 'cloturee_receptionnee']);
-
-        return back()->with('success', 'Demande clôturée et receptionnée.');
-    }
+     public function receptionner(Request $request, Demande $demande) { return app(WorkflowController::class)->cloturerReception($request, $demande); }
 }

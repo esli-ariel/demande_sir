@@ -379,23 +379,7 @@ public function cloturer(Request $request, Demande $demande)
 ////////////////////////////////////////////////////////////
 public function indexServiceTechnique() { return app(StaffController::class)->index(request()); }
 
-public function traiter(Request $request, Demande $demande)
-{
-    $request->validate([
-        'date_debut' => 'required|date',
-        'date_fin' => 'required|date|after_or_equal:date_debut',
-        'travaux_realises' => 'required|string',
-    ]);
-
-    $demande->update([
-        'date_debut' => $request->date_debut,
-        'date_fin' => $request->date_fin,
-        'travaux_realises' => $request->travaux_realises,
-        'statut' => 'terminee_agent',
-    ]);
-
-    return back()->with('success', 'modification effectuée et enregistrer .');
-}
+public function traiter(Request $request, Demande $demande) { return app(WorkflowController::class)->terminerTravaux($request, $demande); }
 
 public function indexReception()
 {

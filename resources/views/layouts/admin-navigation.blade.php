@@ -1,6 +1,8 @@
 @php($staffSpace = \App\Support\StaffWorkspace::role(auth()->user()))
 @php($staffLabel = $staffSpace ? \App\Support\StaffWorkspace::ROLES[$staffSpace]['label'] : null)
 @php($staffReadonly = $staffSpace && (\App\Support\StaffWorkspace::ROLES[$staffSpace]['readonly'] ?? false))
+@php($staffTaskLabel = $staffReadonly ? 'Dossiers en cours' : ($staffSpace === 'reception' ? 'À clôturer' : 'À traiter'))
+@php($staffHistoryLabel = $staffReadonly ? 'Historique' : match($staffSpace) {'reception'=>'Mes clôtures', 'service_technique'=>'Mes interventions', default=>'Mes décisions'})
 @php($demandeurSpace = auth()->user()->hasRole('demandeur') && !auth()->user()->hasRole('admin'))
 <nav class="admin-nav" aria-label="{{ $demandeurSpace ? 'Navigation demandeur' : ($staffSpace ? 'Navigation '.$staffLabel : 'Navigation administration') }}" x-data="adminNavigation" @keydown.escape.window="open = false">
     <div class="admin-nav-inner">
@@ -11,8 +13,8 @@
         <div class="admin-nav-links">
             @if($staffSpace)
                 <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.*')])>Tableau de bord</a>
-                <a href="{{ route('staff.demandes') }}" @class(['is-active' => request()->routeIs('staff.demandes', 'demandes.*') && request('vue') !== 'mes_decisions'])>{{ $staffReadonly ? 'Dossiers en cours' : 'À traiter' }}</a>
-                <a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}" @class(['is-active' => request('vue') === 'mes_decisions'])>{{ $staffReadonly ? 'Historique' : 'Mes décisions' }}</a>
+                <a href="{{ route('staff.demandes') }}" @class(['is-active' => request()->routeIs('staff.demandes', 'demandes.*') && request('vue') !== 'mes_decisions'])>{{ $staffTaskLabel }}</a>
+                <a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}" @class(['is-active' => request('vue') === 'mes_decisions'])>{{ $staffHistoryLabel }}</a>
             @elseif($demandeurSpace)
                 <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.demandeur')])>Mon tableau de bord</a>
                 <a href="{{ route('demandes.index') }}" @class(['is-active' => request()->routeIs('demandes.*')])>Mes demandes</a>
@@ -39,8 +41,8 @@
     </div>
     <div class="admin-mobile-menu" id="admin-mobile-menu" x-show="open" x-cloak>
         <a href="{{ route('dashboard') }}">{{ $demandeurSpace ? 'Mon tableau de bord' : ($staffSpace ? 'Tableau de bord' : 'Vue d’ensemble') }}</a>
-        <a href="{{ $staffSpace ? route('staff.demandes') : route('demandes.index') }}">{{ $demandeurSpace ? 'Mes demandes' : ($staffSpace ? ($staffReadonly ? 'Dossiers en cours' : 'À traiter') : 'Demandes') }}</a>
-        @if($staffSpace)<a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}">{{ $staffReadonly ? 'Historique' : 'Mes décisions' }}</a>@elseif($demandeurSpace)<a href="{{ route('demandeur.receptions') }}">Réceptions</a>@else<a href="{{ route('users.index') }}">Utilisateurs</a>@endif
+        <a href="{{ $staffSpace ? route('staff.demandes') : route('demandes.index') }}">{{ $demandeurSpace ? 'Mes demandes' : ($staffSpace ? ($staffTaskLabel) : 'Demandes') }}</a>
+        @if($staffSpace)<a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}">{{ $staffHistoryLabel }}</a>@elseif($demandeurSpace)<a href="{{ route('demandeur.receptions') }}">Réceptions</a>@else<a href="{{ route('users.index') }}">Utilisateurs</a>@endif
         <a href="{{ route('notifications.index') }}">Notifications</a>
         <a href="{{ route('profile.edit') }}">Mon profil</a>
         <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Déconnexion</button></form>

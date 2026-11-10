@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Demande;
-use App\Models\DemandeValidation;
 use App\Support\DmaStatus;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class DemandeurController extends Controller
 {
@@ -16,7 +14,7 @@ class DemandeurController extends Controller
         $query = $request->user()->demandes();
         $summary = DmaStatus::summary((clone $query)->selectRaw('statut, COUNT(*) as total')->groupBy('statut')->pluck('total', 'statut')->all());
         $total = array_sum($summary);
-        $receipts = (int) ((clone $query)->where('statut', 'cloturee')->count());
+        $receipts = (int) ((clone $query)->whereIn('statut', ['terminee_agent','cloturee'])->count());
         $active = $summary['validation'] + $summary['travaux'] + $summary['reception'];
         $demandes = (clone $query)->latest()->orderByDesc('id')->take(5)->get();
 
@@ -41,30 +39,11 @@ class DemandeurController extends Controller
     public function receptions(Request $request)
     {
         abort_unless($request->user()?->hasRole('demandeur'), 403);
-        $demandes = $request->user()->demandes()->where('statut', 'cloturee')->latest()->paginate(10);
+        $demandes = $request->user()->demandes()->whereIn('statut', ['terminee_agent','cloturee'])->latest()->paginate(10);
 
         return view('demandeur.receptions', compact('demandes'));
     }
 
-    public function receptionner(Request $request, Demande $demande)
-    {
-        $validated = $request->validate(['visa_demandeur' => 'required|string|max:255', 'commentaire' => 'nullable|string|max:5000']);
-        DB::transaction(function () use ($demande, $validated) {
-            $locked = Demande::lockForUpdate()->findOrFail($demande->id);
-            $this->authorizeReception($locked);
-            DemandeValidation::create([
-                'demande_id' => $locked->id, 'user_id' => auth()->id(), 'role' => 'reception_demandeur',
-                'decision' => 'accord', 'visa' => $validated['visa_demandeur'],
-                'commentaire' => $validated['commentaire'] ?? null, 'date_validation' => now(),
-            ]);
-            $locked->update(['statut' => 'cloturee_receptionnee']);
-        });
+    public function receptionner(Request $request, Demande $demande) { abort(403, 'La clôture définitive relève du rôle réception.'); }
 
-        return redirect()->route('demandes.show', $demande)->with('success', 'Réception confirmée. La demande est clôturée et réceptionnée.');
-    }
-
-    private function authorizeReception(Demande $demande): void
-    {
-        \Illuminate\Support\Facades\Gate::authorize('receptionner', $demande);
-    }
 }

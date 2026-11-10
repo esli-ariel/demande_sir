@@ -54,7 +54,7 @@ final class DmaStatus
             'validee_structure_specialisee' => 'Avis contrôle avancé attendu',
             'validee_controle_avancee' => 'Prise en charge technique attendue',
             'en_cours_traitement' => 'Travaux en cours',
-            'terminee_agent' => 'Travaux terminés · clôture attendue',
+            'terminee_agent' => 'Travaux terminés · réception attendue',
             'cloturee' => 'Réception attendue',
             'cloturee_receptionnee' => 'Clôturée et réceptionnée',
             'refusee_exploitation' => 'Refusée par l’exploitation',

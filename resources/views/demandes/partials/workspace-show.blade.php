@@ -10,9 +10,7 @@
         @can('submit', $demande)
         <section class="admin-panel requester-next-action"><div class="admin-panel-heading"><h2>Mon brouillon</h2></div><div class="requester-action-buttons"><a class="admin-button admin-button-secondary" href="{{ route('demandes.edit', $demande) }}">Reprendre le brouillon</a><form method="POST" action="{{ route('demandes.submit', $demande) }}" onsubmit="return confirm('Envoyer cette demande à l’exploitation ? Vous ne pourrez plus modifier ce dossier après l’envoi.');">@csrf<button class="admin-button admin-button-orange">Envoyer la demande</button></form><form method="POST" action="{{ route('demandes.destroy', $demande) }}" onsubmit="return confirm('Supprimer définitivement ce brouillon ?');">@csrf @method('DELETE')<button class="admin-text-danger">Supprimer le brouillon</button></form></div></section>
         @endcan
-        @can('receptionner', $demande)
-        <section class="admin-panel requester-next-action"><div class="admin-panel-heading"><h2>Confirmer la réception</h2></div><form class="admin-form" method="POST" action="{{ route('demandes.receptionner', $demande) }}" onsubmit="return confirm('Confirmer la réception des travaux et terminer cette demande ?');">@csrf<div class="admin-form-grid"><div><label for="receipt-visa">Votre visa</label><input id="receipt-visa" name="visa_demandeur" value="{{ old('visa_demandeur', auth()->user()->prenom.' '.auth()->user()->name) }}" maxlength="255" required></div><div><label for="receipt-comment">Commentaire</label><textarea id="receipt-comment" name="commentaire" maxlength="5000" rows="2">{{ old('commentaire') }}</textarea></div></div><div class="admin-form-actions"><button class="admin-button admin-button-orange">Confirmer la réception</button></div></form></section>
-        @endcan
+
     @endif
     <div class="admin-detail-grid">
         <div class="admin-detail-main">
