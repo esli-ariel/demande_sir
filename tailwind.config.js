@@ -16,8 +16,8 @@ export default {
             },
             colors: {
                 // Vos couleurs personnalisées basées sur le logo SIR
-                'sir-green': '#2e8b57',
-                'sir-orange': '#ff8c00',
+                'sir-green': '#2E8B57',
+                'sir-orange': '#FF8C00',
             },
         },
 

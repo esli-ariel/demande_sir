@@ -4,78 +4,84 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')->get();
-        return view('admin.index', compact('users'));
+        $filters = $request->validate(['q' => 'nullable|string|max:150', 'role' => ['nullable', Rule::exists('roles', 'name')->where('guard_name', 'web')]]);
+        $search = trim($filters['q'] ?? '');
+        $selectedRole = $filters['role'] ?? '';
+        $users = User::with('roles')
+            ->when($search !== '', fn ($query) => $query->where(fn ($q) => $q->where('name', 'like', '%'.$search.'%')->orWhere('prenom', 'like', '%'.$search.'%')->orWhere('email', 'like', '%'.$search.'%')))
+            ->when($selectedRole !== '', fn ($query) => $query->role($selectedRole))
+            ->orderBy('name')->orderBy('id')->paginate(10)->withQueryString();
+        $roles = Role::where('guard_name', 'web')->orderBy('name')->get();
+        $totalUsers = User::count();
+
+        return view('admin.index', compact('users', 'roles', 'search', 'selectedRole', 'totalUsers'));
     }
 
     public function create()
     {
-        $roles = Role::all();
-        return view('admin.create', compact('roles'));
-    
-        
+        return view('admin.create', ['roles' => Role::where('guard_name', 'web')->orderBy('name')->get()]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-            'role' => 'required|in:demandeur',
-        ]);
+        $validated = $request->validate($this->rules());
+        DB::transaction(function () use ($validated) {
+            $user = User::create(collect($validated)->only(['name', 'prenom', 'email', 'password'])->all());
+            $user->assignRole($validated['role']);
+        });
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'prenom' => $validated['prenom'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-        ]);
-        $user->assignRole($validated['role']);
-
-         // 🧠 Si c’est un admin connecté → il crée un user avec un rôle choisi
-        return redirect()->route('admin.index')
-                        ->with('success', 'Utilisateur créé avec succès.');
-
+        return redirect()->route('users.index')->with('success', 'Utilisateur créé avec succès.');
     }
 
     public function edit(User $user)
     {
-        $roles = Role::all();
-        return view('admin.edit', compact('user', 'roles'));
+        return view('admin.edit', ['user' => $user, 'roles' => Role::where('guard_name', 'web')->orderBy('name')->get()]);
     }
 
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required',
-        ]);
+        $validated = $request->validate($this->rules($user));
+        if ($request->user()->is($user) && $validated['role'] !== 'admin') {
+            return back()->withErrors(['role' => 'Conservez votre rôle administrateur pour garder accès à cet espace.'])->withInput();
+        }
+        DB::transaction(function () use ($validated, $user) {
+            $user->update(collect($validated)->only(['name', 'prenom', 'email'])->all());
+            $user->syncRoles([$validated['role']]);
+        });
 
-        $user->update([
-            'name' => $validated['name'],
-            'prenom' => $validated['prenom'],
-            'email' => $validated['email'],
-        ]);
-
-        $user->syncRoles([$validated['role']]);
-
-        return redirect()->route('admin.index')->with('success', 'Utilisateur mis à jour.');
+        return redirect()->route('users.index')->with('success', 'Utilisateur mis à jour.');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
+        if ($request->user()->is($user)) {
+            return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte depuis cette liste.');
+        }
         $user->delete();
-        return redirect()->route('admin.index')->with('success', 'Utilisateur supprimé.');
+
+        return redirect()->route('users.index')->with('success', 'Utilisateur supprimé.');
+    }
+
+    private function rules(?User $user = null): array
+    {
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'prenom' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user?->id)],
+            'role' => ['required', Rule::exists('roles', 'name')->where('guard_name', 'web')],
+        ];
+        if (! $user) {
+            $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
+        }
+
+        return $rules;
     }
 }

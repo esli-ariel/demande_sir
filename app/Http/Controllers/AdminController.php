@@ -2,68 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Demande;
 use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use App\Support\DmaStatus;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
-    //
-    public function index()
+    public function index(Request $request)
     {
-           // ⚠️ Sécurité : éviter erreurs si pas encore de données
-        $user = auth()->user();
+        abort_unless($request->user()?->hasRole('admin'), 403);
 
-    // Statistiques principales
-    $totalDemandes = \App\Models\Demande::count();
-    $demandesValidees = \App\Models\Demande::where('statut', 'cloturee_receptionnee')->count();
-    $demandesRefusees = \App\Models\Demande::wherein('statut', ['refusee','refusee_exploitation','refusee_dts','refusee_structure_specialisee','refusee_controle_avancee','terminee_agent'])->count();
-    $demandesAttente = \App\Models\Demande::wherein('statut', ['en_attente','soumise','validee_exploitation','validee_dts','validee_structure_specialisee','validee_controle_avancee'])->count();
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:150'],
+            'etat' => ['nullable', Rule::in(array_keys(DmaStatus::GROUP_LABELS))],
+        ]);
+        $search = trim($filters['q'] ?? '');
+        $category = $filters['etat'] ?? '';
+        $statusCounts = Demande::query()->selectRaw('statut, COUNT(*) as total')->groupBy('statut')->pluck('total', 'statut')->all();
+        $summary = DmaStatus::summary($statusCounts);
+        $total = array_sum($summary);
+        $active = $summary['validation'] + $summary['travaux'] + $summary['reception'];
 
-    // Statistiques utilisateurs
-    $admins = \App\Models\User::role('admin')->count();
-    $responsables = \App\Models\User::role('exploitant')->count();
-    $demandeurs = \App\Models\User::role('demandeur')->count();
-    $agents = \App\Models\User::role('structure_specialisee')->count();
+        $query = Demande::with('user');
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query->where('numero_dma', 'like', '%'.$search.'%')
+                    ->orWhere('objet_modif', 'like', '%'.$search.'%')
+                    ->orWhere('nom', 'like', '%'.$search.'%')
+                    ->orWhereHas('user', fn ($users) => $users->where('name', 'like', '%'.$search.'%')->orWhere('prenom', 'like', '%'.$search.'%'));
+            });
+        }
+        if ($category === 'autres') {
+            $query->whereNotIn('statut', array_merge(...array_values(DmaStatus::GROUPS)));
+        } elseif ($category !== '') {
+            $query->whereIn('statut', DmaStatus::GROUPS[$category]);
+        }
+        $demandes = $query->latest()->orderByDesc('id')->paginate(8)->withQueryString();
 
-    // 🔥 Nouvelle section : évolution mensuelle
-    $evolutionMensuelle = \App\Models\Demande::select(
-            DB::raw('MONTH(created_at) as mois'),
-            DB::raw('COUNT(*) as total')
-        )
-        ->whereYear('created_at', Carbon::now()->year)
-        ->groupBy('mois')
-        ->orderBy('mois')
-        ->get();
+        $year = now()->year;
+        $monthly = Demande::query()->whereYear('created_at', $year)
+            ->selectRaw('MONTH(created_at) as mois, COUNT(*) as total')->groupBy('mois')->pluck('total', 'mois');
+        $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+        $monthlyCounts = collect(range(1, 12))->map(fn ($month) => (int) ($monthly[$month] ?? 0));
+        $usersCount = User::count();
 
-    // Préparer les données pour Chart.js
-    $labels = [];
-    $data = [];
-
-    // Générer les mois de Janvier à Décembre
-    for ($m = 1; $m <= 12; $m++) {
-        $labels[] = Carbon::create()->month($m)->translatedFormat('M'); // ex: Jan, Fév, Mar
-        $count = $evolutionMensuelle->firstWhere('mois', $m)->total ?? 0;
-        $data[] = $count;
-    }
-
-    // Récupérer toutes les demandes
-    $demandes = \App\Models\Demande::with('user')->latest()->take(10)->get();
-
-    return view('dashboards.admin', compact(
-        'totalDemandes',
-        'demandesValidees',
-        'demandesRefusees',
-        'demandesAttente',
-        'admins',
-        'responsables',
-        'demandeurs',
-        'agents',
-        'demandes',
-        'labels',
-        'data'
-    ));
+        return view('dashboards.admin', compact('summary', 'total', 'active', 'demandes', 'search', 'category', 'year', 'months', 'monthlyCounts', 'usersCount'));
     }
 }

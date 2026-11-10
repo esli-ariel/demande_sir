@@ -1,3 +1,6 @@
+@if(auth()->user()?->hasRole('admin'))
+    @include('layouts.admin-navigation')
+@else
 <nav x-data="{ open: false, time: '' }" 
      x-init="setInterval(() => time = new Date().toLocaleTimeString(), 1000)" 
      class="fixed top-0 left-0 z-50 w-full shadow-md bg-gradient-to-r from-green-600 via-green-500 to-orange-400">
@@ -227,3 +230,5 @@ document.getElementById('notifButton').onclick = () => {
         </div>
     </div>
 </nav>
+
+@endif

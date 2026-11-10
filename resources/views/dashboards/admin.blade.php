@@ -1,195 +1,50 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-green-800">
-            {{ __('Tableau de bord - Administration') }}
-        </h2>
-    </x-slot>
+    <div class="admin-dashboard">
+        <header class="admin-page-heading">
+            <div><h1>Tableau de bord administrateur</h1></div>
+            <a class="admin-button admin-button-orange" href="{{ route('users.index') }}">Gérer les utilisateurs <span aria-hidden="true">↗</span></a>
+        </header>
 
-    <div class="relative min-h-screen overflow-hidden bg-gray-100">
-        {{-- Filigrane --}}
-        <div class="absolute inset-0 z-0 opacity-10"
-             style="background-image: url('{{ asset('images/Raffinerie-SIR.jpeg') }}');
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    background-size: cover;">
+        <div class="admin-section-caption"><h2>Activité des demandes</h2><span>Toutes périodes · {{ number_format($total, 0, ',', ' ') }} demandes</span></div>
+        <div class="admin-kpis">
+            <a class="admin-kpi" href="{{ route('dashboard') }}#demandes"><div class="admin-kpi-top"><span class="admin-kpi-label">Total des demandes</span><span class="admin-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H6V3h1Zm7 0v5h5M9 12h6M9 16h6"/></svg></span></div><strong>{{ $total }}</strong></a>
+            <a class="admin-kpi admin-kpi-accent" href="#repartition"><div class="admin-kpi-top"><span class="admin-kpi-label">Dans le circuit</span><span class="admin-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg></span></div><strong>{{ $active }}</strong></a>
+            <a class="admin-kpi" href="{{ route('dashboard', ['etat' => 'cloturees']) }}#demandes"><div class="admin-kpi-top"><span class="admin-kpi-label">Clôturées et réceptionnées</span><span class="admin-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m7 12 3 3 7-7M20 12a8 8 0 1 1-8-8"/></svg></span></div><strong>{{ $summary['cloturees'] }}</strong></a>
+            <a class="admin-kpi" href="{{ route('dashboard', ['etat' => 'refusees']) }}#demandes"><div class="admin-kpi-top"><span class="admin-kpi-label">Demandes refusées</span><span class="admin-kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 9 6 6m0-6-6 6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg></span></div><strong>{{ $summary['refusees'] }}</strong></a>
         </div>
 
-        {{-- Contenu principal --}}
-        <div class="relative z-10 py-10">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="p-6 bg-white rounded-lg shadow-xl">
-
-                    {{-- SECTION 1 : STATISTIQUES GÉNÉRALES --}}
-                    <h3 class="pb-2 mb-6 text-lg font-bold text-gray-800 border-b">
-                        📈 Statistiques générales des demandes
-                    </h3>
-
-                    <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
-                        <x-stat-card color="green" label="Total" :value="$totalDemandes ?? 0" icon="📄" />
-                        <x-stat-card color="blue" label="Validées" :value="$demandesValidees ?? 0" icon="✅" />
-                        <x-stat-card color="red" label="Refusées" :value="$demandesRefusees ?? 0" icon="❌" />
-                        <x-stat-card color="yellow" label="En attente" :value="$demandesAttente ?? 0" icon="⏳" />
-                    </div>
-
-                    {{-- GRAPHIQUES PRINCIPAUX --}}
-                    <div class="grid grid-cols-1 gap-8 mt-10 md:grid-cols-2">
-                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
-                            <h4 class="mb-2 font-semibold text-center text-gray-700">Répartition des demandes</h4>
-                            <canvas id="chartDemandes"></canvas>
-                        </div>
-
-                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
-                            <h4 class="mb-2 font-semibold text-center text-gray-700">Évolution mensuelle</h4>
-                            <canvas id="chartEvolution"></canvas>
-                        </div>
-                    </div>
-
-                    {{-- SECTION 2 : STATISTIQUES UTILISATEURS --}}
-                    <h3 class="pb-2 mt-12 mb-6 text-lg font-bold text-gray-800 border-b">
-                        👥 Statistiques sur les utilisateurs
-                    </h3>
-
-                    <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
-                        <x-stat-card color="indigo" label="Administrateurs" :value="$admins ?? 0" icon="🛠️" />
-                        <x-stat-card color="teal" label="Responsables" :value="$responsables ?? 0" icon="📋" />
-                        <x-stat-card color="pink" label="Demandeurs" :value="$demandeurs ?? 0" icon="🙋‍♂️" />
-                        <x-stat-card color="blue" label="Agents" :value="$agents ?? 0" icon="👷" />
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-8 mt-10 md:grid-cols-2">
-                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
-                            <h4 class="mb-2 font-semibold text-center text-gray-700">Répartition des utilisateurs</h4>
-                            <canvas id="chartUsers"></canvas>
-                        </div>
-
-                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
-                            <h4 class="mb-2 font-semibold text-center text-gray-700">Taux de validation (%)</h4>
-                            <canvas id="chartTaux"></canvas>
-                        </div>
-                    </div>
-
-                    {{-- TABLE DES DEMANDES --}}
-                    <div class="mt-12">
-                        <h3 class="mb-4 text-lg font-bold">📋 Liste récente des demandes</h3>
-                        <div class="overflow-x-auto rounded-lg shadow bg-gray-50">
-                            <table class="w-full border-collapse">
-                                <thead class="text-white bg-green-700">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left">#</th>
-                                        <th class="px-4 py-2 text-left">Demandeur</th>
-                                        <th class="px-4 py-2 text-left">Objet</th>
-                                        <th class="px-4 py-2 text-left">Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($demandes as $demande)
-                                        <tr class="border-b hover:bg-gray-100">
-                                            <td class="px-4 py-2">{{ $demande->id }}</td>
-                                            <td class="px-4 py-2">{{ $demande->user->name }}</td>
-                                            <td class="px-4 py-2">{{ $demande->objet_modif }}</td>
-                                            <td class="px-4 py-2">
-                                                <span class="{{ $demande->getStatutBadgeClass() }}">
-                                                    {{ ucfirst(str_replace('_', ' ', $demande->statut)) }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
+        <section class="admin-panel admin-requests" id="demandes" aria-labelledby="requests-title">
+            <div class="admin-panel-heading"><div><h2 id="requests-title">Les demandes</h2></div><span class="admin-count">{{ $demandes->total() }} résultat{{ $demandes->total() > 1 ? 's' : '' }}</span></div>
+            <form class="admin-filters" method="GET" action="{{ url()->current() }}#demandes">
+                <div class="admin-search"><label for="admin-search">Rechercher une demande</label><input id="admin-search" name="q" value="{{ $search }}" maxlength="150" placeholder="N° DMA, objet ou demandeur…" type="search"></div>
+                <div><label for="admin-category">Étape du circuit</label><select id="admin-category" name="etat"><option value="">Toutes les étapes</option>@foreach(\App\Support\DmaStatus::GROUP_LABELS as $key => $label)<option value="{{ $key }}" @selected($category === $key)>{{ $label }}</option>@endforeach</select></div>
+                <button class="admin-button admin-button-primary" type="submit">Filtrer</button>
+                @if($search !== '' || $category !== '')<a class="admin-reset" href="{{ url()->current() }}#demandes">Réinitialiser</a>@endif
+            </form>
+            <div class="admin-table-wrap">
+                <table class="admin-table"><caption class="sr-only">Demandes DMA, de la plus récente à la plus ancienne</caption><thead><tr><th scope="col">Dossier / objet</th><th scope="col">Demandeur</th><th scope="col">Étape actuelle</th><th scope="col">Créée le</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead><tbody>
+                @forelse($demandes as $demande)
+                    <tr><td data-label="Dossier"><span class="admin-reference">{{ $demande->numero_dma ?: 'Dossier #'.$demande->id }}</span><a class="admin-request-title" href="{{ route('demandes.show', $demande) }}">{{ $demande->objet_modif ?: 'Objet non renseigné' }}</a></td><td data-label="Demandeur">{{ $demande->user?->name ?? $demande->nom ?? 'Non renseigné' }}</td><td data-label="Étape"><span class="admin-badge admin-badge-{{ \App\Support\DmaStatus::group($demande->statut) }}">{{ \App\Support\DmaStatus::label($demande->statut) }}</span></td><td data-label="Créée le"><time datetime="{{ $demande->created_at?->toDateString() }}">{{ $demande->created_at?->format('d/m/Y') ?? '—' }}</time></td><td class="admin-row-action"><a href="{{ route('demandes.show', $demande) }}" aria-label="Consulter le dossier {{ $demande->numero_dma ?: '#'.$demande->id }}">Consulter <span aria-hidden="true">↗</span></a></td></tr>
+                @empty
+                    <tr><td colspan="5"><div class="admin-empty"><strong>{{ $search !== '' || $category !== '' ? 'Aucune demande ne correspond à ces filtres.' : 'Aucune demande pour le moment.' }}</strong><p>{{ $search !== '' || $category !== '' ? 'Essayez un autre mot-clé ou une autre étape.' : 'Les demandes apparaîtront ici dès leur création.' }}</p></div></td></tr>
+                @endforelse
+                </tbody></table>
             </div>
+            <div class="admin-pagination">{{ $demandes->fragment('demandes')->links('pagination.admin') }}</div>
+        </section>
+
+        <div class="admin-insights">
+            <section class="admin-panel" id="repartition" aria-labelledby="distribution-title"><div class="admin-panel-heading"><div><h2 id="distribution-title">Où en sont les demandes ?</h2></div></div><div class="admin-distribution">
+                @foreach(\App\Support\DmaStatus::GROUP_LABELS as $key => $label)
+                    @if($key !== 'autres' || $summary[$key] > 0)
+                    <a href="{{ route('dashboard', ['etat' => $key]) }}#demandes" class="admin-distribution-row"><div><span>{{ $label }}</span><strong>{{ $summary[$key] }}</strong></div><div class="admin-track" aria-hidden="true"><span class="admin-bar-{{ $key }}" style="width: {{ $total > 0 ? $summary[$key] / $total * 100 : 0 }}%"></span></div></a>
+                    @endif
+                @endforeach
+            </div></section>
+            <section class="admin-panel" aria-labelledby="monthly-title"><div class="admin-panel-heading"><div><h2 id="monthly-title">Demandes créées en {{ $year }}</h2></div></div><div class="admin-monthly" role="img" aria-label="Demandes créées en {{ $year }} : {{ collect($months)->map(fn ($month, $index) => $month.' '.$monthlyCounts[$index])->join(', ') }}">
+                @foreach($months as $index => $month)<div class="admin-month"><span class="admin-month-value">{{ $monthlyCounts[$index] }}</span><div class="admin-month-track"><div class="admin-month-fill" style="height: {{ $monthlyCounts->max() > 0 ? $monthlyCounts[$index] / $monthlyCounts->max() * 100 : 0 }}%"></div></div><span>{{ $month }}</span></div>@endforeach
+            </div></section>
         </div>
+        <footer class="admin-summary-footer"><span><strong>{{ $usersCount }}</strong> utilisateurs enregistrés</span><a href="{{ route('users.index') }}">Consulter les utilisateurs <span aria-hidden="true">→</span></a></footer>
     </div>
-
-    {{-- Chart.js --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Données principales
-        const valides = {{ $demandesValidees ?? 0 }};
-        const refusees = {{ $demandesRefusees ?? 0 }};
-        const attente = {{ $demandesAttente ?? 0 }};
-        const total = {{ $totalDemandes ?? 1 }};
-        const tauxValidation = ((valides / total) * 100).toFixed(1);
-        const tauxRefus = ((refusees / total) * 100).toFixed(1);
-        const evolutionLabels = {!! json_encode($labels) !!};
-        const evolutionData = {!! json_encode($data) !!};
-        
-        // Diagramme des demandes
-        new Chart(document.getElementById('chartDemandes'), {
-            type: 'doughnut',
-            data: {     
-                    labels: ['Validées', 'Refusées', 'En attente'],
-                datasets:       [{
-                    data: [valides, refusees, attente],
-                    backgroundColor: ['#22c55e', '#ef4444', '#facc15']
-                    }]
-                },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-        });
-
-        // Évolution mensuelle (exemple statique à remplacer par des vraies données)
-
-    
-
-    new Chart(document.getElementById('chartEvolution'), {
-        type: 'line',
-        data: {
-            labels: evolutionLabels,
-            datasets: [{
-                label: 'Demandes créées',
-                data: evolutionData,
-                borderColor: '#16a34a',
-                backgroundColor: '#bbf7d0',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            scales: { y: { beginAtZero: true } },
-            plugins: { legend: { display: false } }
-        }
-    });
-
-
-
-        // Diagramme des utilisateurs
-        new Chart(document.getElementById('chartUsers'), {
-        type: 'pie',
-                data: {
-                labels: ['Admins', 'Responsables', 'Demandeurs', 'Agents'],
-                datasets: [{
-                    data: [{{ $admins ?? 0 }}, {{ $responsables ?? 0 }}, {{ $demandeurs ?? 0 }}, {{ $agents ?? 0 }}],
-                    backgroundColor: ['#4f46e5', '#0d9488', '#db2777', '#06b6d4']
-                    }]
-            },
-            options: { plugins: { legend: { position: 'bottom' } } }
-        });
-
-        // Taux de validation
-        new Chart(document.getElementById('chartTaux'), {
-            type: 'bar',
-            data: {
-                labels: ['Taux de validation', 'Taux de refus'],
-                datasets: [{
-                    data: [tauxValidation, tauxRefus],
-                    backgroundColor: ['#16a34a', '#dc2626']
-                }]
-            },
-            options: {
-                scales: { y: { beginAtZero: true, max: 100 } },
-                plugins: { legend: { display: false } }
-            }
-        });
-    </script>
-
-    {{-- Composant carte statistique --}}
-    @once
-        @push('components')
-            @component('components.stat-card')
-            @endcomponent
-        @endpush
-    @endonce
 </x-app-layout>

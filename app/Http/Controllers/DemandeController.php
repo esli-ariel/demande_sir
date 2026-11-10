@@ -25,6 +25,19 @@ class DemandeController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->user()->hasRole('admin')) {
+            $filters = $request->validate(['search' => 'nullable|string|max:150', 'statut' => 'nullable|string|max:100']);
+            $search = trim($filters['search'] ?? '');
+            $status = $filters['statut'] ?? '';
+            $statuses = Demande::query()->distinct()->orderBy('statut')->pluck('statut');
+            $demandes = Demande::with('user')
+                ->when($search !== '', fn ($query) => $query->where(fn ($q) => $q->where('numero_dma', 'like', '%'.$search.'%')->orWhere('objet_modif', 'like', '%'.$search.'%')->orWhere('nom', 'like', '%'.$search.'%')))
+                ->when($status !== '', fn ($query) => $query->where('statut', $status))
+                ->latest()->orderByDesc('id')->paginate(10)->withQueryString();
+
+            return view('admin.demandes.index', compact('demandes', 'search', 'status', 'statuses'));
+        }
+
         //
 
         $query = Demande::query();
@@ -70,6 +83,9 @@ class DemandeController extends Controller
      */
     public function create()
     {
+        if (auth()->user()->hasRole('admin')) {
+            return view('admin.demandes.form', ['structures' => StructureSpecialisee::orderBy('nom')->get()]);
+        }
         //
         // On récupère uniquement les utilisateurs ayant le rôle 'structure_specialisee'
     $structures = User::role('structure_specialisee')->get();
@@ -83,6 +99,12 @@ class DemandeController extends Controller
      */
     public function store(Request $request)
 {
+    if ($request->user()->hasRole('admin')) {
+        $request->validate([
+            'structures_specialisees' => 'nullable|array',
+            'structures_specialisees.*' => 'integer|distinct|exists:structure_specialisees,id',
+        ]);
+    }
     $validated = $request->validate([
         'structure'            => 'required|string|max:255',
         'unite_concernee'      => 'required|string|max:255',
@@ -120,10 +142,11 @@ class DemandeController extends Controller
                 'uploaded_by' => Auth::id(),
             ]);
             
+        }
+    }
+
     return redirect()->route('demandes.index')
         ->with('success', 'Demande créée avec succès.');
-}
-    }
 }
     /**
      * Display the specified resource.
@@ -132,6 +155,10 @@ class DemandeController extends Controller
     {
         //
         $this->authorize('view', $demande);
+        if (auth()->user()->hasRole('admin')) {
+            $decisions = \App\Models\DemandeValidation::with('user')->where('demande_id', $demande->id)->orderByDesc('date_validation')->orderByDesc('id')->get();
+            return view('admin.demandes.show', compact('demande', 'decisions'));
+        }
         return view('demandes.show', compact('demande'));
     }
 
@@ -142,6 +169,10 @@ class DemandeController extends Controller
     {
         //
         $this->authorize('view', $demande);
+        if (auth()->user()->hasRole('admin')) {
+            $this->authorize('update', $demande);
+            return view('admin.demandes.form', compact('demande'));
+        }
         return view('demandes.edit', compact('demande'));
     }
 

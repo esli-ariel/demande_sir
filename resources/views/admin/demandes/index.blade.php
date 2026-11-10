@@ -1,0 +1,14 @@
+<x-app-layout>
+<div class="admin-dashboard">
+    <header class="admin-page-heading"><h1>Demandes DMA</h1><a class="admin-button admin-button-orange" href="{{ route('demandes.create') }}">Nouvelle demande ＋</a></header>
+    <section class="admin-panel">
+        <div class="admin-panel-heading"><h2>Tous les dossiers</h2><span class="admin-count">{{ $demandes->total() }} résultats</span></div>
+        <form class="admin-filters" method="GET" action="{{ route('demandes.index') }}"><div class="admin-search"><label for="dma-search">Rechercher</label><input id="dma-search" name="search" type="search" value="{{ $search }}" maxlength="150" placeholder="N° DMA, objet ou demandeur"></div><div><label for="dma-status">Statut</label><select id="dma-status" name="statut"><option value="">Tous les statuts</option>@foreach($statuses as $value)<option value="{{ $value }}" @selected($status === $value)>{{ \App\Support\DmaStatus::label($value) }}</option>@endforeach</select></div><button class="admin-button admin-button-primary">Filtrer</button>@if($search || $status)<a class="admin-reset" href="{{ route('demandes.index') }}">Réinitialiser</a>@endif</form>
+        <div class="admin-table-wrap"><table class="admin-table"><caption class="sr-only">Toutes les demandes DMA</caption><thead><tr><th scope="col">Dossier / objet</th><th scope="col">Demandeur</th><th scope="col">Étape actuelle</th><th scope="col">Actions</th></tr></thead><tbody>
+        @forelse($demandes as $demande)
+        <tr><td data-label="Dossier"><span class="admin-reference">{{ $demande->numero_dma ?: 'Dossier #'.$demande->id }} · {{ $demande->created_at?->format('d/m/Y') }}</span><a class="admin-request-title" href="{{ route('demandes.show', $demande) }}">{{ $demande->objet_modif ?: 'Objet non renseigné' }}</a></td><td data-label="Demandeur">{{ $demande->user?->name ?? $demande->nom }}</td><td data-label="Étape"><span class="admin-badge admin-badge-{{ \App\Support\DmaStatus::group($demande->statut) }}">{{ \App\Support\DmaStatus::label($demande->statut) }}</span></td><td class="admin-row-action"><div class="admin-inline-actions"><a href="{{ route('demandes.show', $demande) }}">Consulter</a>@can('update', $demande)<a href="{{ route('demandes.edit', $demande) }}">Modifier</a>@endcan @can('delete', $demande)<form action="{{ route('demandes.destroy', $demande) }}" method="POST" onsubmit="return confirm('Supprimer définitivement cette demande et les données liées ?');">@csrf @method('DELETE')<button class="admin-text-danger">Supprimer</button></form>@endcan</div></td></tr>
+        @empty<tr><td colspan="4"><div class="admin-empty"><strong>Aucune demande trouvée.</strong></div></td></tr>@endforelse
+        </tbody></table></div><div class="admin-pagination">{{ $demandes->links('pagination.admin') }}</div>
+    </section>
+</div>
+</x-app-layout>

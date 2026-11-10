@@ -255,10 +255,10 @@ Route::middleware(['role:demandeur'])->group(function () {
 });
 
 //routes notification
-Route::get('/notifications', function () {
-    $notifications = auth()->user()->notifications;
-    return view('notifications.index', compact('notifications'));
-})->name('notifications.index');
+Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
+    ->middleware('auth')->name('notifications.index');
+Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'read'])
+    ->middleware(['auth', 'role:admin'])->name('notifications.read');
 
 
 

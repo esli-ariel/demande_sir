@@ -7,7 +7,13 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Démarrage local
+
+Voir [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md) pour lancer le projet avec PHP et le MySQL installé sur le Mac.
+
 ## Suivi du projet DMA
+
+- [Charte graphique](CHARTE_GRAPHIQUE.md)
 
 - [Progression et prochaine étape](PROGRESSION.md)
 - [Journal des séances](JOURNAL.md)

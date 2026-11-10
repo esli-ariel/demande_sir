@@ -18,13 +18,16 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | ID | Priorité | Tâche | Statut | Critère de fin |
 | --- | --- | --- | --- | --- |
 | DMA-001 | Haute | Définir les parties manquantes et le circuit métier | À préciser | Fonctionnalités et étapes confirmées avec le porteur du projet |
-| DMA-002 | Haute | Préparer et démarrer l’environnement local | À faire | Application accessible et démarrage documenté sans secrets |
+| DMA-002 | Haute | Préparer et démarrer l’environnement local | Terminé | Application accessible et démarrage documenté sans secrets |
 | DMA-003 | Haute | Nettoyer les routes et contrôler les accès | À faire | Routes cohérentes, accès autorisés et interdits vérifiés pour les rôles concernés |
-| DMA-004 | Haute | Corriger la création des demandes et les pièces jointes | À faire | Création vérifiée sans fichier, avec un fichier et avec plusieurs fichiers |
+| DMA-004 | Haute | Corriger la création des demandes et les pièces jointes | À vérifier | Création vérifiée sans fichier, avec un fichier et avec plusieurs fichiers |
 | DMA-005 | Haute | Fiabiliser les validations des structures spécialisées | À faire | Affectations et décisions multiples conformes au circuit confirmé |
 | DMA-006 | Haute | Compléter et raccorder clôture et réception | À faire | Actions reliées à des méthodes existantes et parcours final vérifié |
 | DMA-007 | Normale | Vérifier tableaux de bord et notifications | À faire | Statistiques, destinataires et liens cohérents avec les demandes et les rôles |
 | DMA-008 | Haute | Vérifier le parcours complet avant livraison | À faire | Création, validation, refus, traitement et réception vérifiés ; anomalies bloquantes corrigées |
+| DMA-011 | Normale | Ajouter les modes jour et nuit à l’administration | Terminé | Bascule accessible dans la navbar, préférence mémorisée, retour au jour et affichage mobile vérifiés |
+| DMA-012 | Haute | Harmoniser les autres pages de l’administration | Terminé | Listes et formulaires utilisateurs/demandes, fiche DMA, profil et notifications harmonisés ; 12 tests réussis et revue visuelle effectuée |
+| DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 
 ## Constats de la première lecture

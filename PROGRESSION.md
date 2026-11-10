@@ -8,8 +8,15 @@ Dernière mise à jour : **2026-11-10**
 - Phase : reprise du projet et identification des parties à terminer.
 - Base de reprise : commit `b3971f5`, branche `main`.
 - Dépôt récupéré en local et ouvert dans VS Code.
-- Première lecture partielle du code effectuée. L’application n’a pas encore été démarrée ni testée pendant cette reprise.
-- Prochaine action : préciser les fonctionnalités manquantes et le circuit métier attendu avec le porteur du projet, puis choisir le premier lot à développer.
+- Environnement local démarré avec PHP et le serveur MySQL déjà installé, sans Docker. Base existante `bd_demande1` connectée : 28 utilisateurs et 34 demandes au contrôle initial.
+- Page de connexion et fichiers CSS/JS vérifiés (HTTP 200). Toutes les migrations du dépôt sont déjà appliquées. La commande `migrate --seed` a ensuite été exécutée avec succès : `RoleSeeder` et `UserSeeder`, 28 utilisateurs, 34 demandes et 9 rôles après exécution. Le parcours après connexion reste à vérifier.
+- Dashboard administrateur refondu (DMA-010) : recherche, filtres, pagination, consultation et affichage mobile vérifiés. Après revue : accents orange SIR ajoutés et textes explicatifs secondaires retirés.
+- Modes jour/nuit disponibles dans la navbar admin (DMA-011), préférence mémorisée et rendu mobile vérifié.
+- Autres pages admin harmonisées (DMA-012) : utilisateurs, demandes, fiche DMA, profil et notifications. Douze tests réussis (62 assertions) dans une base isolée.
+- Charte de référence : vert `#2E8B57`, orange `#FF8C00`. Voir [CHARTE_GRAPHIQUE.md](CHARTE_GRAPHIQUE.md).
+- Ajustement visuel : mode nuit noir brillant et badges de demande plus vifs ; contrastes vérifiés et charte mise à jour.
+- Cartes admin et limites de sections retravaillées : contours renforcés, bandeaux de titre, repères colorés et espacement cohérent sur ordinateur/mobile.
+- Prochaine action : revue manuelle de l’espace admin par le porteur du projet et confirmation des droits de modification des demandes, puis précision des fonctionnalités manquantes et du circuit métier attendu.
 
 ## État des fonctionnalités
 
@@ -22,7 +29,7 @@ Dernière mise à jour : **2026-11-10**
 | Circuit de validation | Présent, incohérences repérées | Confirmer les étapes métier et vérifier les transitions |
 | Travaux du service technique | Présent, non validé | Vérifier les dates, les travaux et les statuts |
 | Clôture et réception | Présent, incohérences repérées | Clarifier les acteurs et raccorder les actions |
-| Tableaux de bord et notifications | Présent, non validé | Vérifier les données et les destinataires |
+| Tableaux de bord et notifications | Dashboard admin refondu et vérifié sur le périmètre DMA-010 ; autres vues non validées | Vérifier les autres dashboards et les notifications |
 | Autres parties manquantes | À préciser | Recueillir les besoins avant de créer les tâches |
 
 ## Étapes vers la première livraison
@@ -31,7 +38,7 @@ Dernière mise à jour : **2026-11-10**
 | --- | --- | --- | --- |
 | Organiser le suivi | DMA-009 | Terminé | Fichiers de suivi créés et liens vérifiés |
 | Définir les parties manquantes | DMA-001 | À préciser | Périmètre et circuit métier confirmés |
-| Démarrer en local | DMA-002 | À faire | Application accessible et procédure documentée |
+| Démarrer en local | DMA-002 | Terminé | Application accessible et procédure documentée |
 | Corriger et compléter le parcours | DMA-003 à DMA-007 | À faire | Critères de chaque tâche vérifiés |
 | Valider la première livraison | DMA-008 | À faire | Parcours complet vérifié, anomalies bloquantes corrigées |
 
@@ -47,4 +54,4 @@ Le périmètre étant encore à préciser, aucun pourcentage global ni date de f
 
 ## Dernière séance
 
-Mise en place du suivi documentaire. Voir [JOURNAL.md](JOURNAL.md#2026-11-10--initialisation-du-suivi).
+Refonte du dashboard administrateur (DMA-010). Voir [JOURNAL.md](JOURNAL.md) et [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md).
