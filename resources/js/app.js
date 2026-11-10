@@ -11,7 +11,7 @@ Alpine.data('adminNavigation', () => ({
         const theme = this.dark ? 'dark' : 'light';
         document.documentElement.dataset.adminTheme = theme;
         document.documentElement.style.colorScheme = theme;
-        try { localStorage.setItem('dma-admin-theme', theme); } catch (_) {}
+        try { localStorage.setItem('dma-theme', theme); } catch (_) {}
     },
 }));
 

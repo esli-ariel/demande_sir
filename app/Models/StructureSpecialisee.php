@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class StructureSpecialisee extends Model
 {
+    protected $table = 'structures_specialisees';
+
     //
     public function demandes()
 {

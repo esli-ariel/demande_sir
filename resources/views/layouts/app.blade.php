@@ -7,11 +7,11 @@
 
         <title>{{ config('app.name', 'SIR-gestion de DMA') }}</title>
 
-        @if(auth()->user()?->hasRole('admin'))
+        @if(auth()->user()?->hasAnyRole(['admin', 'demandeur']))
             <script>
                 (() => {
                     let theme;
-                    try { theme = localStorage.getItem('dma-admin-theme'); } catch (_) {}
+                    try { theme = localStorage.getItem('dma-theme') || localStorage.getItem('dma-admin-theme'); } catch (_) {}
                     const dark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
                     document.documentElement.dataset.adminTheme = dark ? 'dark' : 'light';
                     document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
@@ -43,13 +43,13 @@
             <!-- Page Content -->
             <main class="">
                 @if(session('success'))
-    <div @class(['admin-flash' => auth()->user()?->hasRole('admin'), 'p-2 mb-4 text-green-800 bg-green-100 rounded' => !auth()->user()?->hasRole('admin')]) role="status">
+    <div @class(['admin-flash' => auth()->user()?->hasAnyRole(['admin', 'demandeur']), 'p-2 mb-4 text-green-800 bg-green-100 rounded' => !auth()->user()?->hasAnyRole(['admin', 'demandeur'])]) role="status">
         {{ session('success') }}
     </div>
 @endif
 
 @if(session('error'))
-    <div @class(['admin-flash admin-flash-error' => auth()->user()?->hasRole('admin'), 'p-2 mb-4 text-red-800 bg-red-100 rounded' => !auth()->user()?->hasRole('admin')]) role="alert">
+    <div @class(['admin-flash admin-flash-error' => auth()->user()?->hasAnyRole(['admin', 'demandeur']), 'p-2 mb-4 text-red-800 bg-red-100 rounded' => !auth()->user()?->hasAnyRole(['admin', 'demandeur'])]) role="alert">
         {{ session('error') }}
     </div>
 @endif

@@ -121,7 +121,7 @@ class DemandePolicy
      */
     public function receptionner(User $user, Demande $demande): bool
     {
-        return $user->hasRole('demandeur') && $demande->statut === 'cloturee';
+        return $user->hasRole('demandeur') && $user->id === $demande->user_id && $demande->statut === 'cloturee';
     }
 
     /**
@@ -138,5 +138,9 @@ class DemandePolicy
     public function delete(User $user, Demande $demande): bool
     {
         return $user->id === $demande->user_id && $demande->statut === 'brouillon';
+    }
+    public function submit(User $user, Demande $demande): bool
+    {
+        return $user->hasRole('demandeur') && $user->id === $demande->user_id && $demande->statut === 'brouillon';
     }
 }

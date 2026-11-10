@@ -177,7 +177,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
 
-Route::delete('/pieces/{piece}', [DemandePieceJointeController::class, 'destroy'])->name('pieces.destroy');
+Route::delete('/pieces/{piece}', [DemandePieceJointeController::class, 'destroy'])->middleware('auth')->name('pieces.destroy');
 
 Route::middleware(['auth', 'role:exploitant'])->group(function () {
     Route::get('/exploitation/demandes', [DemandeController::class, 'indexExploitation'])
@@ -249,16 +249,19 @@ Route::middleware(['role:controle_avancee'])->group(function () {
 });
 
 //route cloture demandeur
-Route::middleware(['role:demandeur'])->group(function () {
+Route::middleware(['auth', 'role:demandeur'])->group(function () {
     Route::get('/demandes/cloture', [DemandeController::class, 'indexReception'])->name('demandes.cloture');
-    Route::post('/demandes/{demande}/receptionner', [DemandeController::class, 'receptionner'])->name('demandes.receptionner');
+    Route::post('/demandes/{demande}/receptionner', [\App\Http\Controllers\DemandeurController::class, 'receptionner'])->name('demandes.receptionner');
 });
+
+Route::get('/mes-demandes/reception', [\App\Http\Controllers\DemandeurController::class, 'receptions'])
+    ->middleware(['auth', 'role:demandeur'])->name('demandeur.receptions');
 
 //routes notification
 Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
     ->middleware('auth')->name('notifications.index');
 Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'read'])
-    ->middleware(['auth', 'role:admin'])->name('notifications.read');
+    ->middleware(['auth', 'role:admin|demandeur'])->name('notifications.read');
 
 
 

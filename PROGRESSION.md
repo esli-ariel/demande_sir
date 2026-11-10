@@ -5,7 +5,7 @@ Dernière mise à jour : **2026-11-10**
 ## Où en est-on ?
 
 - Version de travail : **0.1.0-dev**, définie dans [VERSION](VERSION).
-- Phase : reprise du projet et identification des parties à terminer.
+- Phase : refonte des espaces admin et demandeur ; fiabilisation du circuit métier à poursuivre.
 - Base de reprise : commit `b3971f5`, branche `main`.
 - Dépôt récupéré en local et ouvert dans VS Code.
 - Environnement local démarré avec PHP et le serveur MySQL déjà installé, sans Docker. Base existante `bd_demande1` connectée : 28 utilisateurs et 34 demandes au contrôle initial.
@@ -16,7 +16,10 @@ Dernière mise à jour : **2026-11-10**
 - Charte de référence : vert `#2E8B57`, orange `#FF8C00`. Voir [CHARTE_GRAPHIQUE.md](CHARTE_GRAPHIQUE.md).
 - Ajustement visuel : mode nuit noir brillant et badges de demande plus vifs ; contrastes vérifiés et charte mise à jour.
 - Cartes admin et limites de sections retravaillées : contours renforcés, bandeaux de titre, repères colorés et espacement cohérent sur ordinateur/mobile.
-- Prochaine action : revue manuelle de l’espace admin par le porteur du projet et confirmation des droits de modification des demandes, puis précision des fonctionnalités manquantes et du circuit métier attendu.
+- Point de contrôle admin poussé sur GitHub : `afd10d3` sur `main`.
+- Espace demandeur refondu (DMA-013), avec 20 tests réussis (126 assertions). La refonte est regroupée dans le point de contrôle demandeur sur `main`.
+- Les 11 structures spécialisées existantes sont désormais accessibles dans le formulaire ; incohérence de nom de table corrigée.
+- Prochaine action : revue manuelle de l’espace demandeur, puis confirmation des fonctionnalités manquantes et du circuit métier attendu.
 
 ## État des fonctionnalités
 

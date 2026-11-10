@@ -1217,3 +1217,26 @@ html[data-admin-theme='dark'] .admin-form textarea {
     .admin-kpi strong { font-size:34px;margin-top:8px; }
     .admin-insights { gap:24px;margin-top:28px; }
 }
+
+/* Espace demandeur : mêmes surfaces et mêmes couleurs SIR. */
+.requester-section-link { color:var(--sir-green-ink);font-size:12px;font-weight:600;min-height:44px;display:inline-flex;align-items:center; }
+.requester-action-list { padding:0 24px 24px; }
+.requester-action-list a { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid #D8E0DA;min-height:56px;font-size:13px; }
+.requester-action-list a:last-child { border-bottom:0; }
+.requester-action-list strong { color:var(--sir-green-ink);white-space:nowrap; }
+.requester-next-action { margin-bottom:24px; }
+.requester-next-action .admin-form { padding-top:4px; }
+.requester-action-buttons { display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:0 24px 24px; }
+.requester-receipt-note { font-size:12px;color:#52665b;margin-bottom:18px!important; }
+html[data-admin-theme='dark'] .requester-section-link,
+html[data-admin-theme='dark'] .requester-action-list strong { color:#9fdbb6; }
+html[data-admin-theme='dark'] .requester-action-list a { border-color:#494951; }
+html[data-admin-theme='dark'] .requester-receipt-note { color:#D8D8E0; }
+@media(max-width:700px) {
+    .requester-action-list { padding-inline:16px; }
+    .requester-action-buttons { padding-inline:16px; }
+}
+
+.admin-panel-heading:has(+.admin-table-wrap) { margin-bottom:0; }
+.requester-dashboard .admin-kpi:nth-child(4) { --kpi-color:var(--sir-green); }
+html[data-admin-theme='dark'] .requester-dashboard .admin-kpi:nth-child(4) .admin-kpi-icon { color:#61CF91; }

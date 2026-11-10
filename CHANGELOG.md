@@ -6,6 +6,9 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Espace demandeur : dashboard personnel, liste filtrée et paginée, formulaires, suivi détaillé, réception avec visa, notifications, profil et navigation mobile en jour/nuit.
+- Tests d’intégration des droits et transitions du demandeur, avec base de test partagée en mémoire.
+
 - Pages admin harmonisées pour utilisateurs, demandes, détail DMA, notifications et profil ; recherche, filtres, pagination et formulaires adaptés aux thèmes jour/nuit.
 - Marquage des notifications personnelles comme lues et tests d’intégration isolés en mémoire.
 
@@ -34,6 +37,9 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Corrections
 
+- Isolation des demandes et des statistiques par auteur ; soumission réservée aux brouillons complets, réception réservée à l’auteur au statut attendu ; protections contre les doubles actions et les suppressions de pièces après soumission.
+- Structures spécialisées : modèle et validations alignés sur `structures_specialisees`, déjà référencée par les associations ; correction des migrations source pour les nouvelles installations et tests portables du statut `cloturee`.
+
 - Création utilisateur avec les rôles existants et redirections vers `users.index` ; validation des rôles et protection du compte admin courant dans la gestion utilisateurs.
 - Création de demande : redirection après tous les fichiers, y compris sans pièce jointe.
 - Notifications : affichage des champs action/objet lorsque le message est absent et authentification requise.
@@ -41,6 +47,8 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 - Les travaux terminés ne sont plus comptés parmi les refus ; les brouillons et les statuts inconnus sont pris en compte dans la répartition.
 
 ### Vérifications
+
+- Ensemble admin/demandeur : 20 tests réussis (126 assertions) en mémoire ; compilation et revue visuelle ordinateur/mobile. Aucun dossier réel modifié pendant les vérifications.
 
 - Pages admin : 12 tests réussis (62 assertions), compilation Vite et Blade, contrôle navigateur des nouvelles pages et d’un formulaire mobile en mode nuit.
 

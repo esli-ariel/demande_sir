@@ -16,6 +16,8 @@ class DemandePieceJointeController extends Controller
             abort(403, 'Action non autorisée.');
         }
 
+        \Illuminate\Support\Facades\Gate::authorize('update', $piece->demande);
+
         // Supprimer le fichier physique
         if (Storage::disk('public')->exists($piece->chemin_fichier)) {
             Storage::disk('public')->delete($piece->chemin_fichier);

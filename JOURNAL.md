@@ -103,6 +103,32 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications :** compilation Vite et Blade, contrôle visuel sur ordinateur et mobile ; aucun changement des calculs ou des données.
 - **Suite :** revue visuelle par le porteur du projet ; changements locaux non poussés.
 
+## 2026-11-10 — Publication du point de contrôle admin
+
+- **Demande :** pousser le projet avant de commencer les pages demandeur.
+- **Résultat :** commit `afd10d3` (« refondre l’espace administrateur et la charte SIR ») poussé sur `origin/main` avec succès avant le début des modifications demandeur.
+- **Périmètre :** refonte admin, charte, modes jour/nuit, statuts, cartes, tests et documentation présents à ce point de contrôle.
+
+## 2026-11-10 — Espace demandeur
+
+- **Tâche :** DMA-013 ; finalisation des cas de création DMA-004.
+- **Pages :** dashboard limité aux dossiers du compte connecté, liste avec recherche et filtre, création et reprise de brouillons, détail et historique des décisions, réceptions, notifications et profil. Navbar adaptée au rôle, sans liens de gestion admin.
+- **UI :** reprise de la charte SIR, cartes délimitées, badges vifs, mode jour/nuit mémorisé et menu mobile. Formulaires et fiche DMA partagés avec l’admin pour maintenir une présentation cohérente.
+- **Actions :** envoi d’un brouillon complet uniquement par son auteur, puis verrouillage de la modification et de la suppression ; refus d’une nouvelle soumission ; suppression de pièce jointe également interdite après soumission. Réception uniquement par l’auteur d’une demande `cloturee`, avec visa et enregistrement d’une décision `reception_demandeur`, puis statut `cloturee_receptionnee`. Transitions d’envoi et de réception protégées par verrouillage transactionnel.
+- **Structures :** incohérence découverte par les tests : modèle et validations pointaient sur `structure_specialisees` (vide), tandis que les associations pointaient sur `structures_specialisees` (11 lignes dans la base locale). Modèle et validations alignés sur la table réellement référencée ; les 11 structures existantes sont désormais proposées. Aucune donnée copiée, créée ou supprimée pour cette correction.
+- **Migrations source :** création des structures alignée sur le nom canonique pour les nouvelles installations ; migration d’ajout du statut `cloturee` exprimée avec le Schema Builder pour pouvoir tester le schéma final sous SQLite. Ces migrations étaient déjà appliquées localement ; aucune migration ni modification de schéma exécutée sur le MySQL réel pendant cette séance. Installation complète neuve sous MySQL non retestée.
+- **Vérifications :** 20 tests réussis, 126 assertions, sur SQLite en mémoire : isolation des dossiers/statistiques par propriétaire, accès interdits, formulaires, création avec pièces et structures, soumission unique et complète, verrouillage après envoi, réception par propriétaire et sans doublon, plus régressions admin. Compilation Vite et Blade réussie. Revue navigateur avec le compte demandeur existant : dashboard (20 dossiers du compte), liste, création avec 11 structures, fiche et reprise d’un brouillon, réceptions vides, profil, notifications, thèmes et menu mobile.
+- **Données :** aucun dossier réel envoyé, réceptionné, créé, modifié ou supprimé lors du contrôle visuel. Actions modifiant les données vérifiées uniquement dans la base de test isolée.
+- **Limites :** les étapes précédant la réception restent à fiabiliser dans DMA-006 ; le contrôle avancé doit produire le statut `cloturee` pour qu’une réception apparaisse. Les anciennes routes dupliquées restent à traiter dans DMA-003.
+- **Suite :** revue manuelle de l’espace demandeur par le porteur du projet. Le point de contrôle admin est publié ; les modifications demandeur restent locales, non poussées.
+
+## 2026-11-10 — Point de contrôle demandeur
+
+- **Demande :** publier la refonte demandeur sur GitHub.
+- **Contenu du commit :** pages demandeur, composants partagés, droits et transitions, cohérence des structures, tests et documentation.
+- **Vérifications avant publication :** 20 tests et 126 assertions déjà réussis lors de la refonte ; compilation Vite et Blade réussie ; absence d’erreurs d’espacement vérifiée avant commit.
+- **Branche cible :** `main`, dépôt `esli-ariel/demande_sir`.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

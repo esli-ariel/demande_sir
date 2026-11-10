@@ -38,6 +38,10 @@ class DemandeController extends Controller
             return view('admin.demandes.index', compact('demandes', 'search', 'status', 'statuses'));
         }
 
+        if ($request->user()->hasRole('demandeur')) {
+            return app(DemandeurController::class)->index($request);
+        }
+
         //
 
         $query = Demande::query();
@@ -83,7 +87,7 @@ class DemandeController extends Controller
      */
     public function create()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'demandeur'])) {
             return view('admin.demandes.form', ['structures' => StructureSpecialisee::orderBy('nom')->get()]);
         }
         //
@@ -99,10 +103,10 @@ class DemandeController extends Controller
      */
     public function store(Request $request)
 {
-    if ($request->user()->hasRole('admin')) {
+    if ($request->user()->hasAnyRole(['admin', 'demandeur'])) {
         $request->validate([
             'structures_specialisees' => 'nullable|array',
-            'structures_specialisees.*' => 'integer|distinct|exists:structure_specialisees,id',
+            'structures_specialisees.*' => 'integer|distinct|exists:structures_specialisees,id',
         ]);
     }
     $validated = $request->validate([
@@ -155,7 +159,7 @@ class DemandeController extends Controller
     {
         //
         $this->authorize('view', $demande);
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'demandeur'])) {
             $decisions = \App\Models\DemandeValidation::with('user')->where('demande_id', $demande->id)->orderByDesc('date_validation')->orderByDesc('id')->get();
             return view('admin.demandes.show', compact('demande', 'decisions'));
         }
@@ -169,9 +173,9 @@ class DemandeController extends Controller
     {
         //
         $this->authorize('view', $demande);
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'demandeur'])) {
             $this->authorize('update', $demande);
-            return view('admin.demandes.form', compact('demande'));
+            return view('admin.demandes.form', ['demande' => $demande, 'structures' => StructureSpecialisee::orderBy('nom')->get()]);
         }
         return view('demandes.edit', compact('demande'));
     }
@@ -187,6 +191,11 @@ class DemandeController extends Controller
     if (Auth::id() !== $demande->user_id && !Auth::user()->hasRole('admin')) {
         abort(403, 'Accès non autorisé.');
     }
+        $request->validate([
+            'structures_included' => 'nullable|boolean',
+            'structures_specialisees' => 'nullable|array',
+            'structures_specialisees.*' => 'integer|distinct|exists:structures_specialisees,id',
+        ]);
         $validated = $request->validate([
         'structure' => 'required|string|max:255',
         'unite_concernee' => 'nullable|string|max:255',
@@ -223,6 +232,9 @@ class DemandeController extends Controller
             ]);
         }
     }
+        if ($request->boolean('structures_included')) {
+            $demande->structuresSpecialisees()->sync($request->input('structures_specialisees', []));
+        }
         return redirect()->route('demandes.index')
             ->with('success', 'Demande mise à jour.');
         
@@ -244,38 +256,23 @@ class DemandeController extends Controller
     }
     public function submit(Demande $demande)
 {
-    if ($demande->user_id !== auth()->id()) {
-        abort(403, 'Accès interdit.');
-    }
+    \Illuminate\Support\Facades\DB::transaction(function () use ($demande) {
+        $locked = Demande::lockForUpdate()->findOrFail($demande->id);
+        $this->authorize('submit', $locked);
+        validator($locked->only(['structure', 'unite_concernee', 'objet_modif', 'motif', 'repere', 'fonction', 'situation_existante', 'situation_souhaitee']), [
+            'structure' => 'required|string|max:255', 'unite_concernee' => 'required|string|max:255',
+            'objet_modif' => 'required|string|max:255', 'motif' => 'required|string',
+            'repere' => 'required|string|max:255', 'fonction' => 'required|string|max:255',
+            'situation_existante' => 'required|string', 'situation_souhaitee' => 'required|string',
+        ])->validate();
+        $locked->update(['statut' => 'soumise']);
+    });
 
-    $demande->update([
-        'statut' => 'soumise'
-    ]);
-
-    return redirect()->route('demandes.index')
-        ->with('success', 'Demande soumise au responsable.');
+    return redirect()->route('demandes.show', $demande)->with('success', 'Demande envoyée à l’exploitation.');
 }
 public function dashboardDemandeur()
 {
-    $user = Auth::user();
-
-    $demandes = Demande::where('user_id', $user->id)->latest()->get();
-
-    // Statistiques calculées
-    $stats = [
-        'total'       => $demandes->count(),
-        'en_attente'  => $demandes->whereIn('statut', ['soumise', 'en_attente_validation'])->count(),
-        'validees'    => $demandes->whereIn('statut', [
-            'validee_exploitation',
-            'validee_dts',
-            'validee_structure_specialisee',
-            'validee_controle_avancee',
-            'cloturee_receptionnee'
-        ])->count(),
-        'rejetees'    => $demandes->where(fn($d) => str_contains($d->statut, 'refusee'))->count(),
-    ];
-
-    return view('dashboards.demandeur', compact('demandes', 'stats'));
+    return app(DemandeurController::class)->dashboard(request());
 }
 
 public function indexExploitation()
@@ -511,8 +508,7 @@ public function traiter(Request $request, Demande $demande)
 
 public function indexReception()
 {
-    $demandes = Demande::where('statut', 'cloturee')->get();
-    return view('demandes.cloture', compact('demandes'));
+    return app(DemandeurController::class)->receptions(request());
 }
 
 }

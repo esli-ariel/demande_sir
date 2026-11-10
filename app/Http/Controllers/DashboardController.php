@@ -34,56 +34,7 @@ class DashboardController extends Controller
 
         // Cas DEMANDEUR → il ne voit que ses propres demandes
         if ($user->hasRole('demandeur')) {
-
-            $user = Auth::user();
-
-        // Si l'utilisateur est un demandeur → il ne voit que ses demandes
-        
-        $demandes = Demande::where('user_id', $user->id)->get();
-
-        // Calcul des statistiques
-        $totalDemandes = $demandes->count();
-        $demandesValidees = $demandes->wherein('statut', ['validee_controle_avancee','terminee_agent','cloturee_receptionnee'])->count();
-        $demandesRejetees = $demandes->wherein('statut', ['refusee_dts','refusee_controle_avancee', 'refusee_exploitation', 'rejetee_structure_specialisee','refusee_controle_avancee',])->count();
-        $demandesEnCours = $demandes->wherein('statut', ['soumis','validee_exploitation','validee_controle_avancee','validee_dts','validee_structure_specialisee',])->count();
-
-        // Taux de validation (évite la division par 0)
-        $tauxValidation = $totalDemandes > 0 ? round(($demandesValidees / $totalDemandes) * 100, 2) : 0;
-
-        // Répartition par statut pour les graphiques
-        $repartition = [
-            'validée' => $demandesValidees,
-            'rejetée' => $demandesRejetees,
-            'en cours' => $demandesEnCours,
-        ];
-
-        // Statistiques par mois (si tu veux afficher un graphique mensuel)
-        $statsMensuelles = Demande::selectRaw('MONTH(created_at) as mois, COUNT(*) as total')
-            ->when($user->role === 'demandeur', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->groupBy('mois')
-            ->orderBy('mois')
-            ->get();
-
-        $labelsMois = $statsMensuelles->pluck('mois')->map(function ($m) {
-            return date('F', mktime(0, 0, 0, $m, 1));
-        });
-
-        $valeursMois = $statsMensuelles->pluck('total');
-
-        return view('dashboards.demandeur', compact(
-            'totalDemandes',
-            'demandesValidees',
-            'demandesRejetees',
-            'demandesEnCours',
-            'tauxValidation',
-            'repartition',
-            'labelsMois',
-            'valeursMois',
-            'demandes'
-        ));
-    
+            return app(DemandeurController::class)->dashboard(request());
         }
 
         // Cas EXPLOITATION → il voit les demandes "soumise"
@@ -230,54 +181,8 @@ class DashboardController extends Controller
 }
 public function dashboardDemandeur()
 {
-    $user = Auth::user();
-
-
-        // Si l'utilisateur est un demandeur → il ne voit que ses demandes
-            $demandes = Demande::where('user_id', $user->id)->get();
-        // Calcul des statistiques
-        $totalDemandes = $demandes->count();
-        $demandesValidees = $demandes->wherein('statut', ['validee_controle_avancee','terminee_agent'])->count();
-        $demandesRejetees = $demandes->wherein('statut', ['refusee_controle_avancee', 'refusee_exploitation', 'rejetee_structure_specialisee'])->count();
-        $demandesEnCours = $demandes->wherein('statut', ['soumis','',''])->count();
-
-        // Taux de validation (évite la division par 0)
-        $tauxValidation = $totalDemandes > 0 ? round(($demandesValidees / $totalDemandes) * 100, 2) : 0;
-
-        // Répartition par statut pour les graphiques
-        $repartition = [
-            'validée' => $demandesValidees,
-            'rejetée' => $demandesRejetees,
-            'en cours' => $demandesEnCours,
-        ];
-
-        // Statistiques par mois (si tu veux afficher un graphique mensuel)
-        $statsMensuelles = Demande::selectRaw('MONTH(created_at) as mois, COUNT(*) as total')
-            ->when($user->role === 'demandeur', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->groupBy('mois')
-            ->orderBy('mois')
-            ->get();
-
-        $labelsMois = $statsMensuelles->pluck('mois')->map(function ($m) {
-            return date('F', mktime(0, 0, 0, $m, 1));
-        });
-
-        $valeursMois = $statsMensuelles->pluck('total');
-
-        return view('dashboards.demandeur', compact(
-            'totalDemandes',
-            'demandesValidees',
-            'demandesRejetees',
-            'demandesEnCours',
-            'tauxValidation',
-            'repartition',
-            'labelsMois',
-            'valeursMois',
-            'demandes'
-        ));
-    }
+    return app(DemandeurController::class)->dashboard(request());
+}
 
 public function admin()
     {

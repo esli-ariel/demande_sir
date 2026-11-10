@@ -20,13 +20,14 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-001 | Haute | Définir les parties manquantes et le circuit métier | À préciser | Fonctionnalités et étapes confirmées avec le porteur du projet |
 | DMA-002 | Haute | Préparer et démarrer l’environnement local | Terminé | Application accessible et démarrage documenté sans secrets |
 | DMA-003 | Haute | Nettoyer les routes et contrôler les accès | À faire | Routes cohérentes, accès autorisés et interdits vérifiés pour les rôles concernés |
-| DMA-004 | Haute | Corriger la création des demandes et les pièces jointes | À vérifier | Création vérifiée sans fichier, avec un fichier et avec plusieurs fichiers |
+| DMA-004 | Haute | Corriger la création des demandes et les pièces jointes | Terminé | Création vérifiée sans fichier, avec un fichier et avec plusieurs fichiers |
 | DMA-005 | Haute | Fiabiliser les validations des structures spécialisées | À faire | Affectations et décisions multiples conformes au circuit confirmé |
 | DMA-006 | Haute | Compléter et raccorder clôture et réception | À faire | Actions reliées à des méthodes existantes et parcours final vérifié |
 | DMA-007 | Normale | Vérifier tableaux de bord et notifications | À faire | Statistiques, destinataires et liens cohérents avec les demandes et les rôles |
 | DMA-008 | Haute | Vérifier le parcours complet avant livraison | À faire | Création, validation, refus, traitement et réception vérifiés ; anomalies bloquantes corrigées |
 | DMA-011 | Normale | Ajouter les modes jour et nuit à l’administration | Terminé | Bascule accessible dans la navbar, préférence mémorisée, retour au jour et affichage mobile vérifiés |
 | DMA-012 | Haute | Harmoniser les autres pages de l’administration | Terminé | Listes et formulaires utilisateurs/demandes, fiche DMA, profil et notifications harmonisés ; 12 tests réussis et revue visuelle effectuée |
+| DMA-013 | Haute | Refaire les pages du demandeur | Terminé | Dashboard personnel, liste, formulaires, suivi, réception, notifications et profil ; droits et transitions couverts par tests isolés ; revue visuelle ordinateur/mobile |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 
@@ -35,7 +36,7 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 Ces constats proviennent du code et n’ont pas encore été reproduits dans l’application.
 
 - `routes/web.php` : routes et noms déclarés plusieurs fois, avec des protections différentes ; certaines actions visent des méthodes absentes du contrôleur ciblé.
-- `DemandeController::store` : redirection dans la boucle des pièces jointes ; absence de redirection sans fichier et arrêt après le premier fichier.
+- `DemandeController::store` : problème de redirection et d’arrêt après le premier fichier corrigé dans DMA-012/DMA-013 ; cas sans fichier et avec plusieurs fichiers couverts par tests isolés.
 - `WorkflowController::validerDTS` : enregistrements répétés de la décision DTS et utilisation d’identifiants de structures comme identifiants d’utilisateurs.
 - Clôture et réception : plusieurs implémentations et statuts coexistent ; le parcours attendu doit être confirmé avant correction.
 

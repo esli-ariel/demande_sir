@@ -1,4 +1,4 @@
-@if(auth()->user()?->hasRole('admin'))
+@if(auth()->user()?->hasAnyRole(['admin', 'demandeur']))
     @include('layouts.admin-navigation')
 @else
 <nav x-data="{ open: false, time: '' }" 

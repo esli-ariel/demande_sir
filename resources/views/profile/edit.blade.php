@@ -1,4 +1,4 @@
-@if(auth()->user()->hasRole('admin'))
+@if(auth()->user()->hasAnyRole(['admin', 'demandeur']))
     @include('admin.profile.edit')
 @else
 <x-app-layout>

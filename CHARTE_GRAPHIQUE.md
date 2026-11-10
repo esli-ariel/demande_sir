@@ -21,7 +21,7 @@ Ne pas utiliser de texte blanc de petite taille sur `#FF8C00` ou `#2E8B57` : le 
 
 ## Application
 
-Charte appliquée au dashboard, à la navbar et aux pages de l’administration. Étendre ces mêmes références aux autres rôles lors de leur refonte.
+Charte appliquée aux dashboards, à la navbar et aux pages de l’administration et du demandeur. Étendre ces mêmes références aux autres rôles lors de leur refonte.
 
 ## Statuts des demandes
 

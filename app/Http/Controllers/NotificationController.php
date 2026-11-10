@@ -11,7 +11,7 @@ class NotificationController extends Controller
         $notifications = $request->user()->notifications()->latest()->paginate(12);
         $unread = $request->user()->unreadNotifications()->count();
 
-        return view($request->user()->hasRole('admin') ? 'admin.notifications' : 'notifications.index', compact('notifications', 'unread'));
+        return view($request->user()->hasAnyRole(['admin', 'demandeur']) ? 'admin.notifications' : 'notifications.index', compact('notifications', 'unread'));
     }
 
     public function read(Request $request, string $notification)

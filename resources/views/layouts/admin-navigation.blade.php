@@ -1,13 +1,20 @@
-<nav class="admin-nav" aria-label="Navigation administration" x-data="adminNavigation" @keydown.escape.window="open = false">
+@php($demandeurSpace = auth()->user()->hasRole('demandeur') && !auth()->user()->hasRole('admin'))
+<nav class="admin-nav" aria-label="{{ $demandeurSpace ? 'Navigation demandeur' : 'Navigation administration' }}" x-data="adminNavigation" @keydown.escape.window="open = false">
     <div class="admin-nav-inner">
         <a class="admin-brand" href="{{ route('dashboard') }}" aria-label="SIR DMA — Tableau de bord">
             <x-application-logo class="h-10 w-auto" />
-            <span>Gestion des DMA<small>Espace administration</small></span>
+            <span>Gestion des DMA<small>{{ $demandeurSpace ? 'Espace demandeur' : 'Espace administration' }}</small></span>
         </a>
         <div class="admin-nav-links">
-            <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.admin', 'admin.index')])>Vue d’ensemble</a>
-            <a href="{{ route('demandes.index') }}" @class(['is-active' => request()->routeIs('demandes.*')])>Demandes</a>
-            <a href="{{ route('users.index') }}" @class(['is-active' => request()->routeIs('users.*')])>Utilisateurs</a>
+            @if($demandeurSpace)
+                <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.demandeur')])>Mon tableau de bord</a>
+                <a href="{{ route('demandes.index') }}" @class(['is-active' => request()->routeIs('demandes.*')])>Mes demandes</a>
+                <a href="{{ route('demandeur.receptions') }}" @class(['is-active' => request()->routeIs('demandeur.receptions')])>Réceptions</a>
+            @else
+                <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.admin', 'admin.index')])>Vue d’ensemble</a>
+                <a href="{{ route('demandes.index') }}" @class(['is-active' => request()->routeIs('demandes.*')])>Demandes</a>
+                <a href="{{ route('users.index') }}" @class(['is-active' => request()->routeIs('users.*')])>Utilisateurs</a>
+            @endif
         </div>
         <div class="admin-nav-account">
             <a href="{{ route('notifications.index') }}" aria-label="Notifications, {{ auth()->user()->unreadNotifications->count() }} non lues">Notifications <span>{{ auth()->user()->unreadNotifications->count() }}</span></a>
@@ -24,9 +31,9 @@
         <button class="admin-menu-toggle" type="button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="admin-mobile-menu" aria-label="Ouvrir ou fermer le menu">Menu <span aria-hidden="true">☰</span></button>
     </div>
     <div class="admin-mobile-menu" id="admin-mobile-menu" x-show="open" x-cloak>
-        <a href="{{ route('dashboard') }}">Vue d’ensemble</a>
-        <a href="{{ route('demandes.index') }}">Demandes</a>
-        <a href="{{ route('users.index') }}">Utilisateurs</a>
+        <a href="{{ route('dashboard') }}">{{ $demandeurSpace ? 'Mon tableau de bord' : 'Vue d’ensemble' }}</a>
+        <a href="{{ route('demandes.index') }}">{{ $demandeurSpace ? 'Mes demandes' : 'Demandes' }}</a>
+        @if($demandeurSpace)<a href="{{ route('demandeur.receptions') }}">Réceptions</a>@else<a href="{{ route('users.index') }}">Utilisateurs</a>@endif
         <a href="{{ route('notifications.index') }}">Notifications</a>
         <a href="{{ route('profile.edit') }}">Mon profil</a>
         <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Déconnexion</button></form>
