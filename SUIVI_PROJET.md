@@ -1,0 +1,59 @@
+# Suivi du projet — Gestion des DMA
+
+Dernière mise à jour : **2026-11-10**
+
+## Documents de référence
+
+- [PROGRESSION.md](PROGRESSION.md) : état actuel, étapes et prochaine action.
+- [JOURNAL.md](JOURNAL.md) : historique des séances, décisions et vérifications.
+- [CHANGELOG.md](CHANGELOG.md) : changements apportés au projet.
+- [VERSION](VERSION) : numéro de version de travail.
+
+Ce fichier conserve la liste de référence des tâches et leurs critères de fin.
+
+## Travail à réaliser
+
+Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérifier**, **Terminé**. Une tâche n’est terminée qu’après vérification de ses critères de fin.
+
+| ID | Priorité | Tâche | Statut | Critère de fin |
+| --- | --- | --- | --- | --- |
+| DMA-001 | Haute | Définir les parties manquantes et le circuit métier | À préciser | Fonctionnalités et étapes confirmées avec le porteur du projet |
+| DMA-002 | Haute | Préparer et démarrer l’environnement local | À faire | Application accessible et démarrage documenté sans secrets |
+| DMA-003 | Haute | Nettoyer les routes et contrôler les accès | À faire | Routes cohérentes, accès autorisés et interdits vérifiés pour les rôles concernés |
+| DMA-004 | Haute | Corriger la création des demandes et les pièces jointes | À faire | Création vérifiée sans fichier, avec un fichier et avec plusieurs fichiers |
+| DMA-005 | Haute | Fiabiliser les validations des structures spécialisées | À faire | Affectations et décisions multiples conformes au circuit confirmé |
+| DMA-006 | Haute | Compléter et raccorder clôture et réception | À faire | Actions reliées à des méthodes existantes et parcours final vérifié |
+| DMA-007 | Normale | Vérifier tableaux de bord et notifications | À faire | Statistiques, destinataires et liens cohérents avec les demandes et les rôles |
+| DMA-008 | Haute | Vérifier le parcours complet avant livraison | À faire | Création, validation, refus, traitement et réception vérifiés ; anomalies bloquantes corrigées |
+| DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
+
+## Constats de la première lecture
+
+Ces constats proviennent du code et n’ont pas encore été reproduits dans l’application.
+
+- `routes/web.php` : routes et noms déclarés plusieurs fois, avec des protections différentes ; certaines actions visent des méthodes absentes du contrôleur ciblé.
+- `DemandeController::store` : redirection dans la boucle des pièces jointes ; absence de redirection sans fichier et arrêt après le premier fichier.
+- `WorkflowController::validerDTS` : enregistrements répétés de la décision DTS et utilisation d’identifiants de structures comme identifiants d’utilisateurs.
+- Clôture et réception : plusieurs implémentations et statuts coexistent ; le parcours attendu doit être confirmé avant correction.
+
+## Journal de travail
+
+Consulter [JOURNAL.md](JOURNAL.md) pour le détail chronologique des séances, décisions et vérifications.
+
+## Convention de version
+
+- `VERSION` est la source du numéro de version du projet, indépendamment des versions des dépendances.
+- `0.1.0-dev` désigne la version de travail initiale, non livrée.
+- Pour les livraisons `X.Y.Z` : `Z` pour les corrections, `Y` pour les fonctionnalités compatibles, `X` pour les changements incompatibles. Pendant la phase `0.x`, documenter explicitement toute incompatibilité.
+- Première livraison prévue : `0.1.0`, après confirmation du périmètre et vérifications. Aucune date n’est fixée.
+- Le tag d’une livraison reprend le numéro avec le préfixe `v`, par exemple `v0.1.0`. Aucun tag n’est créé lors de cette initialisation.
+
+## À chaque séance de travail
+
+1. Choisir une tâche et la passer « En cours » avant de la modifier.
+2. Renseigner [CHANGELOG.md](CHANGELOG.md) et ajouter une séance à [JOURNAL.md](JOURNAL.md).
+3. Noter les vérifications et les blocages ; passer la tâche « À vérifier » si ses critères ne sont pas encore validés.
+4. Passer les tâches vérifiées « Terminé » et actualiser [PROGRESSION.md](PROGRESSION.md), notamment la prochaine action et les étapes.
+5. Mettre à jour la date de ce document. Modifier `VERSION` lors d’un changement de version de travail ou de la préparation d’une livraison.
+
+Ne jamais inscrire de mots de passe, de clés API ou de données personnelles réelles dans ces fichiers.

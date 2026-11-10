@@ -7,6 +7,16 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Suivi du projet DMA
+
+- [Progression et prochaine étape](PROGRESSION.md)
+- [Journal des séances](JOURNAL.md)
+- [Tâches et critères de fin](SUIVI_PROJET.md)
+- [Historique des modifications](CHANGELOG.md)
+- [Version de travail](VERSION)
+
+Mettre ces fichiers à jour à chaque séance selon les conventions décrites dans le suivi.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
