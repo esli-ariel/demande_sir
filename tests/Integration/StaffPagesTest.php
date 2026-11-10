@@ -130,3 +130,30 @@ it('requires an explicit structure assignment when creating specialist accounts'
     $this->post(route('users.store'),$payload+['structure_ids'=>[$id]])->assertSessionHasNoErrors()->assertRedirect(route('users.index'));
     expect(User::where('email',$payload['email'])->firstOrFail()->structuresSpecialisees()->count())->toBe(1);
 });
+
+it('approves control once, assigns a missing DMA number and notifies its author', function () {
+    Role::firstOrCreate(['name'=>'controle_avancee','guard_name'=>'web']);$this->staff->syncRoles(['controle_avancee']);$this->staff->unsetRelation('roles');
+    $demande=($this->makeDemande)(['statut'=>'validee_structure_specialisee']);
+    foreach (['dashboard','dashboard.controle','demandes.index_controle'] as $route) $this->get(route($route))->assertOk();
+    $this->post(route('demandes.valider_controle',$demande),['visa'=>'Contrôle'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('validee_controle_avancee')->and($demande->fresh()->numero_dma)->toStartWith('DMA-')->and($this->owner->unreadNotifications()->count())->toBe(1);
+    $this->post(route('demandes.valider_controle',$demande),['visa'=>'Contrôle'])->assertForbidden();
+});
+
+it('requires a control refusal reason and preserves existing DMA numbers', function () {
+    Role::firstOrCreate(['name'=>'controle_avancee','guard_name'=>'web']);$this->staff->syncRoles(['controle_avancee']);$this->staff->unsetRelation('roles');
+    $demande=($this->makeDemande)(['statut'=>'validee_structure_specialisee','numero_dma'=>'MS2026/0001']);
+    $this->post(route('demandes.rejeter_controle',$demande),['visa'=>'Test'])->assertSessionHasErrors('commentaire');
+    $this->post(route('demandes.valider_controle',$demande),['visa'=>'Test'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->numero_dma)->toBe('MS2026/0001');
+});
+
+it('checks completed works without bypassing final reception', function () {
+    Role::firstOrCreate(['name'=>'controle_avancee','guard_name'=>'web']);$this->staff->syncRoles(['controle_avancee']);$this->staff->unsetRelation('roles');
+    $demande=($this->makeDemande)(['statut'=>'terminee_agent']);
+    $this->get(route('demandes.show',$demande))->assertOk()->assertSee('Transmettre à la réception');
+    $this->post(route('demandes.cloturer',$demande),['visa'=>'Test'])->assertSessionHasErrors('analyse');
+    $this->post(route('demandes.cloturer',$demande),['visa'=>'Test','analyse'=>'Travaux conformes'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('cloturee')->and(DB::table('demandes_validations')->where('commentaire','Travaux conformes')->count())->toBe(1);
+    $this->post(route('demandes.cloturer',$demande),['visa'=>'Test','analyse'=>'Doublon'])->assertForbidden();
+});

@@ -6,6 +6,8 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Espace contrôle avancé : File de contrôle, avis sécurisés, numérotation conservée et vérification des travaux avant réception.
+
 - Espace structures spécialisées : Files limitées aux structures affectées ; choix de la structure représentée, une décision par structure, refus motivé et attente de tous les accords. Affectations explicites dans la gestion utilisateurs ; migration locale appliquée avec reprise de 11 correspondances exactes, sans modification des statuts métier.
 
 - Espace DTS : Dashboard et file DTS, consultation et avis dans la fiche, refus motivé ; une seule décision enregistrée, aucune fausse validation de structure, passage direct au contrôle avancé sans structure sélectionnée.

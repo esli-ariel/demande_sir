@@ -150,6 +150,13 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications :** 30 tests réussis, 206 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
 - **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
 
+## 2026-11-10 — Rôle contrôle avancé
+
+- **Tâche :** DMA-017.
+- **Travail réalisé :** File de contrôle, avis sécurisés, numérotation conservée et vérification des travaux avant réception.
+- **Vérifications :** 33 tests réussis, 229 assertions sur base isolée ; rendu des vues vérifié par les tests. Aucune décision réelle enregistrée pendant les contrôles.
+- **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

@@ -243,7 +243,7 @@ Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 
 
 //route cloture controle avancée
-Route::middleware(['role:controle_avancee'])->group(function () {
+Route::middleware(['auth', 'role:controle_avancee'])->group(function () {
     Route::get('/demandes/cloture', [DemandeController::class, 'indexCloture'])->name('demandes.cloture');
     Route::post('/demandes/{demande}/cloturer', [DemandeController::class, 'cloturer'])->name('demandes.cloturer');
 });

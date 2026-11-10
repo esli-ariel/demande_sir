@@ -349,88 +349,28 @@ public function validerOuRejeterStructure(Request $request, Demande $demande)
 ////////////////////////////////////////////////////////////
 public function indexControle()
 {
-    $demandes = Demande::where('statut', 'validee_structure_specialisee')->get();
-    return view('demandes.index_controle', compact('demandes'));
+    return app(StaffController::class)->index(request());
 }
 
 public function indexCloture()
 {
-    $demandes = Demande::where('statut', 'terminee_agent')->get();
-    return view('demandes.cloture', compact('demandes'));
+    return app(StaffController::class)->index(request());
 }
 
 public function validerControle(Request $request, Demande $demande)
 {
-    $request->validate([
-        'numero_dma' => 'required|string|max:50',
-        'visa' => 'required|string',
-        'commentaire' => 'nullable|string',
-    ]);
-
-    $demande->update([
-        'statut' => 'validee_controle_avancee',
-        'numero_dma' => $request->numero_dma,
-        'visa_controle_avance' => $request->visa,
-        'commentaire_controle_avance' => $request->commentaire,
-    ]);
-
-   // Notification interne
-    $demande->user->notify(new DemandeStatutChangeNotification(
-        $demande,
-        'validée par le controle avancé,bientot prise en charge par le service technique',
-        $request->commentaire
-    ));
-    
-    return back()->with('success', '✅ Demande validée par le contrôle avancé.');
+    return app(WorkflowController::class)->validerControle($request, $demande);
 }
 
 public function rejeterControle(Demande $demande, Request $request)
 {
-
-     $request->validate([
-        'visa' => 'required|string',
-        'commentaire' => 'required|string',
-    ]);
-
-    $demande->update([
-        'statut' => 'refusee_controle_avancee',
-        'visa_controle_avance' => $request->visa,
-        'commentaire_controle_avance' => $request->commentaire,
-    ]);
-
-      // Notification interne
-    $demande->user->notify(new DemandeStatutChangeNotification(
-        $demande,
-        'rejetée par le contrôle avancé',
-        $request->commentaire
-    ));
-
-    return back()->with('success', '❌ Demande refusée par le contrôle avancé.');
+    return app(WorkflowController::class)->rejeterControle($request, $demande);
 }
 
 
 public function cloturer(Request $request, Demande $demande)
 {
-    $request->validate([
-        'analyse' => 'required|string|max:500',
-        'visa' => 'nullable|string|max:50',
-    ]);
-
-    // Mise à jour du statut
-    $demande->update([
-        'statut' => 'cloturee_receptionnee',
-        'analyse_finale' => $request->analyse,
-        'visa_controle_avance' => $request->visa,
-        'date_cloture' => now(),
-    ]);
-
-    // Notification in-app pour le demandeur
-    $demande->user->notify(new DemandeClotureeNotification($demande));
-
-    // (Optionnel) archivage dans une table séparée ou colonne "archivee"
-    $demande->update(['archivee' => true]);
-
-    return back()->with('success', 'Demande clôturée et notifiée avec succès.');
+    return app(WorkflowController::class)->cloturer($request, $demande);
 }
 
 

@@ -56,7 +56,12 @@ class WorkflowController extends Controller
                 'decision' => $decision, 'visa' => $data['visa'], 'commentaire' => $data['commentaire'] ?? null,
                 'date_validation' => now(),
             ]);
-            $locked->update(['statut' => $status]);
+            $updates = ['statut'=>$status];
+            if ($role === 'controle_avancee' && $status === 'validee_controle_avancee' && ! $locked->numero_dma) {
+                $updates['numero_dma'] = 'DMA-'.\Illuminate\Support\Str::ulid();
+            }
+            $locked->update($updates);
+            $locked->user?->notify(new \App\Notifications\DemandeStatutChangeNotification($locked, \App\Support\DmaStatus::label($status), $data['commentaire'] ?? null));
         });
 
         return back()->with('success', $decision === 'accord' ? 'Avis favorable enregistré.' : 'Refus enregistré.');
@@ -108,24 +113,21 @@ class WorkflowController extends Controller
     // ===================== CONTRÔLE AVANCÉ =====================
     public function validerControle(Request $request, Demande $demande)
     {
-        Gate::authorize('validerControle', $demande);
-
-        $this->enregistrerValidation($demande, 'controle_avancee', 'accord', $request, 'validee_controle_avancee');
-
-        // Attribuer un numéro DMA unique
-        if (!$demande->numero_dma) {
-            $demande->update(['numero_dma' => 'DMA-' . strtoupper(uniqid())]);
-        }
-
-        return back()->with('success', 'Demande validée et numéro DMA attribué.');
+        return $this->decide($request, $demande, 'validerControle', 'controle_avancee', 'accord', 'validee_controle_avancee');
     }
 
     public function rejeterControle(Request $request, Demande $demande)
     {
-        Gate::authorize('validerControle', $demande);
+        return $this->decide($request, $demande, 'validerControle', 'controle_avancee', 'refus', 'refusee_controle_avancee');
+    }
 
-        $this->enregistrerValidation($demande, 'controle_avancee', 'refus', $request, 'refusee_controle_avancee');
-        return back()->with('error', 'Demande refusée par le Contrôle avancé.');
+    public function cloturer(Request $request, Demande $demande)
+    {
+        Gate::authorize('cloturer', $demande);
+        $request->validate(['analyse'=>'required|string|max:5000']);
+        $request->merge(['commentaire'=>$request->input('analyse')]);
+        $this->decide($request, $demande, 'cloturer', 'controle_avancee', 'accord', 'cloturee');
+        return back()->with('success','Vérification des travaux enregistrée. Le dossier est prêt pour réception.');
     }
 
     // ===================== SERVICE TECHNIQUE =====================

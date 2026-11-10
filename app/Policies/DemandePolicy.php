@@ -125,7 +125,7 @@ class DemandePolicy
      */
     public function cloturer(User $user, Demande $demande): bool
     {
-        return $user->hasRole('controle_avancee') && $demande->statut === 'terminee_traitement';
+        return $user->hasRole('controle_avancee') && $demande->statut === 'terminee_agent';
     }
     /**
      * Détermine si la réception peut clôturer

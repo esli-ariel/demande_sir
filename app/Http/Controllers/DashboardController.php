@@ -210,40 +210,7 @@ public function dts()
 
 public function controleAvance()
 {
-    $stats = [
-        'total'               => \App\Models\Demande::whereIn('statut', [
-            'validee_structure_specialisee',
-            'validee_controle',
-            'validee_controle_avancee',
-            'refusee_controle_avancee',
-            'terminee_agent',
-            'cloturee_receptionnee'
-        ])->count(),
-
-        'en_cours_validation' => \App\Models\Demande::whereIn('statut', [
-            'validee_structure_specialisee',
-            'validee_controle'
-        ])->count(),
-
-        'validees'            => \App\Models\Demande::where('statut', 'validee_controle_avancee')->count(),
-
-        'rejetees'            => \App\Models\Demande::where('statut', 'refusee_controle_avancee')->count(),
-
-        'cloturees'           => \App\Models\Demande::where('statut', 'cloturee_receptionnee')->count(),
-
-        'en_cours_cloture'    => \App\Models\Demande::where('statut', 'terminee_agent')->count(),
-    ];
-
-    $demandes = \App\Models\Demande::whereIn('statut', [
-        'validee_structure_specialisee',
-        'validee_controle',
-        'validee_controle_avancee',
-        'refusee_controle_avancee',
-        'terminee_agent',
-        'cloturee_receptionnee'
-    ])->latest()->take(10)->get();
-
-    return view('dashboards.controle', compact('stats', 'demandes'));
+    return app(StaffController::class)->dashboard(request());
 }
 
 public function serviceTechnique()
