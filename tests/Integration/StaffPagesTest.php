@@ -55,3 +55,37 @@ it('blocks exploitation decisions from other roles and hides drafts', function (
     $this->actingAs($this->owner)->post(route('demandes.validerExploitation',$demande),['visa'=>'Test'])->assertForbidden();
     $this->get(route('staff.demandes'))->assertForbidden();
 });
+
+it('routes DTS approval directly to control when no structures are selected', function () {
+    $dts=User::create(['name'=>'DTS','prenom'=>'Test','email'=>'dts-team@example.invalid','password'=>'test-password']);
+    $dts->assignRole('dts');
+    $this->actingAs($dts);
+    $demande=($this->makeDemande)(['statut'=>'validee_exploitation']);
+    foreach (['dashboard','dashboard.dts','demandes.index_dts'] as $route) $this->get(route($route))->assertOk();
+    $this->post(route('demandes.valider_dts',$demande),['visa'=>'DTS Test'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('validee_structure_specialisee')->and(DB::table('demandes_validations')->count())->toBe(1);
+    $this->post(route('demandes.valider_dts',$demande),['visa'=>'DTS Test'])->assertForbidden();
+});
+
+it('records a single DTS decision when several structures are selected', function () {
+    $dts=User::create(['name'=>'DTS','prenom'=>'Test','email'=>'dts-team@example.invalid','password'=>'test-password']);
+    $dts->assignRole('dts');$this->actingAs($dts);
+    $demande=($this->makeDemande)(['statut'=>'validee_exploitation']);
+    foreach (['Mécanique','Électricité'] as $name) {
+        $id=DB::table('structures_specialisees')->insertGetId(['nom'=>$name]);
+        $demande->structuresSpecialisees()->attach($id);
+    }
+    $this->post(route('demandes.valider_dts',$demande),['visa'=>'DTS Test'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('validee_dts')->and(DB::table('demandes_validations')->count())->toBe(1);
+});
+
+it('requires a DTS refusal reason and rejects decisions at the wrong stage', function () {
+    $dts=User::create(['name'=>'DTS','prenom'=>'Test','email'=>'dts-team@example.invalid','password'=>'test-password']);
+    $dts->assignRole('dts');$this->actingAs($dts);
+    $demande=($this->makeDemande)(['statut'=>'validee_exploitation']);
+    $this->post(route('demandes.rejeter_dts',$demande),['visa'=>'Test'])->assertSessionHasErrors('commentaire');
+    $this->post(route('demandes.rejeter_dts',$demande),['visa'=>'Test','commentaire'=>'Motif DTS'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('refusee_dts');
+    $this->post(route('demandes.valider_dts',$demande),['visa'=>'Test'])->assertForbidden();
+    $this->actingAs($this->staff)->post(route('demandes.valider_dts',($this->makeDemande)(['statut'=>'validee_exploitation'])),['visa'=>'Test'])->assertForbidden();
+});

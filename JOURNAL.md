@@ -136,6 +136,13 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications :** 24 tests réussis, 159 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
 - **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
 
+## 2026-11-10 — Rôle DTS
+
+- **Tâche :** DMA-015.
+- **Travail réalisé :** Dashboard et file DTS, consultation et avis dans la fiche, refus motivé ; une seule décision enregistrée, aucune fausse validation de structure, passage direct au contrôle avancé sans structure sélectionnée.
+- **Vérifications :** 27 tests réussis, 178 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
+- **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

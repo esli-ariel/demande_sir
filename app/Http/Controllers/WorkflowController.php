@@ -63,57 +63,15 @@ class WorkflowController extends Controller
     }
 
     // ===================== DTS =====================
-   public function validerDTS(Request $request, Demande $demande)
-{
-    Gate::authorize('validerDTS', $demande);
-
-    $demande->statut = 'validee_dts';
-    $demande->save();
-
-    $structures = $demande->structuresSpecialisees;
-
-    if ($structures->isNotEmpty()) {
-        // Envoi vers les structures sélectionnées
-        foreach ($structures as $structure) {
-            // On enregistre une ligne de validation "en attente"
-            $this->enregistrerValidation($demande, 'dts', 'accord', $request, 'validee_dts');
-            $demande->validations()->create([
-                'user_id' => $structure->id,
-                'role' => 'structure_specialisee',
-                'decision' => null,
-                'visa' => null,
-                'commentaire' => null,
-                'date_validation' => null,
-            ]);
-        }
-
-        return back()->with('success', 'Demande validée par la DTS et envoyée aux structures spécialisées sélectionnées.');
-    } else {
-        // Aucune structure : envoi direct au contrôle avancé
-         $this->enregistrerValidation($demande, 'dts', 'accord', $request, 'validee_dts');
-        $demande->validations()->create([
-            'validator_id' => auth()->id(),
-            'user_id' => Auth::id(),
-            'role' => 'dts',
-            'decision' => 'accord',
-            'visa' => $request->visa ?? Auth::user()->name,
-            'commentaire' => $request->commentaire ?? '',
-            'date_validation' => now(),
-        ]);
-
-        $demande->update(['statut' => 'validee_structure_specialisee']);
-
-        return back()->with('success', 'Demande validée par la DTS et envoyée au Contrôle Avancé.');
+    public function validerDts(Request $request, Demande $demande)
+    {
+        $status = $demande->structuresSpecialisees()->exists() ? 'validee_dts' : 'validee_structure_specialisee';
+        return $this->decide($request, $demande, 'validerDts', 'dts', 'accord', $status);
     }
-}
-
 
     public function rejeterDts(Request $request, Demande $demande)
     {
-        Gate::authorize('validerDts', $demande);
-
-        $this->enregistrerValidation($demande, 'dts', 'refus', $request, 'refusee_dts');
-        return back()->with('error', 'Demande refusée par la DTS.');
+        return $this->decide($request, $demande, 'validerDts', 'dts', 'refus', 'refusee_dts');
     }
 
     // ===================== STRUCTURES SPÉCIALISÉES =====================

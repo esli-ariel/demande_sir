@@ -287,8 +287,7 @@ public function indexExploitation()
 }
 public function indexDTS()
 {
-    $demandes = Demande::where('statut', 'validee_exploitation')->latest()->get();
-    return view('demandes.index_dts', compact('demandes'));
+    return app(StaffController::class)->index(request());
 }
 
 public function admin()

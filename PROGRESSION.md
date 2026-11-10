@@ -20,6 +20,7 @@ Dernière mise à jour : **2026-11-10**
 - Espace demandeur refondu (DMA-013), avec 20 tests réussis (126 assertions). La refonte est regroupée dans le point de contrôle demandeur sur `main`.
 - Les 11 structures spécialisées existantes sont désormais accessibles dans le formulaire ; incohérence de nom de table corrigée.
 - Rôle exploitation livré : DMA-014, 24 tests réussis (159 assertions) ; point de contrôle dédié sur `main`.
+- Rôle DTS livré : DMA-015, 27 tests réussis (178 assertions) ; point de contrôle dédié sur `main`.
 - Prochaine action : revue manuelle de l’espace demandeur, puis confirmation des fonctionnalités manquantes et du circuit métier attendu.
 
 ## État des fonctionnalités

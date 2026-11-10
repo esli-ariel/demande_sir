@@ -224,23 +224,7 @@ public function structure()
 
 public function dts()
 {
-    // Statistiques pour la Direction Technique (DTS)
-    $stats = [
-        'total'      => \App\Models\Demande::count(),
-        'en_attente' => \App\Models\Demande::where('statut', 'validee_exploitation')->count(),
-        'traitees'   => \App\Models\Demande::where('statut', 'validee_dts')->count(),
-        'rejetees'   => \App\Models\Demande::where('statut', 'refusee_dts')->count(),
-    ];
-
-    // Liste des demandes pertinentes pour le DTS
-    $demandes = \App\Models\Demande::whereIn('statut', [
-        'validee_exploitation', 'validee_dts', 'refusee_dts'
-    ])
-    ->latest()
-    ->take(10)
-    ->get();
-
-    return view('dashboards.dts', compact('stats', 'demandes'));
+    return app(StaffController::class)->dashboard(request());
 }
 
 public function controleAvance()

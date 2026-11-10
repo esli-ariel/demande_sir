@@ -9,7 +9,7 @@
         </a>
         <div class="admin-nav-links">
             @if($staffSpace)
-                <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.exploitation')])>Tableau de bord</a>
+                <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.*')])>Tableau de bord</a>
                 <a href="{{ route('staff.demandes') }}" @class(['is-active' => request()->routeIs('staff.demandes', 'demandes.*') && request('vue') !== 'mes_decisions'])>À traiter</a>
                 <a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}" @class(['is-active' => request('vue') === 'mes_decisions'])>Mes décisions</a>
             @elseif($demandeurSpace)

@@ -6,6 +6,8 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Espace DTS : Dashboard et file DTS, consultation et avis dans la fiche, refus motivé ; une seule décision enregistrée, aucune fausse validation de structure, passage direct au contrôle avancé sans structure sélectionnée.
+
 - Espace exploitation : Dashboard, file filtrée, décisions personnelles, fiche avec accord/refus, visa et motif de refus ; décision transactionnelle sans doublon, brouillons non exposés. Socle visuel commun aux prochains rôles. Correction du rendu conditionnel de la fiche partagée et du typage nullable PHP.
 
 - Espace demandeur : dashboard personnel, liste filtrée et paginée, formulaires, suivi détaillé, réception avec visa, notifications, profil et navigation mobile en jour/nuit.
