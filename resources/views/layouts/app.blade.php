@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'SIR-gestion de DMA') }}</title>
 
-        @if(auth()->user()?->hasAnyRole(['admin', 'demandeur']))
+        @if(auth()->user()?->hasAnyRole(\App\Support\StaffWorkspace::modernRoles()))
             <script>
                 (() => {
                     let theme;
@@ -43,13 +43,13 @@
             <!-- Page Content -->
             <main class="">
                 @if(session('success'))
-    <div @class(['admin-flash' => auth()->user()?->hasAnyRole(['admin', 'demandeur']), 'p-2 mb-4 text-green-800 bg-green-100 rounded' => !auth()->user()?->hasAnyRole(['admin', 'demandeur'])]) role="status">
+    <div @class(['admin-flash' => auth()->user()?->hasAnyRole(\App\Support\StaffWorkspace::modernRoles()), 'p-2 mb-4 text-green-800 bg-green-100 rounded' => !auth()->user()?->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())]) role="status">
         {{ session('success') }}
     </div>
 @endif
 
 @if(session('error'))
-    <div @class(['admin-flash admin-flash-error' => auth()->user()?->hasAnyRole(['admin', 'demandeur']), 'p-2 mb-4 text-red-800 bg-red-100 rounded' => !auth()->user()?->hasAnyRole(['admin', 'demandeur'])]) role="alert">
+    <div @class(['admin-flash admin-flash-error' => auth()->user()?->hasAnyRole(\App\Support\StaffWorkspace::modernRoles()), 'p-2 mb-4 text-red-800 bg-red-100 rounded' => !auth()->user()?->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())]) role="alert">
         {{ session('error') }}
     </div>
 @endif

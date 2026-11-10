@@ -13,7 +13,7 @@ class WorkflowController extends Controller
     /**
      * Enregistre une validation ou un refus dans la table demandes_validations
      */
-    private function enregistrerValidation(Demande $demande, string $role, string $decision, Request $request, string $nouveauStatut = null)
+    private function enregistrerValidation(Demande $demande, string $role, string $decision, Request $request, ?string $nouveauStatut = null)
     {
         DemandeValidation::create([
             'demande_id'      => $demande->id,
@@ -33,18 +33,33 @@ class WorkflowController extends Controller
     // ===================== EXPLOITATION =====================
     public function validerExploitation(Request $request, Demande $demande)
     {
-        Gate::authorize('validerExploitation', $demande);
-
-        $this->enregistrerValidation($demande, 'exploitant', 'accord', $request, 'validee_exploitation');
-        return back()->with('success', 'Demande validée par Exploitation.');
+        return $this->decide($request, $demande, 'validerExploitation', 'exploitant', 'accord', 'validee_exploitation');
     }
 
     public function rejeterExploitation(Request $request, Demande $demande)
     {
-        Gate::authorize('validerExploitation', $demande);
+        return $this->decide($request, $demande, 'validerExploitation', 'exploitant', 'refus', 'refusee_exploitation');
+    }
 
-        $this->enregistrerValidation($demande, 'exploitant', 'refus', $request, 'refusee_exploitation');
-        return back()->with('error', 'Demande refusée par Exploitation.');
+    private function decide(Request $request, Demande $demande, string $ability, string $role, string $decision, string $status)
+    {
+        Gate::authorize($ability, $demande);
+        $data = $request->validate([
+            'visa' => 'required|string|max:255',
+            'commentaire' => ($decision === 'refus' ? 'required' : 'nullable').'|string|max:5000',
+        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($demande, $ability, $role, $decision, $status, $data) {
+            $locked = Demande::lockForUpdate()->findOrFail($demande->id);
+            Gate::authorize($ability, $locked);
+            DemandeValidation::create([
+                'demande_id' => $locked->id, 'user_id' => Auth::id(), 'role' => $role,
+                'decision' => $decision, 'visa' => $data['visa'], 'commentaire' => $data['commentaire'] ?? null,
+                'date_validation' => now(),
+            ]);
+            $locked->update(['statut' => $status]);
+        });
+
+        return back()->with('success', $decision === 'accord' ? 'Avis favorable enregistré.' : 'Refus enregistré.');
     }
 
     // ===================== DTS =====================

@@ -129,6 +129,13 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications avant publication :** 20 tests et 126 assertions déjà réussis lors de la refonte ; compilation Vite et Blade réussie ; absence d’erreurs d’espacement vérifiée avant commit.
 - **Branche cible :** `main`, dépôt `esli-ariel/demande_sir`.
 
+## 2026-11-10 — Rôle exploitation
+
+- **Tâche :** DMA-014.
+- **Travail réalisé :** Dashboard, file filtrée, décisions personnelles, fiche avec accord/refus, visa et motif de refus ; décision transactionnelle sans doublon, brouillons non exposés. Socle visuel commun aux prochains rôles. Correction du rendu conditionnel de la fiche partagée et du typage nullable PHP.
+- **Vérifications :** 24 tests réussis, 159 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
+- **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

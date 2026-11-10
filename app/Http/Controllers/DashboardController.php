@@ -37,6 +37,10 @@ class DashboardController extends Controller
             return app(DemandeurController::class)->dashboard(request());
         }
 
+        if (\App\Support\StaffWorkspace::role($user)) {
+            return app(StaffController::class)->dashboard(request());
+        }
+
         // Cas EXPLOITATION → il voit les demandes "soumise"
         if ($user->hasRole('exploitant')) {
             $demandes = Demande::wherein('statut',['soumise' , 'validee_exploitation' , 'refusee_exploitation'] )->get();
@@ -191,20 +195,8 @@ public function admin()
     
     public function exploitation()
 {
-    $demandes = \App\Models\Demande::whereIn('statut', ['soumise', 'validee_exploitation', 'refusee_exploitation'])
-        ->latest()
-        ->take(10)
-        ->get();
-
-    $stats = [
-        'total'     => $demandes->count(),
-        'en_attente'=> $demandes->where('statut', 'soumise')->count(),
-        'traitees'  => $demandes->where('statut', 'validee_exploitation')->count(),
-        'rejetees'  => $demandes->where('statut', 'refusee_exploitation')->count(),
-    ];
-
-    return view('dashboards.exploitation', compact('stats', 'demandes'));
-}
+        return app(StaffController::class)->dashboard(request());
+    }
 
 public function structure()
 {

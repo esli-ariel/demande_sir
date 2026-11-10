@@ -2,8 +2,10 @@
 <x-app-layout>
 <div class="admin-dashboard">
     <a class="admin-back" href="{{ route('demandes.index') }}">← Demandes</a>
-    <header class="admin-page-heading"><div><span class="admin-reference">{{ $demande->numero_dma ?: 'Dossier #'.$demande->id }}</span><h1>{{ $demande->objet_modif ?: 'Détail de ma demande' }}</h1></div><div class="admin-inline-actions"><span class="admin-badge admin-badge-{{ \App\Support\DmaStatus::group($demande->statut) }}">{{ \App\Support\DmaStatus::label($demande->statut) }}</span>@unless($demandeurSpace)@can('update', $demande)<a class="admin-button admin-button-orange" href="{{ route('demandes.edit', $demande) }}">Modifier</a>@endcan@endunless</div></header>
+    <header class="admin-page-heading"><div><span class="admin-reference">{{ $demande->numero_dma ?: 'Dossier #'.$demande->id }}</span><h1>{{ $demande->objet_modif ?: 'Détail de ma demande' }}</h1></div><div class="admin-inline-actions"><span class="admin-badge admin-badge-{{ \App\Support\DmaStatus::group($demande->statut) }}">{{ \App\Support\DmaStatus::label($demande->statut) }}</span>@unless($demandeurSpace)@can('update', $demande)<a class="admin-button admin-button-orange" href="{{ route('demandes.edit', $demande) }}">Modifier</a>@endcan
+@endunless</div></header>
     @include('admin.partials.errors')
+    @include('staff.actions')
     @if($demandeurSpace)
         @can('submit', $demande)
         <section class="admin-panel requester-next-action"><div class="admin-panel-heading"><h2>Mon brouillon</h2></div><div class="requester-action-buttons"><a class="admin-button admin-button-secondary" href="{{ route('demandes.edit', $demande) }}">Reprendre le brouillon</a><form method="POST" action="{{ route('demandes.submit', $demande) }}" onsubmit="return confirm('Envoyer cette demande à l’exploitation ? Vous ne pourrez plus modifier ce dossier après l’envoi.');">@csrf<button class="admin-button admin-button-orange">Envoyer la demande</button></form><form method="POST" action="{{ route('demandes.destroy', $demande) }}" onsubmit="return confirm('Supprimer définitivement ce brouillon ?');">@csrf @method('DELETE')<button class="admin-text-danger">Supprimer le brouillon</button></form></div></section>

@@ -38,6 +38,10 @@ class DemandeController extends Controller
             return view('admin.demandes.index', compact('demandes', 'search', 'status', 'statuses'));
         }
 
+        if (\App\Support\StaffWorkspace::role($request->user())) {
+            return app(StaffController::class)->index($request);
+        }
+
         if ($request->user()->hasRole('demandeur')) {
             return app(DemandeurController::class)->index($request);
         }
@@ -87,7 +91,8 @@ class DemandeController extends Controller
      */
     public function create()
     {
-        if (auth()->user()->hasAnyRole(['admin', 'demandeur'])) {
+        $this->authorize('create', Demande::class);
+        if (auth()->user()->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())) {
             return view('admin.demandes.form', ['structures' => StructureSpecialisee::orderBy('nom')->get()]);
         }
         //
@@ -103,7 +108,8 @@ class DemandeController extends Controller
      */
     public function store(Request $request)
 {
-    if ($request->user()->hasAnyRole(['admin', 'demandeur'])) {
+    $this->authorize('create', Demande::class);
+    if ($request->user()->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())) {
         $request->validate([
             'structures_specialisees' => 'nullable|array',
             'structures_specialisees.*' => 'integer|distinct|exists:structures_specialisees,id',
@@ -159,7 +165,7 @@ class DemandeController extends Controller
     {
         //
         $this->authorize('view', $demande);
-        if (auth()->user()->hasAnyRole(['admin', 'demandeur'])) {
+        if (auth()->user()->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())) {
             $decisions = \App\Models\DemandeValidation::with('user')->where('demande_id', $demande->id)->orderByDesc('date_validation')->orderByDesc('id')->get();
             return view('admin.demandes.show', compact('demande', 'decisions'));
         }
@@ -173,7 +179,7 @@ class DemandeController extends Controller
     {
         //
         $this->authorize('view', $demande);
-        if (auth()->user()->hasAnyRole(['admin', 'demandeur'])) {
+        if (auth()->user()->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())) {
             $this->authorize('update', $demande);
             return view('admin.demandes.form', ['demande' => $demande, 'structures' => StructureSpecialisee::orderBy('nom')->get()]);
         }
@@ -277,13 +283,7 @@ public function dashboardDemandeur()
 
 public function indexExploitation()
 {
-    // On filtre les demandes "soumise" ou "en attente exploitation"
-    $demandes = Demande::where('statut', 'soumise')
-        ->orWhere('statut', 'en_cours_traitement')
-        ->latest()
-        ->get();
-
-    return view('demandes.index_exploitation', compact('demandes'));
+    return app(StaffController::class)->index(request());
 }
 public function indexDTS()
 {

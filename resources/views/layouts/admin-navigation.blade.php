@@ -1,12 +1,18 @@
+@php($staffSpace = \App\Support\StaffWorkspace::role(auth()->user()))
+@php($staffLabel = $staffSpace ? \App\Support\StaffWorkspace::ROLES[$staffSpace]['label'] : null)
 @php($demandeurSpace = auth()->user()->hasRole('demandeur') && !auth()->user()->hasRole('admin'))
-<nav class="admin-nav" aria-label="{{ $demandeurSpace ? 'Navigation demandeur' : 'Navigation administration' }}" x-data="adminNavigation" @keydown.escape.window="open = false">
+<nav class="admin-nav" aria-label="{{ $demandeurSpace ? 'Navigation demandeur' : ($staffSpace ? 'Navigation '.$staffLabel : 'Navigation administration') }}" x-data="adminNavigation" @keydown.escape.window="open = false">
     <div class="admin-nav-inner">
         <a class="admin-brand" href="{{ route('dashboard') }}" aria-label="SIR DMA — Tableau de bord">
             <x-application-logo class="h-10 w-auto" />
-            <span>Gestion des DMA<small>{{ $demandeurSpace ? 'Espace demandeur' : 'Espace administration' }}</small></span>
+            <span>Gestion des DMA<small>{{ $demandeurSpace ? 'Espace demandeur' : ($staffSpace ? $staffLabel : 'Espace administration') }}</small></span>
         </a>
         <div class="admin-nav-links">
-            @if($demandeurSpace)
+            @if($staffSpace)
+                <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.exploitation')])>Tableau de bord</a>
+                <a href="{{ route('staff.demandes') }}" @class(['is-active' => request()->routeIs('staff.demandes', 'demandes.*') && request('vue') !== 'mes_decisions'])>À traiter</a>
+                <a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}" @class(['is-active' => request('vue') === 'mes_decisions'])>Mes décisions</a>
+            @elseif($demandeurSpace)
                 <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard', 'dashboard.demandeur')])>Mon tableau de bord</a>
                 <a href="{{ route('demandes.index') }}" @class(['is-active' => request()->routeIs('demandes.*')])>Mes demandes</a>
                 <a href="{{ route('demandeur.receptions') }}" @class(['is-active' => request()->routeIs('demandeur.receptions')])>Réceptions</a>
@@ -31,9 +37,9 @@
         <button class="admin-menu-toggle" type="button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="admin-mobile-menu" aria-label="Ouvrir ou fermer le menu">Menu <span aria-hidden="true">☰</span></button>
     </div>
     <div class="admin-mobile-menu" id="admin-mobile-menu" x-show="open" x-cloak>
-        <a href="{{ route('dashboard') }}">{{ $demandeurSpace ? 'Mon tableau de bord' : 'Vue d’ensemble' }}</a>
-        <a href="{{ route('demandes.index') }}">{{ $demandeurSpace ? 'Mes demandes' : 'Demandes' }}</a>
-        @if($demandeurSpace)<a href="{{ route('demandeur.receptions') }}">Réceptions</a>@else<a href="{{ route('users.index') }}">Utilisateurs</a>@endif
+        <a href="{{ route('dashboard') }}">{{ $demandeurSpace ? 'Mon tableau de bord' : ($staffSpace ? 'Tableau de bord' : 'Vue d’ensemble') }}</a>
+        <a href="{{ $staffSpace ? route('staff.demandes') : route('demandes.index') }}">{{ $demandeurSpace ? 'Mes demandes' : ($staffSpace ? 'À traiter' : 'Demandes') }}</a>
+        @if($staffSpace)<a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}">Mes décisions</a>@elseif($demandeurSpace)<a href="{{ route('demandeur.receptions') }}">Réceptions</a>@else<a href="{{ route('users.index') }}">Utilisateurs</a>@endif
         <a href="{{ route('notifications.index') }}">Notifications</a>
         <a href="{{ route('profile.edit') }}">Mon profil</a>
         <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Déconnexion</button></form>

@@ -261,8 +261,10 @@ Route::get('/mes-demandes/reception', [\App\Http\Controllers\DemandeurController
 Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
     ->middleware('auth')->name('notifications.index');
 Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'read'])
-    ->middleware(['auth', 'role:admin|demandeur'])->name('notifications.read');
+    ->middleware(['auth', 'role:'.implode('|', \App\Support\StaffWorkspace::modernRoles())])->name('notifications.read');
 
 
+
+Route::get('/espace/demandes', [\App\Http\Controllers\StaffController::class, 'index'])->middleware('auth')->name('staff.demandes');
 
 require __DIR__.'/auth.php';

@@ -28,6 +28,7 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-011 | Normale | Ajouter les modes jour et nuit à l’administration | Terminé | Bascule accessible dans la navbar, préférence mémorisée, retour au jour et affichage mobile vérifiés |
 | DMA-012 | Haute | Harmoniser les autres pages de l’administration | Terminé | Listes et formulaires utilisateurs/demandes, fiche DMA, profil et notifications harmonisés ; 12 tests réussis et revue visuelle effectuée |
 | DMA-013 | Haute | Refaire les pages du demandeur | Terminé | Dashboard personnel, liste, formulaires, suivi, réception, notifications et profil ; droits et transitions couverts par tests isolés ; revue visuelle ordinateur/mobile |
+| DMA-014 | Haute | Refaire le rôle exploitation | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 

@@ -26,6 +26,10 @@ class DemandePolicy
         return true;
     }
 
+    if (\App\Support\StaffWorkspace::role($user)) {
+        return \App\Support\StaffWorkspace::query($user)->whereKey($demande->id)->exists();
+    }
+
     // Les rôles de supervision peuvent voir toutes les demandes
     if ($user->hasAnyRole([
         'exploitant',
@@ -48,7 +52,7 @@ class DemandePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasAnyRole(['admin', 'demandeur']);
     }
 
 

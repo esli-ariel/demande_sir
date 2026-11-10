@@ -1,4 +1,4 @@
-@if(auth()->user()?->hasAnyRole(['admin', 'demandeur']))
+@if(auth()->user()?->hasAnyRole(\App\Support\StaffWorkspace::modernRoles()))
     @include('layouts.admin-navigation')
 @else
 <nav x-data="{ open: false, time: '' }" 
