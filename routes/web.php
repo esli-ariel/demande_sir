@@ -96,8 +96,7 @@ Route::middleware(['auth', 'role:service_technique'])->group(function () {
         ->name('demandes.traiter');
 
         // cloturer une demande
-    Route::post('/demandes/{demande}/cloturer', [ValidationController::class, 'cloturer'])
-        ->name('demandes.cloturer');
+
 });
 
 // =====================
@@ -166,7 +165,7 @@ Route::get('/dashboard/exploitation', [DashboardController::class, 'exploitation
 Route::get('/dashboard/dts', [DashboardController::class, 'dts'])->name('dashboard.dts');
 Route::get('/dashboard/structure', [DashboardController::class, 'structure'])->name('dashboard.structure');
 Route::get('/dashboard/controle', [DashboardController::class, 'controle'])->name('dashboard.controle');
-Route::get('/dashboard/service', [DashboardController::class, 'service'])->name('dashboard.service');
+Route::get('/dashboard/service', [DashboardController::class, 'serviceTechnique'])->middleware(['auth','role:service_technique'])->name('dashboard.service');
 Route::get('/dashboard/reception', [DashboardController::class, 'reception'])->name('dashboard.reception');
 
 
@@ -268,3 +267,5 @@ Route::post('/notifications/{notification}/read', [\App\Http\Controllers\Notific
 Route::get('/espace/demandes', [\App\Http\Controllers\StaffController::class, 'index'])->middleware('auth')->name('staff.demandes');
 
 require __DIR__.'/auth.php';
+
+Route::post('/demandes/{demande}/terminer-travaux', [WorkflowController::class, 'terminerTravaux'])->middleware(['auth','role:service_technique'])->name('travaux.terminer');

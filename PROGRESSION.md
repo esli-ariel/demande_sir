@@ -23,6 +23,7 @@ Dernière mise à jour : **2026-11-10**
 - Rôle DTS livré : DMA-015, 27 tests réussis (178 assertions) ; point de contrôle dédié sur `main`.
 - Rôle structures spécialisées livré : DMA-016, 30 tests réussis (206 assertions) ; point de contrôle dédié sur `main`.
 - Rôle contrôle avancé livré : DMA-017, 33 tests réussis (229 assertions) ; point de contrôle dédié sur `main`.
+- Rôle service technique livré : DMA-018, 34 tests réussis (253 assertions) ; point de contrôle dédié sur `main`.
 - Prochaine action : revue manuelle de l’espace demandeur, puis confirmation des fonctionnalités manquantes et du circuit métier attendu.
 
 ## État des fonctionnalités

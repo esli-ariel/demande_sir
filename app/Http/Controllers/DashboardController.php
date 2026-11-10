@@ -213,30 +213,7 @@ public function controleAvance()
     return app(StaffController::class)->dashboard(request());
 }
 
-public function serviceTechnique()
-{
-    $stats = [
-        'total'      => \App\Models\Demande::whereIn('statut', [
-            'validee_controle_avancee',
-            'en_cours_traitement',
-            'terminee_agent'
-        ])->count(),
-
-        'en_cours'   => \App\Models\Demande::where('statut', 'en_cours_traitement')->count(),
-
-        'validees'   => \App\Models\Demande::where('statut', 'validee_controle_avancee')->count(),
-
-        'terminees'  => \App\Models\Demande::where('statut', 'terminee_agent')->count(),
-    ];
-
-    $demandes = \App\Models\Demande::whereIn('statut', [
-        'validee_controle_avancee',
-        'en_cours_traitement',
-        'terminee_agent'
-    ])->latest()->get();
-
-    return view('dashboards.service', compact('stats', 'demandes'));
-}
+public function serviceTechnique() { return app(StaffController::class)->dashboard(request()); }
 
 
 }

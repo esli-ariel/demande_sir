@@ -6,6 +6,8 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Espace service technique : Démarrage et fin des travaux distincts, dates cohérentes, compte rendu et historique des interventions.
+
 - Espace contrôle avancé : File de contrôle, avis sécurisés, numérotation conservée et vérification des travaux avant réception.
 
 - Espace structures spécialisées : Files limitées aux structures affectées ; choix de la structure représentée, une décision par structure, refus motivé et attente de tous les accords. Affectations explicites dans la gestion utilisateurs ; migration locale appliquée avec reprise de 11 correspondances exactes, sans modification des statuts métier.

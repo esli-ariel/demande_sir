@@ -12,3 +12,15 @@
         @endcan
     @endif
 @endif
+
+@if($staffRole === 'service_technique')
+@foreach(['traiter'=>'Démarrer les travaux','terminerTravaux'=>'Terminer les travaux'] as $ability=>$title)
+@can($ability, $demande)
+<section class="admin-panel"><div class="admin-panel-heading"><h2>{{ $title }}</h2></div><form class="admin-form" method="POST" action="{{ route($ability === 'traiter' ? 'demandes.traiter_agent' : 'travaux.terminer', $demande) }}">@csrf
+<div class="admin-form-grid"><div><label for="work-visa">Votre visa</label><input id="work-visa" name="visa" value="{{ old('visa', auth()->user()->name) }}" required maxlength="255"></div>
+@if($ability === 'traiter')<div><label for="date_debut">Date de début</label><input id="date_debut" name="date_debut" type="date" value="{{ old('date_debut') }}" required></div>
+@else<div><label for="date_fin">Date de fin</label><input id="date_fin" name="date_fin" type="date" min="{{ $demande->date_debut }}" value="{{ old('date_fin') }}" required></div><div class="admin-full-width"><label for="travaux_realises">Travaux réalisés</label><textarea id="travaux_realises" name="travaux_realises" rows="4" required maxlength="5000">{{ old('travaux_realises') }}</textarea></div>@endif</div>
+<div class="admin-form-actions"><button class="admin-button admin-button-primary">{{ $title }}</button></div></form></section>
+@endcan
+@endforeach
+@endif

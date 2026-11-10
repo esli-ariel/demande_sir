@@ -377,11 +377,7 @@ public function cloturer(Request $request, Demande $demande)
 ////////////////////////////////////////////////////////////
 // SERVICE TECHNIQUE
 ////////////////////////////////////////////////////////////
-public function indexServiceTechnique()
-{
-    $demandes = Demande::where('statut', 'validee_controle_avancee')->get();
-    return view('demandes.index_service', compact('demandes'));
-}
+public function indexServiceTechnique() { return app(StaffController::class)->index(request()); }
 
 public function traiter(Request $request, Demande $demande)
 {

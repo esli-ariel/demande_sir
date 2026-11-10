@@ -29,25 +29,12 @@ class ValidationController extends Controller
     }
 
     // Liste des demandes pour le service technique
-    public function executions()
-    {
-        $demandes = Demande::where('statut', 'validee_responsable')->get();
-        return view('service.executions', compact('demandes'));
-    }
+    public function executions() { return app(StaffController::class)->index(request()); }
 
     // Exécution par le service technique
-    public function traiter(Demande $demande)
-    {
-        $demande->update(['statut' => 'terminee_agent']);
-        return redirect()->route('dashboard')->with('success', 'Demande exécutée.');
-    }
+    public function traiter(Request $request, Demande $demande) { return app(WorkflowController::class)->traiterAgent($request, $demande); }
     // Clôture par le service technique
-    public function cloturer(Demande $demande)
-    {
-        $demande->update(['statut' => 'cloturee']);
-
-        return back()->with('success', 'Demande clôturée.');
-    }
+    public function cloturer(Request $request, Demande $demande) { return app(WorkflowController::class)->terminerTravaux($request, $demande); }
      public function receptionner(Demande $demande)
     {
         $demande->update(['statut' => 'cloturee_receptionnee']);

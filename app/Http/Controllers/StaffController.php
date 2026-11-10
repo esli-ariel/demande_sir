@@ -20,6 +20,10 @@ class StaffController extends Controller
         $decisions = DemandeValidation::where('user_id', $request->user()->id)->where('role', $role);
         $processed = (clone $decisions)->distinct()->count('demande_id');
         $refused = (clone $decisions)->where('decision', 'refus')->distinct()->count('demande_id');
+        if ($role === 'service_technique') {
+            $processed = (clone $query)->where('statut','en_cours_traitement')->count();
+            $refused = (clone $query)->whereIn('statut',['terminee_agent','cloturee','cloturee_receptionnee'])->count();
+        }
         $demandes = StaffWorkspace::pending(clone $query, $request->user())->with('user')->oldest()->orderBy('id')->take(6)->get();
 
         return view('staff.dashboard', compact('role', 'workspace', 'total', 'pending', 'processed', 'refused', 'demandes'));

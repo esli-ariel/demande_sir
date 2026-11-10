@@ -133,26 +133,36 @@ class WorkflowController extends Controller
     // ===================== SERVICE TECHNIQUE =====================
     public function traiterAgent(Request $request, Demande $demande)
     {
-        Gate::authorize('traiter', $demande);
+        return $this->travaux($request, $demande, false);
+    }
 
-        $demande->update([
-            'statut'           => 'en_cours_traitement',
-            'date_debut'       => $request->date_debut,
-            'date_fin'         => $request->date_fin,
-            'travaux_realises' => $request->travaux_realises,
-        ]);
+    public function terminerTravaux(Request $request, Demande $demande)
+    {
+        return $this->travaux($request, $demande, true);
+    }
 
-        DemandeValidation::create([
-            'demande_id'      => $demande->id,
-            'role'            => 'service_technique',
-            'user_id'         => Auth::id(),
-            'decision'        => 'accord',
-            'visa'            => $request->visa ?? Auth::user()->name,
-            'commentaire'     => $request->commentaire,
-            'date_validation' => now(),
-        ]);
-
-        return back()->with('success', 'Travaux du service technique enregistrés.');
+    private function travaux(Request $request, Demande $demande, bool $finish)
+    {
+        $ability = $finish ? 'terminerTravaux' : 'traiter';
+        Gate::authorize($ability, $demande);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $demande, $ability, $finish) {
+            $locked = Demande::lockForUpdate()->findOrFail($demande->id);
+            Gate::authorize($ability, $locked);
+            $rules = ['visa'=>'required|string|max:255'];
+            if ($finish) {
+                abort_unless($locked->date_debut, 422);
+                $rules += ['date_fin'=>'required|date|after_or_equal:'.$locked->date_debut, 'travaux_realises'=>'required|string|max:5000'];
+            } else {
+                $rules['date_debut'] = 'required|date';
+            }
+            $data = $request->validate($rules);
+            $visa = $data['visa']; unset($data['visa']);
+            $data['statut'] = $finish ? 'terminee_agent' : 'en_cours_traitement';
+            $locked->update($data);
+            DemandeValidation::create(['demande_id'=>$locked->id,'user_id'=>Auth::id(),'role'=>'service_technique', 'decision'=>'accord','visa'=>$visa,'commentaire'=>$finish ? $data['travaux_realises'] : 'Début des travaux : '.$data['date_debut'], 'date_validation'=>now()]);
+            $locked->user?->notify(new \App\Notifications\DemandeStatutChangeNotification($locked, \App\Support\DmaStatus::label($data['statut']), $data['travaux_realises'] ?? null));
+        });
+        return back()->with('success', $finish ? 'Travaux terminés. Le dossier est transmis pour réception.' : 'Travaux démarrés.');
     }
 
     // ===================== RÉCEPTION =====================

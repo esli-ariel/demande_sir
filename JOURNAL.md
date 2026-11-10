@@ -157,6 +157,13 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications :** 33 tests réussis, 229 assertions sur base isolée ; rendu des vues vérifié par les tests. Aucune décision réelle enregistrée pendant les contrôles.
 - **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
 
+## 2026-11-10 — Rôle service technique
+
+- **Tâche :** DMA-018.
+- **Travail réalisé :** Démarrage et fin des travaux distincts, dates cohérentes, compte rendu et historique des interventions.
+- **Vérifications :** 34 tests réussis, 253 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
+- **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 final class StaffWorkspace
 {
     public const ROLES = [
+        'service_technique' => ['label'=>'Service technique', 'pending'=>['validee_controle_avancee','en_cours_traitement']],
         'controle_avancee' => ['label' => 'Contrôle avancé', 'pending' => ['validee_structure_specialisee', 'terminee_agent'], 'ability' => 'validerControle', 'approve' => 'demandes.valider_controle', 'reject' => 'demandes.rejeter_controle'],
         'structure_specialisee' => ['label' => 'Structure spécialisée', 'pending' => ['validee_dts'], 'ability' => 'validerStructureSpecialisee', 'approve' => 'demandes.validerStructure', 'reject' => 'demandes.validerStructure'],
         'dts' => ['label' => 'Direction technique · DTS', 'pending' => ['validee_exploitation'], 'ability' => 'validerDts', 'approve' => 'demandes.valider_dts', 'reject' => 'demandes.rejeter_dts'],

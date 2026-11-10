@@ -157,3 +157,24 @@ it('checks completed works without bypassing final reception', function () {
     expect($demande->fresh()->statut)->toBe('cloturee')->and(DB::table('demandes_validations')->where('commentaire','Travaux conformes')->count())->toBe(1);
     $this->post(route('demandes.cloturer',$demande),['visa'=>'Test','analyse'=>'Doublon'])->assertForbidden();
 });
+
+it('runs technical work in two audited steps with coherent dates', function () {
+    Role::firstOrCreate(['name'=>'service_technique','guard_name'=>'web']);
+    $this->staff->syncRoles(['service_technique']);
+    $demande=($this->makeDemande)(['statut'=>'validee_controle_avancee']);
+    foreach (['dashboard','dashboard.service','demandes.index_service','service.executions'] as $route) $this->get(route($route))->assertOk();
+    $this->get(route('demandes.show',$demande))->assertOk()->assertSee('Démarrer les travaux');
+    $this->post(route('travaux.terminer',$demande),['visa'=>'Test'])->assertForbidden();
+    $this->post(route('demandes.traiter_agent',$demande),['visa'=>'Test'])->assertSessionHasErrors('date_debut');
+    $this->post(route('demandes.traiter_agent',$demande),['visa'=>'Test','date_debut'=>'2026-11-10'])->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('en_cours_traitement');
+    $this->post(route('demandes.traiter_agent',$demande),['visa'=>'Test','date_debut'=>'2026-11-10'])->assertForbidden();
+    $this->get(route('demandes.show',$demande))->assertOk()->assertSee('Terminer les travaux');
+    $data=['visa'=>'Test','date_fin'=>'2026-11-09','travaux_realises'=>'Modification effectuée'];
+    $this->post(route('travaux.terminer',$demande),$data)->assertSessionHasErrors('date_fin');
+    $data['date_fin']='2026-11-11';
+    $this->post(route('travaux.terminer',$demande),$data)->assertSessionHasNoErrors();
+    expect($demande->fresh()->statut)->toBe('terminee_agent')->and($demande->fresh()->travaux_realises)->toBe('Modification effectuée')->and(DB::table('demandes_validations')->count())->toBe(2)->and($this->owner->notifications()->count())->toBe(2);
+    $this->post(route('travaux.terminer',$demande),$data)->assertForbidden();
+    $this->actingAs($this->owner)->post(route('demandes.traiter_agent',($this->makeDemande)(['statut'=>'validee_controle_avancee'])),['visa'=>'Test','date_debut'=>'2026-11-10'])->assertForbidden();
+});

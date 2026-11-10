@@ -130,6 +130,11 @@ class DemandePolicy
     /**
      * Détermine si la réception peut clôturer
      */
+    public function terminerTravaux(User $user, Demande $demande): bool
+    {
+        return $user->hasRole('service_technique') && $demande->statut === 'en_cours_traitement';
+    }
+
     public function receptionner(User $user, Demande $demande): bool
     {
         return $user->hasRole('demandeur') && $user->id === $demande->user_id && $demande->statut === 'cloturee';
