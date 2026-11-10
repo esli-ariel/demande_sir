@@ -269,3 +269,5 @@ Route::get('/espace/demandes', [\App\Http\Controllers\StaffController::class, 'i
 require __DIR__.'/auth.php';
 
 Route::post('/demandes/{demande}/terminer-travaux', [WorkflowController::class, 'terminerTravaux'])->middleware(['auth','role:service_technique'])->name('travaux.terminer');
+
+Route::get('/dashboard/chef', [\App\Http\Controllers\StaffController::class, 'dashboard'])->middleware(['auth','role:chef_structure'])->name('dashboard.chef');

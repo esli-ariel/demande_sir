@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 final class StaffWorkspace
 {
     public const ROLES = [
+        'chef_structure' => ['label'=>'Chef de structure', 'readonly'=>true, 'pending'=>['validee_exploitation','validee_dts','validee_structure_specialisee','validee_controle_avancee','en_cours_traitement','terminee_agent','cloturee']],
         'service_technique' => ['label'=>'Service technique', 'pending'=>['validee_controle_avancee','en_cours_traitement']],
         'controle_avancee' => ['label' => 'Contrôle avancé', 'pending' => ['validee_structure_specialisee', 'terminee_agent'], 'ability' => 'validerControle', 'approve' => 'demandes.valider_controle', 'reject' => 'demandes.rejeter_controle'],
         'structure_specialisee' => ['label' => 'Structure spécialisée', 'pending' => ['validee_dts'], 'ability' => 'validerStructureSpecialisee', 'approve' => 'demandes.validerStructure', 'reject' => 'demandes.validerStructure'],
@@ -40,6 +41,9 @@ final class StaffWorkspace
         abort_unless(self::role($user), 403);
 
         $query = Demande::query()->where('statut', '!=', 'brouillon');
+        if (self::role($user) === 'chef_structure') {
+            $query->whereIn('statut', ['validee_exploitation','validee_dts','refusee_dts','validee_structure_specialisee','refusee_structure_specialisee','rejetee_structure_specialisee','validee_controle_avancee','refusee_controle_avancee','en_cours_traitement','terminee_agent','cloturee','cloturee_receptionnee']);
+        }
         if (self::role($user) === 'structure_specialisee') {
             $query->whereIn('statut', ['validee_dts','validee_structure_specialisee','refusee_structure_specialisee','validee_controle_avancee','refusee_controle_avancee','en_cours_traitement','terminee_agent','cloturee','cloturee_receptionnee'])
                 ->whereHas('structuresSpecialisees.users', fn ($users) => $users->where('users.id', $user->id));

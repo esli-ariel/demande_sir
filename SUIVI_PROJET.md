@@ -33,6 +33,7 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-016 | Haute | Refaire le rôle structures spécialisées | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-017 | Haute | Refaire le rôle contrôle avancé | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-018 | Haute | Refaire le rôle service technique | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
+| DMA-019 | Haute | Refaire le rôle chef de structure | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 

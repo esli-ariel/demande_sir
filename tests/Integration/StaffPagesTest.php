@@ -178,3 +178,20 @@ it('runs technical work in two audited steps with coherent dates', function () {
     $this->post(route('travaux.terminer',$demande),$data)->assertForbidden();
     $this->actingAs($this->owner)->post(route('demandes.traiter_agent',($this->makeDemande)(['statut'=>'validee_controle_avancee'])),['visa'=>'Test','date_debut'=>'2026-11-10'])->assertForbidden();
 });
+
+it('shows the chief only requests already approved by exploitation without decision controls', function () {
+    Role::firstOrCreate(['name'=>'chef_structure','guard_name'=>'web']);$this->staff->syncRoles(['chef_structure']);
+    $hidden=($this->makeDemande)(['objet_modif'=>'Avant exploitation']);
+    ($this->makeDemande)(['statut'=>'refusee_exploitation','objet_modif'=>'Refus exploitation privé']);
+    $visible=($this->makeDemande)(['statut'=>'validee_exploitation','objet_modif'=>'Après exploitation']);
+    ($this->makeDemande)(['statut'=>'cloturee_receptionnee']);
+    ($this->makeDemande)(['statut'=>'refusee_dts']);
+    $this->get(route('dashboard'))->assertOk()->assertViewHas('total',3)->assertViewHas('pending',1)->assertViewHas('processed',1)->assertViewHas('refused',1)->assertSee('Chef de structure')->assertDontSee('Mes décisions');
+    $this->get(route('dashboard.chef'))->assertOk();
+    $this->get(route('staff.demandes',['vue'=>'tous']))->assertOk()->assertSee('Après exploitation')->assertDontSee('Avant exploitation')->assertDontSee('Refus exploitation privé');
+    $this->get(route('demandes.show',$hidden))->assertForbidden();
+    $this->get(route('demandes.show',$visible))->assertOk()->assertDontSee('Accorder')->assertDontSee('Refuser');
+    $this->post(route('demandes.valider_dts',$visible),['visa'=>'Test'])->assertForbidden();
+    $this->post(route('demandes.traiter_agent',$visible),['visa'=>'Test'])->assertForbidden();
+    $this->get(route('staff.demandes',['vue'=>'mes_decisions']))->assertOk()->assertViewHas('demandes',fn($items)=>$items->total()===2);
+});
