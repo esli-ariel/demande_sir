@@ -28,6 +28,7 @@ function resetWorkspaceDatabase(): User
         '2025_11_01_180445_create_structure_specialisees_table.php',
         '2025_11_01_182350_create_demande_structure_specialisee_table.php',
         '2025_12_12_104453_update_enum_statut_in_demandes_table.php',
+        '2026_11_10_000001_link_specialist_accounts_and_decisions.php',
     ] as $migration) {
         (require database_path('migrations/'.$migration))->up();
     }

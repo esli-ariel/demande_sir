@@ -10,6 +10,7 @@ class DemandeValidation extends Model
     protected $table = 'demandes_validations';
     protected $fillable = [
         'demande_id',
+        'structure_id',
         'role',
         'user_id',
         'decision',
@@ -24,6 +25,10 @@ class DemandeValidation extends Model
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+    public function structure()
+    {
+        return $this->belongsTo(StructureSpecialisee::class, 'structure_id');
     }
 }
 

@@ -166,7 +166,7 @@ class DemandeController extends Controller
         //
         $this->authorize('view', $demande);
         if (auth()->user()->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())) {
-            $decisions = \App\Models\DemandeValidation::with('user')->where('demande_id', $demande->id)->orderByDesc('date_validation')->orderByDesc('id')->get();
+            $decisions = \App\Models\DemandeValidation::with(['user', 'structure'])->where('demande_id', $demande->id)->orderByDesc('date_validation')->orderByDesc('id')->get();
             return view('admin.demandes.show', compact('demande', 'decisions'));
         }
         return view('demandes.show', compact('demande'));
@@ -334,56 +334,12 @@ public function admin()
 ////////////////////////////////////////////////////////////
 public function indexStructure()
 {
-    $demandes = Demande::where('statut', 'validee_dts')->get();
-    return view('demandes.index_structure', compact('demandes'));
+    return app(StaffController::class)->index(request());
 }
 
 public function validerOuRejeterStructure(Request $request, Demande $demande)
 {
-    // Vérifie que l'utilisateur est bien une structure spécialisée
-    Gate::authorize('validerStructureSpecialisee', $demande);
-
-    $validated = $request->validate([
-        'decision' => 'required|in:accord,refus',
-        'visa' => 'required|string|max:255',
-        'commentaire' => 'nullable|string',
-    ]);
-
-    // 1️⃣ Enregistrer la décision individuelle de cette structure
-    $demande->validations()->create([
-        'user_id' => Auth::id(),
-        'role' => 'structure_specialisee',
-        'decision' => $validated['decision'],
-        'visa' => $validated['visa'],
-        'commentaire' => $validated['commentaire'],
-        'date_validation' => now(),
-    ]);
-
-    // 2️⃣ Vérifier si une structure a refusé
-    $refus = $demande->validations()
-        ->where('role', 'structure_specialisee')
-        ->where('decision', 'refus')
-        ->exists();
-
-    if ($refus) {
-        $demande->update(['statut' => 'refusee_structure_specialisee']);
-        return back()->with('error', '❌ Une structure spécialisée a refusé — la demande est rejetée.');
-    }
-
-    // 3️⃣ Vérifier si toutes les structures ont validé
-    $total = $demande->structuresSpecialisees()->count();
-    $validees = $demande->validations()
-        ->where('role', 'structure_specialisee')
-        ->where('decision', 'accord')
-        ->count();
-
-    if ($validees === $total && $total > 0) {
-        $demande->update(['statut' => 'validee_structure_specialisee']);
-        return back()->with('success', '✅ Toutes les structures spécialisées ont validé — demande envoyée au contrôle avancé.');
-    }
-
-    // 4️⃣ Sinon, on attend encore des validations
-    return back()->with('info', 'Validation enregistrée — en attente des autres structures.');
+    return app(WorkflowController::class)->validerOuRejeterStructure($request, $demande);
 }
 
 

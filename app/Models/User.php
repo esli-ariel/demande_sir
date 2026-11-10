@@ -59,4 +59,8 @@ public function validations()
     return $this->hasMany(Validation::class, 'validator_id');
 }
 
+    public function structuresSpecialisees()
+    {
+        return $this->belongsToMany(StructureSpecialisee::class, 'structure_specialisee_user', 'user_id', 'structure_id')->withTimestamps();
+    }
 }

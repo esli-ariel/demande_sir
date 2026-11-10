@@ -27,7 +27,7 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('admin.create', ['roles' => Role::where('guard_name', 'web')->orderBy('name')->get()]);
+        return view('admin.create', ['roles' => Role::where('guard_name', 'web')->orderBy('name')->get(), 'structures' => \App\Models\StructureSpecialisee::orderBy('nom')->get()]);
     }
 
     public function store(Request $request)
@@ -36,6 +36,7 @@ class UserController extends Controller
         DB::transaction(function () use ($validated) {
             $user = User::create(collect($validated)->only(['name', 'prenom', 'email', 'password'])->all());
             $user->assignRole($validated['role']);
+            if ($validated['role'] === 'structure_specialisee') $user->structuresSpecialisees()->sync($validated['structure_ids']);
         });
 
         return redirect()->route('users.index')->with('success', 'Utilisateur créé avec succès.');
@@ -43,7 +44,7 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('admin.edit', ['user' => $user, 'roles' => Role::where('guard_name', 'web')->orderBy('name')->get()]);
+        return view('admin.edit', ['user' => $user, 'roles' => Role::where('guard_name', 'web')->orderBy('name')->get(), 'structures' => \App\Models\StructureSpecialisee::orderBy('nom')->get()]);
     }
 
     public function update(Request $request, User $user)
@@ -55,6 +56,7 @@ class UserController extends Controller
         DB::transaction(function () use ($validated, $user) {
             $user->update(collect($validated)->only(['name', 'prenom', 'email'])->all());
             $user->syncRoles([$validated['role']]);
+            $user->structuresSpecialisees()->sync($validated['role'] === 'structure_specialisee' ? $validated['structure_ids'] : []);
         });
 
         return redirect()->route('users.index')->with('success', 'Utilisateur mis à jour.');
@@ -77,6 +79,8 @@ class UserController extends Controller
             'prenom' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user?->id)],
             'role' => ['required', Rule::exists('roles', 'name')->where('guard_name', 'web')],
+            'structure_ids' => ['required_if:role,structure_specialisee', 'array', 'min:1'],
+            'structure_ids.*' => ['integer', 'distinct', Rule::exists('structures_specialisees', 'id')],
         ];
         if (! $user) {
             $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];

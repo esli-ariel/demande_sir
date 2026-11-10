@@ -94,7 +94,14 @@ class DemandePolicy
      */
     public function validerOuRejeterStructure(User $user, Demande $demande): bool
     {
-        return $user->hasRole('structure_specialisee') && $demande->statut === 'validee_dts';
+        return $this->validerStructureSpecialisee($user, $demande);
+    }
+
+    public function validerStructureSpecialisee(User $user, Demande $demande): bool
+    {
+        return \App\Support\StaffWorkspace::role($user) === 'structure_specialisee'
+            && $demande->statut === 'validee_dts'
+            && \App\Support\StaffWorkspace::structuresForDecision($user, $demande)->exists();
     }
 
     /**

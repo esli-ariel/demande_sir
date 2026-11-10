@@ -16,11 +16,11 @@ class StaffController extends Controller
         $workspace = StaffWorkspace::ROLES[$role];
         $query = StaffWorkspace::query($request->user());
         $total = (clone $query)->count();
-        $pending = (clone $query)->whereIn('statut', $workspace['pending'])->count();
+        $pending = StaffWorkspace::pending(clone $query, $request->user())->count();
         $decisions = DemandeValidation::where('user_id', $request->user()->id)->where('role', $role);
         $processed = (clone $decisions)->distinct()->count('demande_id');
         $refused = (clone $decisions)->where('decision', 'refus')->distinct()->count('demande_id');
-        $demandes = (clone $query)->with('user')->whereIn('statut', $workspace['pending'])->oldest()->orderBy('id')->take(6)->get();
+        $demandes = StaffWorkspace::pending(clone $query, $request->user())->with('user')->oldest()->orderBy('id')->take(6)->get();
 
         return view('staff.dashboard', compact('role', 'workspace', 'total', 'pending', 'processed', 'refused', 'demandes'));
     }
@@ -35,7 +35,7 @@ class StaffController extends Controller
         $scope = $filters['vue'] ?? 'a_traiter';
         $query = StaffWorkspace::query($request->user())->with('user');
         if ($scope === 'a_traiter') {
-            $query->whereIn('statut', $workspace['pending']);
+            StaffWorkspace::pending($query, $request->user());
         } elseif ($scope === 'mes_decisions') {
             $query->whereIn('id', DemandeValidation::where('user_id', $request->user()->id)->where('role', $role)->select('demande_id'));
         }

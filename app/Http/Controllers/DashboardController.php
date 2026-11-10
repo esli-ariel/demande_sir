@@ -200,26 +200,7 @@ public function admin()
 
 public function structure()
 {
-    // Statistiques globales
-    $stats = [
-        'total'      => \App\Models\Demande::count(),
-        'en_attente' => \App\Models\Demande::where('statut', 'validee_exploitation')->count(),
-        'traitees'   => \App\Models\Demande::where('statut', 'validee_structure_specialisee')->count(),
-        'rejetees'   => \App\Models\Demande::where('statut', 'refusee_structure_specialisee')->count(),
-    ];
-
-    // Graphique : nombre de demandes par structure
-    $chartData = \App\Models\StructureSpecialisee::withCount('demandes')
-        ->get(['nom', 'demandes_count'])
-        ->map(fn($s) => [
-            'label' => $s->nom,
-            'count' => $s->demandes_count,
-        ]);
-
-    // Dernières demandes pour affichage dans le tableau
-    $demandes = \App\Models\Demande::latest()->take(10)->get();
-
-    return view('dashboards.structure', compact('stats', 'chartData', 'demandes'));
+    return app(StaffController::class)->dashboard(request());
 }
 
 public function dts()

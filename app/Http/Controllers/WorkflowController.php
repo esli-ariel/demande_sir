@@ -75,52 +75,35 @@ class WorkflowController extends Controller
     }
 
     // ===================== STRUCTURES SPÉCIALISÉES =====================
-public function validerOuRejeterStructure(Request $request, Demande $demande)
-{
-    Gate::authorize('validerStructureSpecialisee', $demande);
-
-    $validated = $request->validate([
-        'decision' => 'required|in:accord,refus',
-        'visa' => 'required|string|max:255',
-        'commentaire' => 'nullable|string',
-    ]);
-
-    // 1️⃣ Enregistrer la décision de cette structure
-    $demande->validations()->create([
-        'user_id' => Auth::id(),
-        'role' => 'structure_specialisee',
-        'decision' => $validated['decision'],
-        'visa' => $validated['visa'],
-        'commentaire' => $validated['commentaire'],
-        'date_validation' => now(),
-    ]);
-
-    // 2️⃣ Vérifier si une structure a refusé
-    $refus = $demande->validations()
-        ->where('role', 'structure_specialisee')
-        ->where('decision', 'refus')
-        ->exists();
-
-    if ($refus) {
-        $demande->update(['statut' => 'refusee_structure_specialisee']);
-        return back()->with('error', 'Une structure spécialisée a refusé : demande rejetée.');
+    public function validerOuRejeterStructure(Request $request, Demande $demande)
+    {
+        Gate::authorize('validerStructureSpecialisee', $demande);
+        $data = $request->validate([
+            'structure_id' => 'required|integer|exists:structures_specialisees,id',
+            'decision' => 'required|in:accord,refus', 'visa' => 'required|string|max:255',
+            'commentaire' => ($request->input('decision') === 'refus' ? 'required' : 'nullable').'|string|max:5000',
+        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($demande, $data) {
+            $locked = Demande::lockForUpdate()->findOrFail($demande->id);
+            Gate::authorize('validerStructureSpecialisee', $locked);
+            abort_unless(\App\Support\StaffWorkspace::structuresForDecision(Auth::user(), $locked)->whereKey($data['structure_id'])->exists(), 403);
+            DemandeValidation::create([
+                'demande_id'=>$locked->id,'user_id'=>Auth::id(),'structure_id'=>$data['structure_id'],
+                'role'=>'structure_specialisee','decision'=>$data['decision'],'visa'=>$data['visa'],
+                'commentaire'=>$data['commentaire'] ?? null,'date_validation'=>now(),
+            ]);
+            if ($data['decision'] === 'refus') {
+                $locked->update(['statut'=>'refusee_structure_specialisee']);
+            } else {
+                $selected = $locked->structuresSpecialisees()->pluck('structures_specialisees.id');
+                $approved = DemandeValidation::where('demande_id',$locked->id)->where('role','structure_specialisee')->where('decision','accord')->whereIn('structure_id',$selected)->distinct()->count('structure_id');
+                if ($selected->count() > 0 && $approved === $selected->count()) {
+                    $locked->update(['statut'=>'validee_structure_specialisee']);
+                }
+            }
+        });
+        return back()->with('success','Avis de la structure enregistré.');
     }
-
-    // 3️⃣ Vérifier si toutes les structures ont validé
-    $total = $demande->structuresSpecialisees()->count();
-    $validees = $demande->validations()
-        ->where('role', 'structure_specialisee')
-        ->where('decision', 'accord')
-        ->count();
-
-    if ($validees === $total && $total > 0) {
-        $demande->update(['statut' => 'validee_structure_specialisee']);
-        return back()->with('success', 'Toutes les structures spécialisées ont validé : envoi au Contrôle Avancé.');
-    }
-
-    // 4️⃣ Sinon, on attend les autres structures
-    return back()->with('info', 'Validation enregistrée. En attente des autres structures spécialisées.');
-}
 
     // ===================== CONTRÔLE AVANCÉ =====================
     public function validerControle(Request $request, Demande $demande)

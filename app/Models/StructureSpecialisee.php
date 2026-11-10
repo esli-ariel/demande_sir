@@ -13,4 +13,13 @@ class StructureSpecialisee extends Model
 {
     return $this->belongsToMany(Demande::class, 'demande_structure_specialisee', 'structure_id', 'demande_id');
 }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'structure_specialisee_user', 'structure_id', 'user_id')->withTimestamps();
+    }
+
+    public function decisions()
+    {
+        return $this->hasMany(DemandeValidation::class, 'structure_id');
+    }
 }

@@ -152,7 +152,7 @@ Route::post('/demandes/{demande}/cloture-controle',[WorkflowController::class, '
 });
 Route::post('/demandes/{demande}/valider-structure', [DemandeController::class, 'validerOuRejeterStructure'])
     ->name('demandes.validerStructure')
-    ->middleware('role:structure_specialisee');
+    ->middleware(['auth', 'role:structure_specialisee']);
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

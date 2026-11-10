@@ -21,6 +21,7 @@ Dernière mise à jour : **2026-11-10**
 - Les 11 structures spécialisées existantes sont désormais accessibles dans le formulaire ; incohérence de nom de table corrigée.
 - Rôle exploitation livré : DMA-014, 24 tests réussis (159 assertions) ; point de contrôle dédié sur `main`.
 - Rôle DTS livré : DMA-015, 27 tests réussis (178 assertions) ; point de contrôle dédié sur `main`.
+- Rôle structures spécialisées livré : DMA-016, 30 tests réussis (206 assertions) ; point de contrôle dédié sur `main`.
 - Prochaine action : revue manuelle de l’espace demandeur, puis confirmation des fonctionnalités manquantes et du circuit métier attendu.
 
 ## État des fonctionnalités
