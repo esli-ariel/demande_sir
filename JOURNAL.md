@@ -202,6 +202,17 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications :** 60 tests réussis, 498 assertions sur base isolée ; compilation Vite et centre vide/non lu vérifiés dans le navigateur, sans notification artificielle ni transition sur les demandes existantes.
 - **État :** disponible en local. Canal dans l’application uniquement ; aucun serveur mail ni processus de file d’attente nécessaire.
 
+## 2026-11-11 — Publication puis nettoyage des routes et des accès
+
+- **Publication demandée :** `fe657f3` poussé sur `main` : distinction libellés/valeurs, diagramme d’avancement et notifications du circuit.
+- **Tâche suivante :** DMA-003.
+- **Modification :** routes uniques regroupées sous authentification et par rôle, ressources déclarées une seule fois ; alias administrateur protégés, actions inexistantes corrigées, anciens traitements sans contrôle retirés. Les anciennes actions `responsable_S` répondent désormais HTTP 410 sans modifier de demande. Les anciennes URL de traitement technique et contrôle utilisent les mêmes méthodes protégées que le circuit actuel.
+- **Accès :** listes de clôture sans collision avec `/demandes/{demande}`, réception distincte du demandeur, refus d’accès aux comptes sans rôle reconnu ; modification et suppression réservées aux propriétaires admin/demandeur de leurs brouillons. Champs de statut, propriétaire et rôle injectés dans les formulaires ordinaires sans effet.
+- **Nettoyage :** suppression des contrôleurs et branches historiques devenus inaccessibles ; correction du calcul mensuel admin pour permettre sa vérification sur SQLite sans changer le calcul MySQL.
+- **Vérifications :** 69 tests réussis, 1 013 assertions sur base isolée ; 84 routes inventoriées, noms uniques et méthodes existantes ; cache des routes créé puis retiré avec succès. En local, `/dashboard` et `/admin` redirigent un visiteur anonyme vers `/login` (HTTP 302). Aucune donnée métier existante modifiée.
+- **Suite :** préciser les périmètres par structure/unité et les règles après refus ; protéger les fichiers joints actuellement servis depuis le stockage public avant mise en service.
+- **Publication :** point de contrôle dédié sur `main` après les vérifications.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

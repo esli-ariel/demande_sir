@@ -2,218 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\StaffWorkspace;
 use Illuminate\Http\Request;
-use App\Models\Demande;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user();
-
-        if (!$user) {
-        return redirect()->route('login');
+        if ($request->user()->hasRole('admin')) {
+            return app(AdminController::class)->index($request);
         }
-        if ($user->hasRole('admin')) {
-            return app(AdminController::class)->index(request());
+        if ($request->user()->hasRole('demandeur')) {
+            return app(DemandeurController::class)->dashboard($request);
         }
-
-       // elseif ($user->hasRole('demandeur')) {
-        //    $demandes = $user->demandes()->latest()->get();
-         //   return view('dashboards.demandeur', compact('demandes'));
-       // }
-
-        //$user->assignRole('demandeur');
-   // return view('dashboards.demandeur');
-
-        // Cas DEMANDEUR → il ne voit que ses propres demandes
-        if ($user->hasRole('demandeur')) {
-            return app(DemandeurController::class)->dashboard(request());
+        if (StaffWorkspace::role($request->user())) {
+            return app(StaffController::class)->dashboard($request);
         }
-
-        if (\App\Support\StaffWorkspace::role($user)) {
-            return app(StaffController::class)->dashboard(request());
-        }
-
-        // Cas EXPLOITATION → il voit les demandes "soumise"
-        if ($user->hasRole('exploitant')) {
-            $demandes = Demande::wherein('statut',['soumise' , 'validee_exploitation' , 'refusee_exploitation'] )->get();
-             // Calcul des statistiques pour les cartes
-    $stats = [
-        'total'      => $demandes->count(),
-        'en_attente' => $demandes->where('statut', 'soumise')->count(),
-        'traitees'   => $demandes->where('statut', 'validee_exploitation')->count(),
-        'rejetees'   => $demandes->where('statut', 'refusee_exploitation')->count(),
-    ];
-
-    return view('dashboards.exploitation', compact('demandes', 'stats'));
-            //return view('dashboards.exploitation', compact('demandes'));
-            
-        }
-
-        // Cas DTS → il voit les demandes validées exploitation
-        if ($user->hasRole('dts')) {
-            $demandes = Demande::wherein('statut',[
-        'validee_exploitation', 'validee_dts', 'refusee_dts'
-    ])->latest()
-    ->take(10)
-    ->get();
-
-    // Statistiques pour la Direction Technique (DTS)
-    $stats = [
-        'total'      => \App\Models\Demande::count(),
-        'en_attente' => \App\Models\Demande::where('statut', 'validee_exploitation')->count(),
-        'traitees'   => \App\Models\Demande::where('statut', 'validee_dts')->count(),
-        'rejetees'   => \App\Models\Demande::where('statut', 'refusee_dts')->count(),
-    ];
-            return view('dashboards.dts', compact('demandes', 'stats'));
-        }
-
-        // Cas STRUCTURE SPÉCIALISÉE → il voit les demandes validées DTS
-        if ($user->hasRole('structure_specialisee')) {
-            $demandes = Demande::wherein('statut', ['validee_dts','validee_structure_specialisee','refusee_structure_specialisee'])->get();
-            
-            // Statistiques globales
-    $stats = [
-        'total'      => \App\Models\Demande::count(),
-        'en_attente' => \App\Models\Demande::where('statut', 'validee_dts')->count(),
-        'traitees'   => \App\Models\Demande::where('statut', 'validee_structure_specialisee')->count(),
-        'rejetees'   => \App\Models\Demande::where('statut', 'refusee_structure_specialisee')->count(),
-    ];
-
-    
-
-    // Dernières demandes pour affichage dans le tableau
-    $demandes = \App\Models\Demande::latest()->take(10)->get();
-
-    return view('dashboards.structures', compact('stats', 'demandes'));
-
-            //return view('dashboards.structures', compact('demandes'));
-        }
-
-        // Cas CONTRÔLE AVANCÉ → il voit les demandes validées par toutes les structures
-        if ($user->hasRole('controle_avancee')) {
-            $demandes = Demande::wherein('statut',[
-        'validee_structure_specialisee',
-        'validee_controle_avancee',
-        'refusee_controle_avancee',
-        'terminee_agent',
-        'cloturee_receptionnee'])->get();
-
-
-        $stats = [
-        'total'               => \App\Models\Demande::whereIn('statut', [
-            'validee_structure_specialisee',
-            'validee_controle',
-            'validee_controle_avancee',
-            'refusee_controle_avancee',
-            'terminee_agent',
-            'cloturee_receptionnee'
-        ])->count(),
-
-        'en_cours_validation' => \App\Models\Demande::whereIn('statut', [
-            'validee_structure_specialisee',
-            'validee_controle'
-        ])->count(),
-
-        'validees'            => \App\Models\Demande::where('statut', 'validee_controle_avancee')->count(),
-
-        'rejetees'            => \App\Models\Demande::where('statut', 'refusee_controle_avancee')->count(),
-
-        'cloturees'           => \App\Models\Demande::where('statut', 'cloturee_receptionnee')->count(),
-
-        'en_cours_cloture'    => \App\Models\Demande::where('statut', 'terminee_agent')->count(),
-    ];
-
-    $demandes = \App\Models\Demande::whereIn('statut', [
-        'validee_structure_specialisee',
-        'validee_controle',
-        'validee_controle_avancee',
-        'refusee_controle_avancee',
-        'terminee_agent',
-        'cloturee_receptionnee'
-    ])->latest()->take(10)->get();
-            
-            return view('dashboards.controle', compact('demandes','stats'));
-        }
-
-        // Cas SERVICE TECHNIQUE → il voit les DMA validées par contrôle avancé
-        if ($user->hasRole('service_technique')) {
-            $demandes = Demande::wherein('statut', ['validee_controle_avancee',
-        'en_cours_traitement',
-        'terminee_agent'])->get();
-
-
-            $stats = [
-        'total'      => \App\Models\Demande::whereIn('statut', [
-            'validee_controle_avancee',
-            'en_cours_traitement',
-            'terminee_agent'
-        ])->count(),
-
-        'en_cours'   => \App\Models\Demande::where('statut', 'en_cours_traitement')->count(),
-
-        'validees'   => \App\Models\Demande::where('statut', 'validee_controle_avancee')->count(),
-
-        'terminees'  => \App\Models\Demande::where('statut', 'terminee_agent')->count(),
-    ];
-
-    $demandes = \App\Models\Demande::whereIn('statut', [
-        'validee_controle_avancee',
-        'en_cours_traitement',
-        'terminee_agent'
-    ])->latest()->get();
-
-            return view('dashboards.service', compact('demandes','stats'));
-        }
-
-        // Cas RÉCEPTION → il voit les demandes terminées par les agents
-        if ($user->hasRole('reception')) {
-            $demandes = Demande::where('statut', 'en_cours_traitement')->get();
-            return view('dashboards.reception', compact('demandes'));
-        }
-
-        // Fallback si aucun rôle ne correspond
-        abort(403, 'Aucun dashboard trouvé pour votre rôle.');
-    
-}
-public function dashboardDemandeur()
-{
-    return app(DemandeurController::class)->dashboard(request());
-}
-
-public function admin()
-    {
-    return app(AdminController::class)->index(request());
-}
-    
-    public function exploitation()
-{
-        return app(StaffController::class)->dashboard(request());
+        abort(403, 'Aucun espace disponible pour votre rôle.');
     }
-
-public function structure()
-{
-    return app(StaffController::class)->dashboard(request());
-}
-
-public function dts()
-{
-    return app(StaffController::class)->dashboard(request());
-}
-
-public function controleAvance()
-{
-    return app(StaffController::class)->dashboard(request());
-}
-
-public function serviceTechnique() { return app(StaffController::class)->dashboard(request()); }
-
-
 }

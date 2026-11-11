@@ -4,16 +4,15 @@ namespace App\Policies;
 
 use App\Models\Demande;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class DemandePolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user, Demande $demande): bool
+    public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasAnyRole(\App\Support\StaffWorkspace::modernRoles());
     }
 
     /**
@@ -21,30 +20,16 @@ class DemandePolicy
      */
     public function view(User $user, Demande $demande): bool
     {
-        // Le demandeur peut voir ses propres demandes
-    if ($user->id === $demande->user_id) {
-        return true;
-    }
-
-    if (\App\Support\StaffWorkspace::role($user)) {
-        return \App\Support\StaffWorkspace::query($user)->whereKey($demande->id)->exists();
-    }
-
-    // Les rôles de supervision peuvent voir toutes les demandes
-    if ($user->hasAnyRole([
-        'exploitant',
-        'dts',
-        'structure_specialisee',
-        'controle_avancee',
-        'service_technique',
-        'reception',
-        'admin'
-    ])) {
-        return true;
-    }
-
-    return false;
-
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        if ($user->hasRole('demandeur')) {
+            return $user->id === $demande->user_id;
+        }
+        if (\App\Support\StaffWorkspace::role($user)) {
+            return \App\Support\StaffWorkspace::query($user)->whereKey($demande->id)->exists();
+        }
+        return false;
     }
 
     /**
@@ -145,7 +130,7 @@ class DemandePolicy
      */
     public function update(User $user, Demande $demande): bool
     {
-        return $user->id === $demande->user_id && $demande->statut === 'brouillon';
+        return $user->hasAnyRole(['admin','demandeur']) && $user->id === $demande->user_id && $demande->statut === 'brouillon';
     }
 
     /**
@@ -153,7 +138,7 @@ class DemandePolicy
      */
     public function delete(User $user, Demande $demande): bool
     {
-        return $user->id === $demande->user_id && $demande->statut === 'brouillon';
+        return $user->hasAnyRole(['admin','demandeur']) && $user->id === $demande->user_id && $demande->statut === 'brouillon';
     }
     public function submit(User $user, Demande $demande): bool
     {

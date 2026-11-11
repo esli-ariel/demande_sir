@@ -26,10 +26,11 @@ Dernière mise à jour : **2026-11-11**
 - Rôle service technique livré : DMA-018, 34 tests réussis (253 assertions) ; point de contrôle dédié sur `main`.
 - Rôle chef de structure livré : DMA-019, 35 tests réussis (274 assertions) ; point de contrôle dédié sur `main`.
 - Rôle réception livré : DMA-020, 37 tests réussis (320 assertions) ; point de contrôle dédié sur `main`.
-- Fiche de consultation : libellés et valeurs différenciés, séparations ajoutées ; compilation et rendu jour/nuit vérifiés, correction locale.
-- Diagramme d’avancement ajouté à chaque fiche DMA (DMA-021), adapté aux thèmes et au mobile ; 53 tests réussis, 432 assertions. Disponible en local.
-- Notifications du circuit raccordées (DMA-022) : prochains intervenants, suivi du demandeur, structures ciblées, lecture et compteur automatique ; 60 tests réussis, 498 assertions. Disponible en local.
-- Prochaine action : recette métier avec le porteur du projet, identification des parties encore manquantes et nettoyage des routes historiques restantes.
+- Fiche de consultation : libellés et valeurs différenciés, séparations ajoutées ; compilation et rendu jour/nuit vérifiés, publiée dans `fe657f3`.
+- Diagramme d’avancement ajouté à chaque fiche DMA (DMA-021), adapté aux thèmes et au mobile ; 53 tests réussis, 432 assertions. Publié dans `fe657f3`.
+- Notifications du circuit raccordées (DMA-022) : prochains intervenants, suivi du demandeur, structures ciblées, lecture et compteur automatique ; 60 tests réussis, 498 assertions. Publié dans `fe657f3`.
+- Nettoyage des routes et contrôles des accès réalisé (DMA-003) : 69 tests réussis et 1 013 assertions, noms uniques, cache des routes vérifié.
+- Prochaine action : préciser les accès par structure/unité et les règles après refus, puis protéger les fichiers joints et compléter la recette métier.
 
 ## État des fonctionnalités
 
@@ -39,7 +40,7 @@ Dernière mise à jour : **2026-11-11**
 | --- | --- | --- |
 | Connexion, utilisateurs et rôles | Espaces et accès couverts par tests isolés | Compléter la recette métier des comptes existants |
 | Création et modification des demandes | Vérifiées avec et sans pièces jointes | Recette utilisateur |
-| Circuit de validation | Transitions et affectations des structures testées | Recette métier et audit des routes anciennes |
+| Circuit de validation | Transitions et affectations des structures testées | Recette métier et périmètres par unité |
 | Travaux du service technique | Début et fin distincts, dates et compte rendu testés | Recette utilisateur |
 | Clôture et réception | Réception clôture définitivement après travaux, contrôle final possible avant réception | Recette métier |
 | Tableaux de bord et notifications | Espaces harmonisés pour les neuf rôles, notifications de suivi vérifiées | Compléter la recette métier |
@@ -67,4 +68,4 @@ Le périmètre étant encore à préciser, aucun pourcentage global ni date de f
 
 ## Dernière séance
 
-Refonte des rôles exploitation à réception (DMA-014 à DMA-020), 37 tests réussis et 320 assertions sur base isolée, avec scénario complet. Voir [JOURNAL.md](JOURNAL.md) et [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md).
+Notifications et workflow publiés (`fe657f3`), puis routes et accès nettoyés (DMA-003) ; 69 tests réussis et 1 013 assertions sur base isolée. Voir [JOURNAL.md](JOURNAL.md) et [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md).

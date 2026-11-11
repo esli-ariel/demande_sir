@@ -10,26 +10,6 @@ use Illuminate\Support\Facades\Gate;
 
 class WorkflowController extends Controller
 {
-    /**
-     * Enregistre une validation ou un refus dans la table demandes_validations
-     */
-    private function enregistrerValidation(Demande $demande, string $role, string $decision, Request $request, ?string $nouveauStatut = null)
-    {
-        DemandeValidation::create([
-            'demande_id'      => $demande->id,
-            'role'            => $role,
-            'user_id'         => Auth::id(),
-            'decision'        => $decision,
-            'visa'            => $request->visa ?? Auth::user()->name,
-            'commentaire'     => $request->commentaire,
-            'date_validation' => now(),
-        ]);
-
-        if ($nouveauStatut) {
-            $demande->update(['statut' => $nouveauStatut]);
-        }
-    }
-
     // ===================== EXPLOITATION =====================
     public function validerExploitation(Request $request, Demande $demande)
     {
@@ -177,5 +157,4 @@ class WorkflowController extends Controller
     {
         return $this->decide($request, $demande, 'receptionner', 'reception', 'accord', 'cloturee_receptionnee');
     }
-    public function reception(Request $request, Demande $demande) { return $this->cloturerReception($request, $demande); }
 }

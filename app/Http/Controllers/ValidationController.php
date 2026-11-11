@@ -2,38 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Demande;
-
 class ValidationController extends Controller
 {
-    // Liste des demandes pour un responsable
     public function index()
     {
-        $demandes = Demande::where('statut', 'en_attente_validation')->get();
-        return view('responsable.validations', compact('demandes'));
+        abort(410, 'Cet ancien circuit a été retiré. Utilisez le circuit DMA actuel.');
     }
 
-    // Validation par un responsable
-    public function valider(Demande $demande)
+    public function valider()
     {
-        $demande->update(['statut' => 'validee_responsable']);
-        return redirect()->route('dashboard')->with('success', 'Demande validée.');
+        abort(410, 'Cet ancien circuit a été retiré. Utilisez le circuit DMA actuel.');
     }
 
-    // Rejet par un responsable
-    public function rejeter(Demande $demande)
+    public function rejeter()
     {
-        $demande->update(['statut' => 'rejete']);
-        return redirect()->route('dashboard')->with('error', 'Demande rejetée.');
+        abort(410, 'Cet ancien circuit a été retiré. Utilisez le circuit DMA actuel.');
     }
-
-    // Liste des demandes pour le service technique
-    public function executions() { return app(StaffController::class)->index(request()); }
-
-    // Exécution par le service technique
-    public function traiter(Request $request, Demande $demande) { return app(WorkflowController::class)->traiterAgent($request, $demande); }
-    // Clôture par le service technique
-    public function cloturer(Request $request, Demande $demande) { return app(WorkflowController::class)->terminerTravaux($request, $demande); }
-     public function receptionner(Request $request, Demande $demande) { return app(WorkflowController::class)->cloturerReception($request, $demande); }
 }

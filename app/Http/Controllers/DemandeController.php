@@ -5,12 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Demande;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use App\Models\DemandePieceJointe;
-use App\Models\User;
 use App\Models\StructureSpecialisee;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Notification;
 
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -44,44 +41,7 @@ class DemandeController extends Controller
             return app(DemandeurController::class)->index($request);
         }
 
-        //
-
-        $query = Demande::query();
-
-    // 🔍 Filtre recherche
-    if ($request->filled('search')) {
-        $query->where(function($q) use ($request) {
-            $q->where('objet_modif', 'like', '%' . $request->search . '%')
-              ->orWhere('motif', 'like', '%' . $request->search . '%')
-              ->orWhere('nom', 'like', '%' . $request->search . '%');
-        });
-    }
-
-    if (Auth::user()->hasRole('structure_specialisee')) {
-    $structure = StructureSpecialisee::where('user_id', Auth::id())->first();
-
-    $demandes = $structure
-        ? $structure->demandes()->where('statut', 'validee_dts')->get()
-        : collect(); // aucune structure associée
-} else {
-    $demandes = Demande::all();
-}
-
-
-    // 🎯 Filtre par statut
-    if ($request->filled('statut')) {
-        $query->where('statut', $request->statut);
-    }
-// 👤 Règles selon le rôle
-    if (auth()->user()->hasRole('admin')) {
-        $demandes = $query->latest()->get();
-    } elseif (auth()->user()->hasRole('exploitant')) {
-        $demandes = $query->where('statut', 'soumise')->latest()->get();
-    } else {
-        $demandes = $query->where('user_id', auth()->id())->latest()->get();
-    }
-
-    return view('demandes.index', compact('demandes'));
+        abort(403, 'Aucun espace de demandes disponible pour votre rôle.');
     }
 
     /**
@@ -275,119 +235,4 @@ class DemandeController extends Controller
 
     return redirect()->route('demandes.show', $demande)->with('success', 'Demande envoyée à l’exploitation.');
 }
-public function dashboardDemandeur()
-{
-    return app(DemandeurController::class)->dashboard(request());
 }
-
-public function indexExploitation()
-{
-    return app(StaffController::class)->index(request());
-}
-public function indexDTS()
-{
-    return app(StaffController::class)->index(request());
-}
-
-public function admin()
-    {
-        // debug rapide : écrire dans le log
-    Log::info('DashboardController@admin called', ['user_id' => auth()->id()]);
-        // ⚠️ Sécurité : éviter erreurs si pas encore de données
-        $totalDemandes = Demande::count() ?? 0;
-
-        $demandesValidees = Demande::where('statut', 'LIKE', '%validee%')->count() ?? 0;
-        $demandesRefusees = Demande::where('statut', 'LIKE', '%refusee%')->count() ?? 0;
-        $demandesAttente = Demande::whereIn('statut', ['soumise', 'brouillon'])->count() ?? 0;
-
-        // Comptage des rôles (via Spatie)
-        $admins = User::role('admin')->count() ?? 0;
-        $responsables = User::role('responsable_S')->count() ?? 0;
-        $demandeurs = User::role('demandeur')->count() ?? 0;
-        $agents = User::role('service_technique')->count() ?? 0;
-
-        // Statistiques mensuelles (janvier à décembre)
-        $mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-        $statsMensuelles = [];
-        foreach (range(1, 12) as $m) {
-            $statsMensuelles[] = Demande::whereMonth('created_at', $m)->count();
-        }
-
-        return view('dashboards.admin', compact(
-            'totalDemandes',
-            'demandesValidees',
-            'demandesRefusees',
-            'demandesAttente',
-            'admins',
-            'responsables',
-            'demandeurs',
-            'agents',
-            'mois',
-            'statsMensuelles'
-        ));
-    }
-
-
-////////////////////////////////////////////////////////////
-// 🧩 STRUCTURE SPÉCIALISÉE
-////////////////////////////////////////////////////////////
-public function indexStructure()
-{
-    return app(StaffController::class)->index(request());
-}
-
-public function validerOuRejeterStructure(Request $request, Demande $demande)
-{
-    return app(WorkflowController::class)->validerOuRejeterStructure($request, $demande);
-}
-
-
-
-////////////////////////////////////////////////////////////
-// 🧩 CONTRÔLE AVANCÉ
-////////////////////////////////////////////////////////////
-public function indexControle()
-{
-    return app(StaffController::class)->index(request());
-}
-
-public function indexCloture()
-{
-    return app(StaffController::class)->index(request());
-}
-
-public function validerControle(Request $request, Demande $demande)
-{
-    return app(WorkflowController::class)->validerControle($request, $demande);
-}
-
-public function rejeterControle(Demande $demande, Request $request)
-{
-    return app(WorkflowController::class)->rejeterControle($request, $demande);
-}
-
-
-public function cloturer(Request $request, Demande $demande)
-{
-    return app(WorkflowController::class)->cloturer($request, $demande);
-}
-
-
-////////////////////////////////////////////////////////////
-// SERVICE TECHNIQUE
-////////////////////////////////////////////////////////////
-public function indexServiceTechnique() { return app(StaffController::class)->index(request()); }
-
-public function traiter(Request $request, Demande $demande) { return app(WorkflowController::class)->terminerTravaux($request, $demande); }
-
-public function indexReception()
-{
-    return app(DemandeurController::class)->receptions(request());
-}
-
-}
-
-//////////////////////////
-
-
-

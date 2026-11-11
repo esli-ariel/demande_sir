@@ -9,6 +9,15 @@ use Illuminate\Validation\Rule;
 
 class StaffController extends Controller
 {
+    public function closures(Request $request)
+    {
+        if ($request->user()->hasRole('demandeur')) {
+            return app(DemandeurController::class)->receptions($request);
+        }
+        abort_unless($request->user()->hasAnyRole(['controle_avancee','reception']), 403);
+        return $this->index($request);
+    }
+
     public function dashboard(Request $request)
     {
         $role = StaffWorkspace::role($request->user());

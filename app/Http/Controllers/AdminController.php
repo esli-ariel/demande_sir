@@ -42,8 +42,10 @@ class AdminController extends Controller
         $demandes = $query->latest()->orderByDesc('id')->paginate(8)->withQueryString();
 
         $year = now()->year;
+        $monthExpression = \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite'
+            ? "CAST(strftime('%m', created_at) AS INTEGER)" : 'MONTH(created_at)';
         $monthly = Demande::query()->whereYear('created_at', $year)
-            ->selectRaw('MONTH(created_at) as mois, COUNT(*) as total')->groupBy('mois')->pluck('total', 'mois');
+            ->selectRaw($monthExpression.' as mois, COUNT(*) as total')->groupBy('mois')->pluck('total', 'mois');
         $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
         $monthlyCounts = collect(range(1, 12))->map(fn ($month) => (int) ($monthly[$month] ?? 0));
         $usersCount = User::count();

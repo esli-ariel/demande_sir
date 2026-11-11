@@ -6,6 +6,8 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Routes et accès : déclarations dédupliquées, protections par rôle, anciennes actions hors circuit neutralisées, alias de clôture distincts et tests des accès croisés entre les neuf rôles.
+
 - Notifications du circuit DMA aux intervenants concernés et au demandeur, avec affectations des structures respectées ; filtres, lecture globale, ouverture sécurisée et compteur actualisé automatiquement.
 
 - Diagramme d’avancement sur chaque fiche DMA : étapes franchies, étape actuelle, étapes à venir, refus et structures non requises ; rendu horizontal sur ordinateur et vertical sur mobile.

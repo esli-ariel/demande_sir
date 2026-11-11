@@ -1,6 +1,6 @@
 # Suivi du projet — Gestion des DMA
 
-Dernière mise à jour : **2026-11-10**
+Dernière mise à jour : **2026-11-11**
 
 ## Documents de référence
 
@@ -19,7 +19,7 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | --- | --- | --- | --- | --- |
 | DMA-001 | Haute | Définir les parties manquantes et le circuit métier | À préciser | Fonctionnalités et étapes confirmées avec le porteur du projet |
 | DMA-002 | Haute | Préparer et démarrer l’environnement local | Terminé | Application accessible et démarrage documenté sans secrets |
-| DMA-003 | Haute | Nettoyer les routes et contrôler les accès | À faire | Routes cohérentes, accès autorisés et interdits vérifiés pour les rôles concernés |
+| DMA-003 | Haute | Nettoyer les routes et contrôler les accès | Terminé | Noms uniques, méthodes existantes et cache vérifié ; accès croisés des neuf rôles testés ; 69 tests réussis, 1 013 assertions |
 | DMA-004 | Haute | Corriger la création des demandes et les pièces jointes | Terminé | Création vérifiée sans fichier, avec un fichier et avec plusieurs fichiers |
 | DMA-005 | Haute | Fiabiliser les validations des structures spécialisées | Terminé | Affectations et décisions multiples conformes au circuit confirmé |
 | DMA-006 | Haute | Compléter et raccorder clôture et réception | Terminé | Actions reliées à des méthodes existantes et parcours final vérifié |
@@ -35,8 +35,9 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-018 | Haute | Refaire le rôle service technique | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-019 | Haute | Refaire le rôle chef de structure | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-020 | Haute | Refaire le rôle réception | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
-| DMA-021 | Normale | Visualiser l’avancement de chaque DMA | Terminé | Diagramme partagé, refus et étapes non requises couverts ; 53 tests réussis et rendu jour/nuit ordinateur/mobile vérifié ; disponible en local |
-| DMA-022 | Haute | Compléter les notifications du circuit DMA | Terminé | Destinataires, refus, clôture, filtres et lecture sécurisée vérifiés ; 60 tests réussis, 498 assertions ; disponible en local |
+| DMA-021 | Normale | Visualiser l’avancement de chaque DMA | Terminé | Diagramme partagé, refus et étapes non requises couverts ; 53 tests réussis et rendu jour/nuit ordinateur/mobile vérifié ; publié dans `fe657f3` |
+| DMA-022 | Haute | Compléter les notifications du circuit DMA | Terminé | Destinataires, refus, clôture, filtres et lecture sécurisée vérifiés ; 60 tests réussis, 498 assertions ; publié dans `fe657f3` |
+| DMA-023 | Haute | Protéger le téléchargement des pièces jointes | À faire | Stockage privé et téléchargement soumis aux droits de consultation de la DMA ; reprise des fichiers existants et tests de non-régression |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 
@@ -44,7 +45,7 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 
 Constats initiaux et état après les corrections des rôles.
 
-- `routes/web.php` : routes et noms déclarés plusieurs fois, avec des protections différentes ; certaines actions visent des méthodes absentes du contrôleur ciblé.
+- `routes/web.php` : doublons et méthodes absentes corrigés dans DMA-003 ; toutes les routes métier exigent une authentification, actions regroupées par rôle. Téléchargement des pièces jointes à traiter séparément dans DMA-023.
 - `DemandeController::store` : problème de redirection et d’arrêt après le premier fichier corrigé dans DMA-012/DMA-013 ; cas sans fichier et avec plusieurs fichiers couverts par tests isolés.
 - DTS et structures : décision DTS unique et affectation explicite des comptes aux structures corrigées ; décisions multiples et refus couverts par tests isolés.
 - Clôture et réception : parcours raccordé ; réception clôture définitivement après travaux. Le demandeur suit la réception sans pouvoir clôturer. Le contrôle avancé peut vérifier les travaux avant réception.
