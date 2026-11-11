@@ -1,6 +1,6 @@
 # Progression — Gestion des DMA
 
-Dernière mise à jour : **2026-11-10**
+Dernière mise à jour : **2026-11-11**
 
 ## Où en est-on ?
 
@@ -26,6 +26,9 @@ Dernière mise à jour : **2026-11-10**
 - Rôle service technique livré : DMA-018, 34 tests réussis (253 assertions) ; point de contrôle dédié sur `main`.
 - Rôle chef de structure livré : DMA-019, 35 tests réussis (274 assertions) ; point de contrôle dédié sur `main`.
 - Rôle réception livré : DMA-020, 37 tests réussis (320 assertions) ; point de contrôle dédié sur `main`.
+- Fiche de consultation : libellés et valeurs différenciés, séparations ajoutées ; compilation et rendu jour/nuit vérifiés, correction locale.
+- Diagramme d’avancement ajouté à chaque fiche DMA (DMA-021), adapté aux thèmes et au mobile ; 53 tests réussis, 432 assertions. Disponible en local.
+- Notifications du circuit raccordées (DMA-022) : prochains intervenants, suivi du demandeur, structures ciblées, lecture et compteur automatique ; 60 tests réussis, 498 assertions. Disponible en local.
 - Prochaine action : recette métier avec le porteur du projet, identification des parties encore manquantes et nettoyage des routes historiques restantes.
 
 ## État des fonctionnalités

@@ -38,3 +38,9 @@ Les comptes de connexion existants sont conservés. Aucun mot de passe utilisate
 ## Vérification effectuée
 
 Le formulaire de connexion et ses fichiers CSS/JS répondent en HTTP 200. Le circuit complet après authentification reste à vérifier.
+
+## Notifications dans l’application
+
+Les notifications sont enregistrées dans la base MySQL existante, au moment des nouvelles actions du circuit. Aucune relance des seeders ni migration supplémentaire n’est nécessaire pour cette fonctionnalité. Aucun serveur mail ou worker de file d’attente n’est requis.
+
+La page `/notifications` permet de filtrer les messages non lus, de les marquer comme lus et d’ouvrir la DMA associée. Le compteur dans la navbar se met à jour toutes les 30 secondes lorsque l’onglet est visible ; la liste se recharge en naviguant ou en actualisant la page. Les actions antérieures à l’ajout de cette fonctionnalité ne génèrent pas de nouvelles alertes rétroactives.

@@ -273,3 +273,9 @@ Route::post('/demandes/{demande}/terminer-travaux', [WorkflowController::class, 
 Route::get('/dashboard/chef', [\App\Http\Controllers\StaffController::class, 'dashboard'])->middleware(['auth','role:chef_structure'])->name('dashboard.chef');
 
 Route::post('/demandes/{demande}/reception-finale', [WorkflowController::class, 'cloturerReception'])->middleware(['auth','role:reception'])->name('reception.cloturer');
+
+Route::middleware('auth')->prefix('notifications')->name('notifications.')->controller(\App\Http\Controllers\NotificationController::class)->group(function () {
+    Route::get('/summary', 'summary')->name('summary');
+    Route::post('/read-all', 'readAll')->name('read_all');
+    Route::post('/{notification}/open', 'open')->name('open');
+});

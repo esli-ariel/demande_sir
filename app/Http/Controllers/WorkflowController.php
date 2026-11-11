@@ -61,7 +61,7 @@ class WorkflowController extends Controller
                 $updates['numero_dma'] = 'DMA-'.\Illuminate\Support\Str::ulid();
             }
             $locked->update($updates);
-            $locked->user?->notify(new \App\Notifications\DemandeStatutChangeNotification($locked, \App\Support\DmaStatus::label($status), $data['commentaire'] ?? null));
+            app(\App\Services\DmaNotifications::class)->transition($locked, Auth::user(), $data['commentaire'] ?? null);
         });
 
         return back()->with('success', $role === 'reception' ? 'DMA clôturée définitivement. Le demandeur a été notifié.' : ($decision === 'accord' ? 'Avis favorable enregistré.' : 'Refus enregistré.'));
@@ -97,6 +97,7 @@ class WorkflowController extends Controller
                 'role'=>'structure_specialisee','decision'=>$data['decision'],'visa'=>$data['visa'],
                 'commentaire'=>$data['commentaire'] ?? null,'date_validation'=>now(),
             ]);
+            $previousStatus = $locked->statut;
             if ($data['decision'] === 'refus') {
                 $locked->update(['statut'=>'refusee_structure_specialisee']);
             } else {
@@ -105,6 +106,12 @@ class WorkflowController extends Controller
                 if ($selected->count() > 0 && $approved === $selected->count()) {
                     $locked->update(['statut'=>'validee_structure_specialisee']);
                 }
+            }
+            if ($locked->statut !== $previousStatus) {
+                app(\App\Services\DmaNotifications::class)->transition($locked, Auth::user(), $data['commentaire'] ?? null);
+            } else {
+                $structure = \App\Models\StructureSpecialisee::findOrFail($data['structure_id']);
+                app(\App\Services\DmaNotifications::class)->structureDecision($locked, Auth::user(), $structure->nom, $data['commentaire'] ?? null);
             }
         });
         return back()->with('success','Avis de la structure enregistré.');
@@ -160,7 +167,7 @@ class WorkflowController extends Controller
             $data['statut'] = $finish ? 'terminee_agent' : 'en_cours_traitement';
             $locked->update($data);
             DemandeValidation::create(['demande_id'=>$locked->id,'user_id'=>Auth::id(),'role'=>'service_technique', 'decision'=>'accord','visa'=>$visa,'commentaire'=>$finish ? $data['travaux_realises'] : 'Début des travaux : '.$data['date_debut'], 'date_validation'=>now()]);
-            $locked->user?->notify(new \App\Notifications\DemandeStatutChangeNotification($locked, \App\Support\DmaStatus::label($data['statut']), $data['travaux_realises'] ?? null));
+            app(\App\Services\DmaNotifications::class)->transition($locked, Auth::user(), $data['travaux_realises'] ?? null);
         });
         return back()->with('success', $finish ? 'Travaux terminés. Le dossier est transmis pour réception.' : 'Travaux démarrés.');
     }

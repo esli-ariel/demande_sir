@@ -10,9 +10,7 @@ use App\Models\DemandePieceJointe;
 use App\Models\User;
 use App\Models\StructureSpecialisee;
 use Illuminate\Support\Facades\Gate;
-use App\Notifications\DemandeStatutChangeNotification;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\DemandeClotureeNotification;
 
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -272,6 +270,7 @@ class DemandeController extends Controller
             'situation_existante' => 'required|string', 'situation_souhaitee' => 'required|string',
         ])->validate();
         $locked->update(['statut' => 'soumise']);
+        app(\App\Services\DmaNotifications::class)->transition($locked, auth()->user());
     });
 
     return redirect()->route('demandes.show', $demande)->with('success', 'Demande envoyée à l’exploitation.');

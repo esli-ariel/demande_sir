@@ -35,6 +35,8 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-018 | Haute | Refaire le rôle service technique | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-019 | Haute | Refaire le rôle chef de structure | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
 | DMA-020 | Haute | Refaire le rôle réception | Terminé | Pages, droits, tests et revue visuelle vérifiés ; point de contrôle Git dédié |
+| DMA-021 | Normale | Visualiser l’avancement de chaque DMA | Terminé | Diagramme partagé, refus et étapes non requises couverts ; 53 tests réussis et rendu jour/nuit ordinateur/mobile vérifié ; disponible en local |
+| DMA-022 | Haute | Compléter les notifications du circuit DMA | Terminé | Destinataires, refus, clôture, filtres et lecture sécurisée vérifiés ; 60 tests réussis, 498 assertions ; disponible en local |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 

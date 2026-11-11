@@ -4,6 +4,7 @@
     <a class="admin-back" href="{{ route('demandes.index') }}">← Demandes</a>
     <header class="admin-page-heading"><div><span class="admin-reference">{{ $demande->numero_dma ?: 'Dossier #'.$demande->id }}</span><h1>{{ $demande->objet_modif ?: 'Détail de ma demande' }}</h1></div><div class="admin-inline-actions"><span class="admin-badge admin-badge-{{ \App\Support\DmaStatus::group($demande->statut) }}">{{ \App\Support\DmaStatus::label($demande->statut) }}</span>@unless($demandeurSpace)@can('update', $demande)<a class="admin-button admin-button-orange" href="{{ route('demandes.edit', $demande) }}">Modifier</a>@endcan
 @endunless</div></header>
+    @include('demandes.partials.workflow')
     @include('admin.partials.errors')
     @include('staff.actions')
     @if($demandeurSpace)

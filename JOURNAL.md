@@ -178,6 +178,30 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Vérifications :** 37 tests réussis, 320 assertions sur base isolée ; compilation et revue navigateur du rôle. Aucune décision réelle enregistrée pendant les contrôles.
 - **Publication :** point de contrôle dédié au rôle sur `main`, conformément à la demande de faire un push après chaque rôle.
 
+## 2026-11-10 — Lisibilité de la fiche de consultation
+
+- **Demande :** distinguer les noms des champs des données affichées.
+- **Modification :** libellés en orange contrasté et capitales, valeurs plus grandes avec couleur explicite, séparations entre les informations ; fiche partagée par tous les rôles.
+- **Vérifications :** compilation Vite réussie et contrôle visuel dans les modes jour et nuit ; aucune donnée métier modifiée.
+- **État :** correction disponible en local.
+
+## 2026-11-10 — Diagramme d’avancement des DMA
+
+- **Tâche :** DMA-021.
+- **Demande :** visualiser l’avancement de chaque demande dans un diagramme workflow.
+- **Modification :** parcours à sept étapes sur la fiche partagée : soumission, exploitation, DTS, structures spécialisées, contrôle avancé, travaux et réception finale. État calculé à partir du statut ; étapes franchies, actuelle, à venir, non requises et arrêt sur refus. Aucun pourcentage ni date supposée.
+- **Vérifications :** 53 tests réussis, 432 assertions sur base isolée ; compilation Vite réussie ; contrôle visuel jour/nuit et ordinateur/mobile. Aucune demande existante modifiée.
+- **État :** disponible en local ; inclut les ajustements précédents de distinction entre libellés et valeurs.
+
+## 2026-11-11 — Notifications du circuit DMA
+
+- **Tâche :** DMA-022.
+- **Modification :** service central de notifications dans l’application ; alerte aux prochains intervenants et suivi du demandeur, chef prévenu après exploitation, structures ciblées selon leurs affectations. Avis partiels notifiés au demandeur, transmission au contrôle après tous les accords, réception et contrôle prévenus à la fin des travaux.
+- **Centre :** filtres toutes/non lues, lecture individuelle ou globale, consultation d’une DMA qui marque la notification comme lue après vérification des droits ; compteur de navbar actualisé toutes les 30 secondes lorsque l’onglet est visible.
+- **Fiabilité :** destinataires dédupliqués, auteur de l’action exclu, enregistrement atomique avec la transition et notifications persistantes en base. Les anciens messages restent lisibles ; aucun envoi rétroactif.
+- **Vérifications :** 60 tests réussis, 498 assertions sur base isolée ; compilation Vite et centre vide/non lu vérifiés dans le navigateur, sans notification artificielle ni transition sur les demandes existantes.
+- **État :** disponible en local. Canal dans l’application uniquement ; aucun serveur mail ni processus de file d’attente nécessaire.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

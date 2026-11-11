@@ -2,72 +2,35 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 use App\Models\Demande;
+use Illuminate\Notifications\Notification;
 
 class DemandeStatutChangeNotification extends Notification
 {
-    use Queueable;
+    public function __construct(
+        public Demande $demande,
+        public string $action,
+        public ?string $commentaire = null,
+        public ?string $title = null,
+        public ?string $actor = null,
+    ) {}
 
-    /**
-     * Create a new notification instance.
-     */
-    public $demande;
-    public $action;
-    public $commentaire;
-
-    public function __construct(Demande $demande, $action, $commentaire = null)
-    {
-        //
-        $this->demande = $demande;
-        $this->action = $action;
-        $this->commentaire = $commentaire;
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
-        return ['database'];// uniquement in-app
+        return ['database'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
-   // public function toMail(object $notifiable): MailMessage
-   // {
-   //     return (new MailMessage)
-   //        ->line('The introduction to the notification.')
-    //       ->action('Notification Action', url('/'))
-    //       ->line('Thank you for using our application!');
-    //}
-
-
-    public function toDatabase($notifiable)
-    {
-    return [
-            'demande_id' => $this->demande->id,
-            'objet' => $this->demande->objet_modif,
-            'action' => $this->action,
-            'commentaire' => $this->commentaire,
-            'statut' => $this->demande->statut,
-        ];
-    }
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
         return [
-            //
+            'demande_id'=>$this->demande->id,
+            'numero_dma'=>$this->demande->numero_dma,
+            'objet'=>$this->demande->objet_modif,
+            'message'=>$this->title ?? $this->action,
+            'action'=>$this->action,
+            'commentaire'=>$this->commentaire,
+            'statut'=>$this->demande->statut,
+            'acteur'=>$this->actor,
         ];
     }
 }

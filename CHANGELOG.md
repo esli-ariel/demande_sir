@@ -6,6 +6,12 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Notifications du circuit DMA aux intervenants concernés et au demandeur, avec affectations des structures respectées ; filtres, lecture globale, ouverture sécurisée et compteur actualisé automatiquement.
+
+- Diagramme d’avancement sur chaque fiche DMA : étapes franchies, étape actuelle, étapes à venir, refus et structures non requises ; rendu horizontal sur ordinateur et vertical sur mobile.
+
+- Fiche de consultation : distinction renforcée entre libellés et valeurs en modes jour et nuit, avec séparations entre les informations.
+
 - Espace réception : Clôture définitive après travaux, réservée à la réception ; visa, historique et notification ; demandeur en consultation. Circuit complet testé.
 
 - Espace chef de structure : Consultation après validation exploitation, suivi des dossiers en cours, clôturés et refusés, sans nouveau pouvoir de décision.
