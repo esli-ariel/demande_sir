@@ -1,30 +1,30 @@
 <section class="space-y-6">
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Supprimer le compte') }}
+            {{ __('Désactiver le compte') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __('Une fois votre compte supprimé, toutes ses ressources et données seront définitivement effacées. Avant de supprimer votre compte, veuillez télécharger les données ou informations que vous souhaitez conserver.') }}
+            {{ __('Votre accès sera bloqué et vos sessions seront fermées. Vos demandes et décisions resteront conservées. Un administrateur pourra réactiver votre compte.') }}
         </p>
     </header>
 
     <x-danger-button
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Supprimer le compte') }}</x-danger-button>
+    >{{ __('Désactiver le compte') }}</x-danger-button>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
+    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty() || $errors->has('account')" focusable>
         <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
             @csrf
             @method('delete')
 
             <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Êtes-vous sûr de vouloir supprimer votre compte ?') }}
+                {{ __('Voulez-vous désactiver votre compte ?') }}
             </h2>
 
             <p class="mt-1 text-sm text-gray-600">
-                {{ __('Une fois votre compte supprimé, toutes ses ressources et données seront définitivement effacées. Veuillez saisir votre mot de passe pour confirmer la suppression définitive de votre compte.') }}
+                {{ __('Saisissez votre mot de passe pour confirmer la désactivation de votre compte. Vos demandes et décisions seront conservées.') }}
             </p>
 
             <div class="mt-6">
@@ -38,6 +38,7 @@
                     placeholder="{{ __('Mot de Passe') }}"
                 />
 
+                <x-input-error :messages="$errors->get('account')" class="mt-2" />
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
             </div>
 
@@ -47,7 +48,7 @@
                 </x-secondary-button>
 
                 <x-danger-button class="ms-3">
-                    {{ __('Supprimer le compte') }}
+                    {{ __('Désactiver le compte') }}
                 </x-danger-button>
             </div>
         </form>

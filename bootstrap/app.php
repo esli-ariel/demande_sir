@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             //\App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
+        $middleware->web(append: [\App\Http\Middleware\EnsureAccountIsActive::class]);
 
         /**
          * Alias de middleware

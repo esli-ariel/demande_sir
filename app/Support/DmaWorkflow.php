@@ -18,7 +18,7 @@ final class DmaWorkflow
             default => null,
         };
         $refused = DmaStatus::group($status) === 'refusees';
-        $labels = ['Soumission', 'Exploitation', 'DTS', 'Structures spécialisées', 'Contrôle avancé', 'Travaux', 'Réception finale'];
+        $labels = ['Soumission', 'Exploitation', 'DTS', 'Structures spécialisées', 'Contrôle avancé', 'Travaux', $status === 'cloturee_receptionnee' ? 'Réception finale' : 'Réception du demandeur'];
         $steps = [];
         foreach ($labels as $index => $label) {
             $state = match (true) {

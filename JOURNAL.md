@@ -213,6 +213,141 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 - **Suite :** préciser les périmètres par structure/unité et les règles après refus ; protéger les fichiers joints actuellement servis depuis le stockage public avant mise en service.
 - **Publication :** point de contrôle dédié sur `main` après les vérifications.
 
+## 2026-11-11 — Préparation sécurité : debug et CORS
+
+- **Tâche :** DMA-024.
+- **Signalement :** recommandation de désactiver le debug en production et de limiter CORS aux domaines de confiance. Le porteur du projet confirme qu’aucun déploiement de production n’existe encore.
+- **Constats :** configuration Render historique en mode local/debug et absence de configuration CORS propre au projet ; le framework utilisait ses origines permissives par défaut sur les chemins API.
+- **Correction :** debug possible uniquement en local/testing, désactivé en production même si APP_DEBUG est mal renseigné ; valeurs Render/Docker alignées. CORS désormais explicite sur tous les chemins, sans origine externe par défaut, méthodes/en-têtes limités et cookies cross-origin non activés. Les origines éventuellement ajoutées doivent être exactes ; jokers, chemins et identifiants rejetés. Mot de passe codé en dur retiré du manifeste Render.
+- **Vérifications :** suite de 86 tests réussis (1 061 assertions), puis 15 tests de configuration réussis (16 assertions), dont deux cas complémentaires pour préserver le debug local/testing. Réponses JSON de production sans détail interne, domaines tiers/sous-domaines/ports non autorisés et prévols CORS couverts. Cache de configuration créé puis retiré ; environnement local et debug local conservés, liste CORS vide.
+- **Documentation :** SECURITE_DEPLOIEMENT.md précise les réglages à fournir lors du futur déploiement. Aucun serveur de production ni conteneur modifié ou lancé.
+- **État :** changements disponibles en local ; vérification sur le futur domaine HTTPS à effectuer lors de la mise en production.
+
+## 2026-11-11 — Mise à jour de sécurité Axios
+
+- **Tâche :** DMA-025.
+- **Signalement :** GHSA-35jp-ww65-95wh, GHSA-3g43-6gmg-66jw, GHSA-3p68-rc4w-qgx5, GHSA-3w6x-2g7m-8v23 et GHSA-42h9-826w-cgv3.
+- **Constat :** Axios 1.12.2 installé, plage déclarée ^1.11.0. Les avis des mainteneurs indiquent des correctifs allant de 1.15.0 à 1.18.0.
+- **Correction :** version stable 1.21.1 vérifiée sur npm, verrouillée exactement dans package.json et package-lock.json ; dépendances transitives nécessaires actualisées par npm, aucune mise à niveau globale forcée.
+- **Vérifications :** npm ls confirme une seule version 1.21.1 ; requête OSV pour cette version sans avis ; npm audit sans avis Axios ; compilation Vite réussie. Initialisation du client Laravel, en-tête X-Requested-With et décodage JSON vérifiés avec un adaptateur de test sans réseau.
+- **Limite constatée :** l’audit npm complet reste non nul : 16 alertes sur d’autres dépendances (3 modérées, 10 élevées, 3 critiques), à traiter dans DMA-026. Les fichiers de préparation debug/CORS restent également en local.
+- **État :** correction Axios disponible en local, sans push demandé pour cette séance.
+
+## 2026-11-11 — Correction des dépendances npm et Laravel
+
+- **Tâches :** DMA-026 et DMA-027.
+- **Demande :** corriger les 16 alertes npm restantes et les quatre avis Laravel GHSA-5vg9-5847-vvmq, GHSA-crmm-hgp2-wgrp, GHSA-f9x3-7vq9-cph6, GHSA-jh5r-qr3c-85q8.
+- **Correction :** Laravel 12.72.0 verrouillé exactement, sans passage à Laravel 13. Dépendances npm actualisées dans leurs branches existantes, versions minimales relevées et Axios 1.21.1 conservé. Avis Composer résiduels corrigés dans les outils de développement, dont Pest 4.7.8, PHPUnit 12.5.33, PsySH 0.12.24 et Symfony YAML 7.4.23.
+- **Audits :** zéro alerte npm, zéro avis Composer et aucun paquet abandonné ; OSV ne retourne aucun avis pour Laravel 12.72.0. Une seule copie du framework installée.
+- **Vérifications :** installation npm propre et compilation réussies ; exigences PHP satisfaites et verrouillage Composer vérifié. 92 tests réussis, 1 086 assertions sur base isolée, comprenant le circuit DMA et des cas de connexion/déconnexion, identifiants invalides et injection CR/LF dans les emails. Cache des routes et vues compilés, puis cache des routes retiré.
+- **Résultat :** corrections disponibles en local. Aucune migration, aucun seeder et aucune modification des données métier. Détails et sources dans SECURITE_DEPENDANCES.md.
+
+## 2026-11-11 — Requêtes paramétrées et validation des entrées
+
+- **Tâche :** DMA-028.
+- **Demande :** utiliser des requêtes paramétrées partout et valider les entrées à la frontière HTTP/API.
+- **Audit SQL :** aucune donnée HTTP concaténée dans du SQL brut détectée dans les routes actives ; Eloquent/Query Builder conservent leurs bindings PDO. Agrégats SQL explicitement constants, migrations de trigger statiques. Aucun identifiant de table/colonne/tri choisi par le client.
+- **Correction :** schéma FormRequest partagé pour créer/modifier une DMA, données validées seules persistées ; listes, fichiers et longueurs bornés. Revalidation de l’autorisation sous verrou à la modification. Filtres, pagination, types des rôles et identifiants de route renforcés. Dates ISO validées avant les opérations techniques et contrôlées à nouveau par rapport au début en base.
+- **Authentification :** mots de passe, emails, jetons et option remember contrôlés ; confirmation/suppression de compte rejettent les types invalides, octets nuls refusés avant hachage. Inscription publique limitée au rôle demandeur, données validées consommées par les contrôleurs.
+- **Vérifications :** 110 tests réussis, 1 241 assertions ; compilation Vite et syntaxe PHP réussies. Tests JSON 422, valeurs imbriquées, chemins de fichiers factices, quotas de fichiers, rôles, dates et identifiants. Fragments SQL vérifiés comme bindings sur les quatre espaces de recherche, périmètre demandeur conservé et données textuelles SQL stockées sans exécution.
+- **État :** disponible en local, sans migration ni modification de données métier existantes. Détails et limites documentés dans SECURITE_ENTREES.md.
+
+## 2026-11-11 — Préparation du durcissement Docker
+
+- **Tâche :** DMA-029.
+- **Contexte :** le projet reste utilisé nativement, sans Docker ; demande de corriger l’exécution root, les images non épinglées et les secrets dans le build.
+- **Constats :** ancien hook d’entrée absent, génération de clé pendant le build, verrouillage Composer exclu du contexte, images flottantes et identifiants codés en dur dans Compose.
+- **Correction :** build multi-stage avec images officielles PHP/Node/Composer/MySQL épinglées aux digests du registre, application UID/GID 10001:10001 sur 8080 et MySQL sous son compte dédié. Capabilities retirées, no-new-privileges, application en lecture seule, volumes limités ; secrets montés à l’exécution et fichiers sensibles/cache/stockage exclus du build. Aucun bootstrap de clé, migration ou seeder automatique.
+- **Vérifications :** digests et plateformes amd64/arm64 vérifiés via métadonnées du registre ; syntaxe Compose et shell valides. Tests du script avec commandes PHP simulées, sans secrets réels ; suite complète de 113 tests réussis, 1 274 assertions.
+- **Limite explicite :** aucun conteneur lancé et aucune image construite ; le build, le démarrage réel et la procédure de migration sont à valider avant usage Docker. Le PHP/MySQL local n’est pas modifié. Voir docker/README.md.
+- **État :** configuration corrigée et préparée en local, non déployée.
+
+## 2026-11-11 — Audit des migrations et de la base MySQL
+
+- **Tâche :** DMA-030 ; audit terminé, corrections DMA-031 à DMA-034 à faire, protection documentaire DMA-023 conservée.
+- **Périmètre :** 14 migrations du dépôt et base locale MySQL 9.3.0 ; métadonnées, contraintes, index, trigger, privilèges et contrôles agrégés en transactions en lecture seule, rollback systématique.
+- **Constats :** 23 tables InnoDB/utf8mb4, 34 demandes, 28 utilisateurs ; aucun doublon de numéro ni référence orpheline dans les relations métier contrôlées. Deux anciennes migrations enregistrées manquent au dépôt, règles de suppression différentes pour uploaded_by et statut nullable en base.
+- **Anomalies :** trois dossiers terminés/réceptionnés sans dates ni compte rendu, trois dossiers historiques validés DTS sans structure à examiner pour leur progression (structures facultatives), neuf dossiers avancés sans historique moderne ; huit fichiers référencés absents du disque configuré. Origine démonstration/historique à qualifier avant reprise.
+- **Risques :** cascades lors des suppressions de comptes, numérotation COUNT+1 sans unicité, connexion root, mots de passe de démonstration dans les seeders et sauvegarde/restauration non démontrée.
+- **Livrable :** AUDIT_BASE_DONNEES.md, avec mesures, sources officielles et plan ordonné. Aucune migration, aucun seeder et aucune correction de donnée exécutés ; aucun secret ou contenu personnel dans le rapport.
+
+## 2026-11-11 — Relance et précision sur les structures spécialisées
+
+- **Demande :** relancer le projet ; le passage par une structure spécialisée est facultatif.
+- **Vérification :** le contrôleur DTS prévoit déjà le passage direct au contrôle avancé sans structure sélectionnée. L’audit est corrigé : aucune obligation d’affectation ; seuls les éventuels blocages de dossiers historiques restent à examiner.
+- **Relance :** serveur Laravel local sur 127.0.0.1:8000, connexion MySQL vérifiée par SELECT 1 ; aucun changement des données.
+
+## 2026-11-11 — Conservation des dossiers et fiabilisation du schéma
+
+- **Tâches :** DMA-031 et DMA-032 terminées en local ; DMA-023, DMA-033 et DMA-034 restent à faire.
+- **Comptes :** désactivation/réactivation à la place de la suppression ; authentification, sessions et remember-me filtrés sur les comptes actifs, sessions en base et jetons révoqués. Profil demandeur désactivable avec mot de passe, auto-désactivation administrateur refusée ; relations métier conservées par quatre FK RESTRICT.
+- **Accès SQL :** compte applicatif généré et limité aux lectures/écritures de la seule base DMA, DDL refusés lors du contrôle. Configuration administrative native privée hors dépôt ; commande dma:migrate-local ajoutée et vérifiée. Seeders de démonstration interdits hors local/testing, commande dma:create-admin confidentielle et modèle .env.example sans secrets.
+- **Numérotation :** trigger COUNT+1 remplacé par compteur annuel atomique initialisé sur les références existantes, format annuel conservé, contrainte UNIQUE. Import explicite MS fait avancer le compteur ; pas de remise à zéro après suppression, pas de troncature à 10000. Sélections spécialisées uniques et statut NOT NULL ; aucune structure imposée.
+- **Historique :** deux anciens noms de migrations expliqués par les renommages du commit 55fba09 ; aucune entrée historique supprimée et aucune ancienne migration recréée en doublon. Ancienne table vide conservée.
+- **Incident de vérification :** la première copie de test réutilisait le nom de connexion mysql et a appliqué le DDL de conservation à la base active, sans modification des données. Connexion isolée corrigée et explicitement contrôlée ; migration rendue rejouable après interruption puis correctement enregistrée. Incident signalé au porteur du projet.
+- **Vérifications MySQL :** sauvegardes privées et restauration testée ; schémas neuf/mis à niveau comparés (colonnes, index, FK) hors table historique vide. Empreintes de données comparées avant/après sur les copies, 32 créations concurrentes uniques, doublon refusé, passage à 10000 et non-réutilisation après suppression. Bases temporaires supprimées ; migrations appliquées en local.
+- **État réel :** 28 utilisateurs, 34 demandes, 15 décisions modernes, 8 références de pièces jointes ; zéro compte désactivé pendant l’intervention. Numérotation avec le compte restreint vérifiée dans une transaction annulée. Page de connexion HTTP 200 et rechargement du serveur après changement de configuration.
+- **Tests :** suite complète Integration/Unit : 122 tests réussis, 1 359 assertions ; compilation des vues et syntaxe PHP contrôlées, git diff --check sans erreur. Création/numérotation avec le compte SQL restreint vérifiée en transaction annulée. Procédures dans EXPLOITATION_BASE_DONNEES.md et DEMARRAGE_LOCAL.md.
+
+## 2026-11-11 — Archives des demandes clôturées
+
+- **Tâche :** DMA-035 ; DMA-036 créée comme prochaine étape demandée pour le pipeline de sauvegarde/restauration.
+- **Fonctionnalité :** page /archives et lien de navigation commun, recherche sur numéro/objet/demandeur, filtre unité exacte et année/période de clôture, pagination stable avec filtres conservés jusqu’au retour depuis le dossier.
+- **Périmètre :** seulement cloturee_receptionnee. Travaux achevés et contrôle final en attente de réception restent dans le suivi actif. Administrateur : dossiers accessibles ; demandeur : ses dossiers ; structures spécialisées : dossiers sélectionnés pour leurs structures ; autres rôles : périmètres existants inchangés. Pas d’élargissement des droits via les compteurs ou années disponibles.
+- **Consultation :** fiche complète en lecture seule, décisions/travaux/pièces jointes existantes, liens de retour vers les archives ; aucun nouveau déplacement ou suppression de données/fichiers. La protection des fichiers publics reste DMA-023.
+- **Dates :** closed_at enregistré sous verrou lors de la réception définitive, jamais modifié par une seconde réception refusée ; anciens dossiers laissés à date inconnue. Affichage des décisions DATE sans heure artificielle.
+- **Base réelle :** sauvegarde privée avant migration, restauration et mise à niveau vérifiées sur copie MySQL, données initiales préservées ; migration 2026_11_11_000003 enregistrée en local, index (statut, closed_at, id). Aucun ancien statut modifié ni date inventée.
+- **Tests :** neuf tests dédiés (112 assertions) ; suite complète 131 tests réussis, 1 481 assertions. Recherche, dates inclusives, période inversée, tableaux malformés, périmètres des neuf rôles, lecture seule, dates historiques inconnues et pagination vérifiés. Compilation Vite réussie ; rendu jour/nuit/mobile vérifié dans Chrome sur prévisualisation SQLite exclusivement synthétique. Menu mobile accessible, aucun débordement horizontal, filtre d’année et retour conservant les filtres vérifiés, aucune erreur JavaScript. Captures dans les outputs du workspace.
+- **Nettoyage :** après expiration du premier contrôle automatique, arrêt explicitement autorisé par le porteur du projet et effectué : les cinq processus de prévisualisation sur le port 8001 sont terminés. Aucun processus ne reste en écoute sur 8001 ; serveur principal 8000 préservé.
+- **Prochaine action :** définir le stockage de sauvegarde, la rétention et les objectifs de reprise, puis implémenter DMA-036 avec restauration isolée ; ne pas confondre la consultation des archives et une sauvegarde contre panne.
+
+## 2026-11-11 — Clôture finale par le demandeur propriétaire
+
+- **Tâche :** DMA-037.
+- **Règle confirmée :** le demandeur doit clôturer le workflow depuis sa page Réceptions. Cette instruction remplace la règle antérieure donnant la clôture définitive au rôle réception ; aucun historique antérieur n’est réécrit.
+- **Réalisation :** formulaire sur Mes réceptions et sur la fiche, visa, commentaire facultatif, confirmation explicite requise ; tri stable des dossiers en attente. Propriétaire/rôle/état contrôlés avant validation et à nouveau sous verrou. Éligibilité après fin des travaux ou ancien statut de contrôle final ; aucun nouveau passage obligatoire par une structure spécialisée.
+- **Intégrité :** décision rôle demandeur avec son auteur et visa, date serveur et statut final dans la même transaction que les notifications ; seconde confirmation refusée, injection d’un autre propriétaire ou d’une date ignorée, rollback si l’enregistrement des notifications échoue.
+- **Rôles et suivi :** réception devient une vue de suivi, anciennes actions de clôture réception refusées, demandeur invité après travaux puis équipes réception/service technique/contrôle informées de sa confirmation. Archives alimentées après confirmation, diagramme et libellés actualisés. Dossiers déjà clôturés et anciennes décisions conservés.
+- **Vérifications :** 137 tests réussis, 1 570 assertions ; six tests dédiés de clôture/sécurité (94 assertions), dont refus des neuf profils étrangers, validation typée, reprise legacy, date immuable, rejet des doublons et rollback. Recette Chrome jour/nuit/mobile sur SQLite synthétique : dossier étranger masqué, visa/confirmation puis clôture depuis Mes réceptions, retrait des attentes et présence dans les archives, sans erreur JavaScript ni débordement horizontal. Serveur temporaire lancé et arrêté automatiquement dans le script de test. Compilation Vite, vues et syntaxe PHP vérifiées. Aucune migration, aucun changement de mot de passe et aucune clôture réelle effectuée pendant les tests.
+- **Prochaine étape :** pipeline de sauvegarde/restauration DMA-036 après cette correction métier.
+
+## 2026-11-12 — Connexion et inscription avec photo en filigrane
+
+- **Tâche :** DMA-038 terminée ; DMA-039 créée pour le visa, prochaine étape demandée. Le pipeline de sauvegarde/restauration DMA-036 reste dans le suivi.
+- **Préférence confirmée :** conserver la photo existante de raffinerie en filigrane. Asset Raffinerie-SIR.jpeg réutilisé avec sa casse réelle pour les serveurs Linux, photo non remplacée ni modifiée ; opacité adaptée au jour/nuit.
+- **Interface :** composants partagés auth-shell/auth-field, charte #FF8C00/#2E8B57, thème persistant dma-theme commun aux espaces connectés, carte claire ou noire et présentation mobile sans débordement. Suppression des anciennes animations et scripts dupliqués des deux pages.
+- **Formulaires :** libellés/autocomplete adaptés, visibilité indépendante des deux mots de passe, retour des valeurs textuelles sûres après erreur, erreurs liées aux champs via aria-describedby/aria-invalid et résumé focalisé. Mot de passe jamais réaffiché après validation ; bouton de soumission indique le traitement.
+- **Règles métier :** inscription demandeur uniquement, sans sélecteur de rôles privilégiés ; validation serveur et authentification inchangées, y compris remember, sessions, comptes désactivés et récupération. Aucun visa modifié dans cette tâche.
+- **Vérifications :** 141 tests Integration/Unit réussis, 1 614 assertions ; quatre nouveaux tests de pages/parcours (44 assertions), régression ciblée de 30 tests réussie. Compilation Vite, vues et diff vérifiés.
+- **Recette Chrome :** connexion/inscription en jour/nuit et à 390 px, image réellement chargée avec opacité de filigrane, visibilité indépendante des mots de passe, focus des erreurs, conservation e-mail et effacement du mot de passe, thème conservé entre pages, inscription demandeur puis déconnexion et reconnexion avec remember. Aucune erreur JavaScript. Prévisualisation SQLite synthétique uniquement, serveur temporaire automatiquement arrêté.
+- **État :** disponible en local, aucune migration ni modification des comptes/demandes réels. Captures de contrôle dans outputs/connexion-*-filigrane.png et outputs/inscription-*-filigrane.png du workspace.
+
+## 2026-11-12 — Couleur d’origine sur la photo de fond
+
+- **Tâche :** ajustement DMA-038 demandé après la refonte des pages d’accès.
+- **Préférence :** conserver la coloration de l’image de fond utilisée auparavant, en plus de la photo existante.
+- **Correction :** dégradé vert/orange d’origine rétabli au-dessus de la photo de raffinerie sur connexion et inscription, avec une version assombrie en nuit. Formulaires clairs/noirs conservés, textes de présentation et marque adaptés au fond coloré pour rester lisibles.
+- **Vérifications :** compilation Vite réussie ; recette Chrome jour/nuit/mobile sur les deux pages, dégradé réellement rendu, photo chargée, aucun débordement horizontal ni erreur JavaScript. Captures *-teinte-originale.png dans outputs. Aucun changement des règles d’authentification ou des données ; aucun nouveau test fonctionnel nécessaire pour cet ajustement CSS. Serveur synthétique arrêté automatiquement.
+- **Prochaine étape :** visa (DMA-039), conformément à la demande.
+
+## 2026-11-12 — Relance et revue d’avancement
+
+- **Tâche :** DMA-040 terminée ; consolidation Git suivie dans DMA-041.
+- **Demande :** relancer le projet et distinguer ce qui est terminé du reste à faire.
+- **Relance :** aucun serveur sur le port 8000 au contrôle initial ; Laravel relancé sur 127.0.0.1:8000. MySQL natif répond, compte applicatif distinct de root ; aucune migration en attente. Aucun seeder, migration ou changement de dossier exécuté.
+- **Vérifications :** connexion/inscription HTTP 200, archives anonymes redirigées vers la connexion ; suite Integration/Unit isolée relancée, 141 tests réussis et 1 614 assertions. Diff sans erreur de whitespace.
+- **Données :** 28 utilisateurs, 34 demandes, 15 décisions modernes, trois validations anciennes et huit pièces référencées toujours absentes du stockage configuré. Trois dossiers terminés incomplets, une ancienne clôture sans date et neuf dossiers avancés sans historique moderne restent à qualifier. Les trois attentes DTS sans sélection ne justifient aucune affectation forcée, l’étape spécialisée restant facultative.
+- **Revue :** REVUE_PROJET.md décrit réalisations, limites, priorités et état Git. Dernières corrections encore non commitées ; aucun push ni déploiement effectué dans cette séance. Sauvegardes/restaurations manuelles antérieures distinguées du pipeline d’exploitation restant à créer.
+- **Suivi :** résumé de progression actualisé et incohérences de dates/résumés anciens corrigées. Visa conservé comme prochaine étape demandée, puis fichiers privés, sauvegarde/restauration et recette entreprise.
+
+## 2026-11-12 — Consolidation et publication Git
+
+- **Tâche :** DMA-041 en cours, push explicitement demandé par le porteur du projet.
+- **Périmètre :** correctifs sécurité et dépendances, conservation des comptes/dossiers, contraintes et numérotation, archives, clôture par le demandeur, refonte des accès, tests et documentation.
+- **Avant commit :** fetch de main effectué, aucune divergence avec origin/main ; 105 fichiers modifiés/nouveaux contrôlés, aucun secret de configuration correspondant ni motif de clé privée/token détecté, aucun dump/SQLite/.env privé inclus. Sauvegardes et prévisualisations restent hors dépôt.
+- **Validation disponible :** 141 tests réussis, 1 614 assertions lors de la revue du jour ; dernière compilation Vite réussie et diff sans erreur de whitespace. Aucun code métier modifié depuis ces contrôles.
+- **Publication :** commit de consolidation et vérification du push en cours ; résultat à inscrire après confirmation distante.
+
 ## Modèle pour les prochaines séances
 
 Copier ce bloc en ajoutant une entrée datée avant cette section :

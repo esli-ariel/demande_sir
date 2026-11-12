@@ -25,9 +25,15 @@ class Demande extends Model
         'numero_dma',
         'date_debut',
         'date_fin',
-        'travaux_realises'
+        'travaux_realises',
+        'closed_at',
     
     ];
+
+    protected function casts(): array
+    {
+        return ['closed_at'=>'datetime'];
+    }
 
     // Relations
     public function user()

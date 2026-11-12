@@ -1292,3 +1292,22 @@ html[data-admin-theme='dark'] .dma-workflow-step.is-refused .dma-workflow-marker
     .dma-workflow-content h3 { margin-bottom:2px;font-size:13px; }
     .dma-workflow-step.is-blocked::before { background:repeating-linear-gradient(180deg,var(--workflow-line) 0 5px,transparent 5px 10px); }
 }
+
+.admin-filters.archive-filters {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    align-items:end;
+}
+.admin-filters.archive-filters>div { min-width:0; }
+.admin-filters.archive-filters select { min-width:0; }
+.archive-filter-actions { display:flex;align-items:center;flex-wrap:wrap;gap:12px; }
+@media(max-width:700px) {
+    .admin-filters.archive-filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .archive-filters .admin-search,.archive-filter-actions { grid-column:1 / -1; }
+}
+@media(max-width:420px) {
+    .admin-filters.archive-filters { grid-template-columns:minmax(0,1fr); }
+}
+
+.admin-form label.requester-receipt-confirmation { display:flex;align-items:flex-start;gap:12px;line-height:1.7;cursor:pointer; }
+.requester-receipt-confirmation input[type='checkbox'] { flex:0 0 18px;width:18px;height:18px;margin-top:2px;accent-color:#2E8B57; }

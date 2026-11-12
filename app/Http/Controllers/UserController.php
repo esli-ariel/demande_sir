@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->validate(['q' => 'nullable|string|max:150', 'role' => ['nullable', Rule::exists('roles', 'name')->where('guard_name', 'web')]]);
+        $filters = $request->validate(['page'=>'nullable|integer|min:1|max:100000', 'q' => 'nullable|string|max:150', 'role' => ['bail', 'nullable', 'string', 'max:100', Rule::exists('roles', 'name')->where('guard_name', 'web')]]);
         $search = trim($filters['q'] ?? '');
         $selectedRole = $filters['role'] ?? '';
         $users = User::with('roles')
@@ -65,11 +65,17 @@ class UserController extends Controller
     public function destroy(Request $request, User $user)
     {
         if ($request->user()->is($user)) {
-            return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte depuis cette liste.');
+            return back()->with('error', 'Vous ne pouvez pas désactiver votre propre compte depuis cette liste.');
         }
-        $user->delete();
+        app(\App\Services\UserAccountStatus::class)->deactivate($user, $request->user());
 
-        return redirect()->route('users.index')->with('success', 'Utilisateur supprimé.');
+        return redirect()->route('users.index')->with('success', 'Compte désactivé. Ses demandes et décisions sont conservées.');
+    }
+
+    public function reactivate(User $user)
+    {
+        app(\App\Services\UserAccountStatus::class)->reactivate($user);
+        return redirect()->route('users.index')->with('success', 'Compte réactivé. L’utilisateur doit se reconnecter.');
     }
 
     private function rules(?User $user = null): array
@@ -77,13 +83,13 @@ class UserController extends Controller
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user?->id)],
-            'role' => ['required', Rule::exists('roles', 'name')->where('guard_name', 'web')],
-            'structure_ids' => ['required_if:role,structure_specialisee', 'array', 'min:1'],
-            'structure_ids.*' => ['integer', 'distinct', Rule::exists('structures_specialisees', 'id')],
+            'email' => ['bail', 'required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user?->id)],
+            'role' => ['bail', 'required', 'string', 'max:100', Rule::exists('roles', 'name')->where('guard_name', 'web')],
+            'structure_ids' => ['required_if:role,structure_specialisee', 'array', 'list', 'min:1', 'max:100'],
+            'structure_ids.*' => ['bail', 'integer', 'distinct', Rule::exists('structures_specialisees', 'id')],
         ];
         if (! $user) {
-            $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
+            $rules['password'] = ['bail', 'required', 'string', 'min:8', 'max:4096', 'not_regex:/\x00/', 'confirmed'];
         }
 
         return $rules;

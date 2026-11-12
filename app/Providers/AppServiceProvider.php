@@ -19,6 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Auth::provider('active_eloquent', fn ($app, array $config) => new \App\Auth\ActiveUserProvider($app['hash'], $config['model']));
     }
 }

@@ -44,7 +44,7 @@ class WorkflowController extends Controller
             app(\App\Services\DmaNotifications::class)->transition($locked, Auth::user(), $data['commentaire'] ?? null);
         });
 
-        return back()->with('success', $role === 'reception' ? 'DMA clôturée définitivement. Le demandeur a été notifié.' : ($decision === 'accord' ? 'Avis favorable enregistré.' : 'Refus enregistré.'));
+        return back()->with('success', $decision === 'accord' ? 'Avis favorable enregistré.' : 'Refus enregistré.');
     }
 
     // ===================== DTS =====================
@@ -111,10 +111,10 @@ class WorkflowController extends Controller
     public function cloturer(Request $request, Demande $demande)
     {
         Gate::authorize('cloturer', $demande);
-        $request->validate(['analyse'=>'required|string|max:5000']);
-        $request->merge(['commentaire'=>$request->input('analyse')]);
+        $validated = $request->validate(['analyse'=>'required|string|max:5000']);
+        $request->merge(['commentaire'=>$validated['analyse']]);
         $this->decide($request, $demande, 'cloturer', 'controle_avancee', 'accord', 'cloturee');
-        return back()->with('success','Vérification des travaux enregistrée. Le dossier est prêt pour réception.');
+        return back()->with('success','Vérification des travaux enregistrée. Le dossier est prêt pour réception par son demandeur.');
     }
 
     // ===================== SERVICE TECHNIQUE =====================
@@ -132,29 +132,32 @@ class WorkflowController extends Controller
     {
         $ability = $finish ? 'terminerTravaux' : 'traiter';
         Gate::authorize($ability, $demande);
-        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $demande, $ability, $finish) {
+        $rules = ['visa'=>'required|string|max:255'];
+        if ($finish) {
+            $rules += ['date_fin'=>'required|date_format:Y-m-d|after_or_equal:1000-01-01|before_or_equal:9999-12-31', 'travaux_realises'=>'required|string|max:5000'];
+        } else {
+            $rules['date_debut'] = 'required|date_format:Y-m-d|after_or_equal:1000-01-01|before_or_equal:9999-12-31';
+        }
+        $data = $request->validate($rules);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($data, $demande, $ability, $finish) {
             $locked = Demande::lockForUpdate()->findOrFail($demande->id);
             Gate::authorize($ability, $locked);
-            $rules = ['visa'=>'required|string|max:255'];
             if ($finish) {
                 abort_unless($locked->date_debut, 422);
-                $rules += ['date_fin'=>'required|date|after_or_equal:'.$locked->date_debut, 'travaux_realises'=>'required|string|max:5000'];
-            } else {
-                $rules['date_debut'] = 'required|date';
+                validator($data, ['date_fin'=>'after_or_equal:'.$locked->date_debut])->validate();
             }
-            $data = $request->validate($rules);
             $visa = $data['visa']; unset($data['visa']);
             $data['statut'] = $finish ? 'terminee_agent' : 'en_cours_traitement';
             $locked->update($data);
             DemandeValidation::create(['demande_id'=>$locked->id,'user_id'=>Auth::id(),'role'=>'service_technique', 'decision'=>'accord','visa'=>$visa,'commentaire'=>$finish ? $data['travaux_realises'] : 'Début des travaux : '.$data['date_debut'], 'date_validation'=>now()]);
             app(\App\Services\DmaNotifications::class)->transition($locked, Auth::user(), $data['travaux_realises'] ?? null);
         });
-        return back()->with('success', $finish ? 'Travaux terminés. Le dossier est transmis pour réception.' : 'Travaux démarrés.');
+        return back()->with('success', $finish ? 'Travaux terminés. Le demandeur peut réceptionner et clôturer sa DMA.' : 'Travaux démarrés.');
     }
 
     // ===================== RÉCEPTION =====================
     public function cloturerReception(Request $request, Demande $demande)
     {
-        return $this->decide($request, $demande, 'receptionner', 'reception', 'accord', 'cloturee_receptionnee');
+        abort(403, 'La clôture définitive appartient au demandeur propriétaire, depuis Mes réceptions.');
     }
 }

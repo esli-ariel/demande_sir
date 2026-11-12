@@ -5,7 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'SIR-Gestion DMA') }}</title>
+        <title>{{ $pageTitle ?? config('app.name', 'SIR-Gestion DMA') }}</title>
+        @if(request()->routeIs('login', 'register'))
+            <script>
+                (() => {
+                    let theme;
+                    try { theme = localStorage.getItem('dma-theme') || localStorage.getItem('dma-admin-theme'); } catch (_) {}
+                    const dark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    document.documentElement.dataset.adminTheme = dark ? 'dark' : 'light';
+                    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+                })();
+            </script>
+        @endif
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

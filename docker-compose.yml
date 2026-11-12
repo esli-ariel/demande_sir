@@ -1,56 +1,72 @@
-version: "3.9"
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    image: demande_sir-app:latest
-    container_name: demande_sir-app
+      target: app
+    image: demande_sir-app:0.1.0-dev
+    user: "10001:10001"
     restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:8080"
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
-      APP_URL: http://localhost:8080
-      # Base de données
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      APP_KEY_FILE: /run/secrets/app_key
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
       DB_DATABASE: demande_sir
       DB_USERNAME: demande_sir
-      DB_PASSWORD: demande_sir
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [app_key, db_password]
     volumes:
-      - ./:/app
-      - storage:/app/storage
-      - vendor:/app/vendor
-      - node_modules:/app/node_modules
+      - app_storage:/app/storage
+      - app_cache:/app/bootstrap/cache
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m,mode=1777
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
   mysql:
-    image: mysql:8.0
-    container_name: demande_sir-mysql
+    image: mysql:8.0@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b
+    user: "mysql:mysql"
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot --silent"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     environment:
       MYSQL_DATABASE: demande_sir
       MYSQL_USER: demande_sir
-      MYSQL_PASSWORD: demande_sir
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "33060:3306"
-    command: ["--default-authentication-plugin=mysql_native_password", "--collation-server=utf8mb4_unicode_ci", "--character-set-server=utf8mb4"]
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    secrets: [db_password, db_root_password]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
     volumes:
       - mysql_data:/var/lib/mysql
+    tmpfs:
+      - /var/run/mysqld:rw,nosuid,size=16m,mode=1777
+      - /tmp:rw,noexec,nosuid,size=128m,mode=1777
+
+secrets:
+  app_key:
+    file: ./docker/secrets/app_key
+  db_password:
+    file: ./docker/secrets/db_password
+  db_root_password:
+    file: ./docker/secrets/db_root_password
 
 volumes:
+  app_storage:
+  app_cache:
   mysql_data:
-  storage:
-  vendor:
-  node_modules:

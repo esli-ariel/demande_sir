@@ -1,4 +1,5 @@
 import '../css/admin.css';
+import '../css/auth.css';
 import './bootstrap';
 
 import Alpine from 'alpinejs';
@@ -39,5 +40,21 @@ Alpine.data('adminNavigation', () => ({
 }));
 
 window.Alpine = Alpine;
+
+Alpine.data('authPage', () => ({
+    dark: document.documentElement.dataset.adminTheme === 'dark',
+    submitting: false,
+    init() {
+        const summary = this.$el.querySelector('[data-auth-errors]');
+        if (summary) requestAnimationFrame(() => summary.focus());
+    },
+    toggleTheme() {
+        this.dark = !this.dark;
+        const theme = this.dark ? 'dark' : 'light';
+        document.documentElement.dataset.adminTheme = theme;
+        document.documentElement.style.colorScheme = theme;
+        try { localStorage.setItem('dma-theme', theme); } catch (_) {}
+    },
+}));
 
 Alpine.start();

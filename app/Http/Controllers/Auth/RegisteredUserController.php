@@ -35,30 +35,19 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-             'role' => [
-            'required',
-            function ($attribute, $value, $fail) {
-                if (!Auth::check() || !Auth::user()->hasRole('admin')) {
-                    if ($value !== 'demandeur') {
-                        $fail('Rôle non autorisé.');
-                    }
-                }
-            }
-        ]
+            'email' => ['bail', 'required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['bail', 'required', 'string', 'max:4096', 'not_regex:/\x00/', 'confirmed', Rules\Password::defaults()],
+            'password_confirmation' => ['required', 'string', 'max:4096'],
+            'role' => ['bail', 'required', 'string', 'in:demandeur'],
         ]);
-
         $user = User::create([
-            'name' => $request->name,
-            'prenom' => $request->prenom,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'], 'prenom' => $validated['prenom'],
+            'email' => $validated['email'], 'password' => Hash::make($validated['password']),
         ]);
-        $user->assignRole($request->role);
+        $user->assignRole($validated['role']);
 
         event(new Registered($user));
 

@@ -1,6 +1,6 @@
 # Suivi du projet — Gestion des DMA
 
-Dernière mise à jour : **2026-11-11**
+Dernière mise à jour : **2026-11-12**
 
 ## Documents de référence
 
@@ -8,6 +8,7 @@ Dernière mise à jour : **2026-11-11**
 - [JOURNAL.md](JOURNAL.md) : historique des séances, décisions et vérifications.
 - [CHANGELOG.md](CHANGELOG.md) : changements apportés au projet.
 - [VERSION](VERSION) : numéro de version de travail.
+- [REVUE_PROJET.md](REVUE_PROJET.md) : revue vérifiée des réalisations et du reste à faire.
 
 Ce fichier conserve la liste de référence des tâches et leurs critères de fin.
 
@@ -38,6 +39,24 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-021 | Normale | Visualiser l’avancement de chaque DMA | Terminé | Diagramme partagé, refus et étapes non requises couverts ; 53 tests réussis et rendu jour/nuit ordinateur/mobile vérifié ; publié dans `fe657f3` |
 | DMA-022 | Haute | Compléter les notifications du circuit DMA | Terminé | Destinataires, refus, clôture, filtres et lecture sécurisée vérifiés ; 60 tests réussis, 498 assertions ; publié dans `fe657f3` |
 | DMA-023 | Haute | Protéger le téléchargement des pièces jointes | À faire | Stockage privé et téléchargement soumis aux droits de consultation de la DMA ; reprise des fichiers existants et tests de non-régression |
+| DMA-024 | Haute | Préparer les règles debug et CORS de production | Terminé | Debug interdit hors local/testing, origines exactes sans joker, tests des réponses et prévols réussis ; configuration locale corrigée, validation sur serveur à faire lors du déploiement |
+| DMA-025 | Haute | Corriger les cinq avis de sécurité Axios | Terminé | Version unique 1.21.1 verrouillée, contrôle OSV/npm sans avis Axios, compilation et client Laravel vérifiés ; disponible en local |
+| DMA-026 | Haute | Corriger les autres dépendances signalées par npm | Terminé | Audit npm à zéro après mise à jour compatible et installation propre ; compilation réussie, Axios conservé en 1.21.1 |
+| DMA-027 | Haute | Corriger les quatre avis de sécurité Laravel | Terminé | Framework 12.72.0 unique et verrouillé, audits OSV/Composer sans avis ; outils PHP corrigés, 92 tests réussis et 1 086 assertions |
+| DMA-028 | Haute | Auditer les requêtes paramétrées et valider les entrées HTTP | Terminé | Données Eloquent liées, schéma DMA partagé, types/limites/auth contrôlés et tests JSON/injection ; 110 tests réussis, 1 241 assertions ; disponible en local |
+| DMA-029 | Haute | Préparer le durcissement de la configuration Docker | Terminé | Non-root, images épinglées et secrets hors build ; contrôles Compose/shell et 113 tests réussis ; build et exécution réels à vérifier avant usage Docker |
+| DMA-030 | Haute | Auditer les migrations et la base MySQL pour un usage en entreprise | Terminé | Métadonnées et contrôles agrégés vérifiés en lecture seule ; écarts et plan documentés dans AUDIT_BASE_DONNEES.md ; corrections non appliquées |
+| DMA-031 | Haute | Préserver les dossiers et sécuriser les comptes techniques | Terminé | Désactivation/réactivation, sessions et jetons révoqués, quatre références RESTRICT ; compte SQL local restreint et migrations séparées, seeders protégés et création admin confidentielle ; vérifications réussies |
+| DMA-032 | Haute | Réconcilier le schéma et fiabiliser la numérotation DMA | Terminé | Compteur annuel atomique, numéro et sélection uniques, statut non nullable ; schémas neuf/mis à niveau comparés, 32 créations concurrentes uniques et sauvegarde restaurée ; migrations appliquées en local |
+| DMA-033 | Haute | Réconcilier les données et les historiques existants | À faire | Dossiers de démonstration identifiés, anomalies qualifiées et décisions préservées sans fabrication ; récupération documentaire coordonnée avec DMA-023 |
+| DMA-034 | Haute | Préparer exploitation et reprise de la base entreprise | À faire | Cible MySQL maintenue, sauvegarde base/documents et restauration testées, objectifs RPO/RTO et contrôles de performance définis |
+| DMA-035 | Haute | Consulter les archives des demandes clôturées | Terminé | Recherche/filtres/pagination et périmètres des neuf rôles vérifiés ; date de clôture et index appliqués après sauvegarde restaurée ; 131 tests réussis, 1 481 assertions ; rendu jour/nuit/mobile et navigation vérifiés sur données synthétiques |
+| DMA-036 | Haute | Mettre en place le pipeline de sauvegarde et restauration | À faire | Étape suivante demandée : sauvegarde coordonnée base/fichiers, copie sécurisée hors serveur, contrôles et restauration isolée testée ; cible, rétention et objectifs de reprise définis |
+| DMA-037 | Haute | Confier la réception et la clôture finale au demandeur propriétaire | Terminé | Visa/confirmation sur Mes réceptions et fiche, propriété/état sous verrou, réception en suivi ; historique/date/notifications/archives raccordés, 137 tests réussis (1 570 assertions) et parcours jour/nuit/mobile vérifié sur données synthétiques |
+| DMA-038 | Normale | Harmoniser la connexion et l’inscription | Terminé | Photo de raffinerie conservée en filigrane, charte orange/verte et jour/nuit/mobile ; erreurs/champs accessibles et visibilité des mots de passe ; 141 tests réussis, 1 614 assertions et parcours Chrome inscription/connexion/déconnexion vérifiés sur données synthétiques |
+| DMA-039 | Haute | Revoir la gestion du visa | À préciser | Prochaine étape demandée après les pages d’accès ; format du visa et exigences de traçabilité à définir |
+| DMA-040 | Normale | Relancer le projet et établir la revue d’avancement | Terminé | Serveur/MySQL vérifiés, migrations sans attente, 141 tests réussis et revue datée des réalisations, limites et travaux restants dans REVUE_PROJET.md |
+| DMA-041 | Haute | Consolider les modifications locales dans Git | En cours | Diff et secrets relus, commit de consolidation et point de contrôle GitHub ; fichiers de sauvegarde et données locales exclus |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 
@@ -48,7 +67,7 @@ Constats initiaux et état après les corrections des rôles.
 - `routes/web.php` : doublons et méthodes absentes corrigés dans DMA-003 ; toutes les routes métier exigent une authentification, actions regroupées par rôle. Téléchargement des pièces jointes à traiter séparément dans DMA-023.
 - `DemandeController::store` : problème de redirection et d’arrêt après le premier fichier corrigé dans DMA-012/DMA-013 ; cas sans fichier et avec plusieurs fichiers couverts par tests isolés.
 - DTS et structures : décision DTS unique et affectation explicite des comptes aux structures corrigées ; décisions multiples et refus couverts par tests isolés.
-- Clôture et réception : parcours raccordé ; réception clôture définitivement après travaux. Le demandeur suit la réception sans pouvoir clôturer. Le contrôle avancé peut vérifier les travaux avant réception.
+- Clôture et réception : parcours raccordé ; le demandeur propriétaire confirme la réception et clôture définitivement après travaux (DMA-037). Le rôle réception conserve un suivi en lecture seule. Le contrôle avancé peut vérifier les travaux avant la confirmation du demandeur.
 
 ## Journal de travail
 

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\DemandePayloadRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 use App\Models\Demande;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DemandePieceJointe;
@@ -21,7 +24,7 @@ class DemandeController extends Controller
     public function index(Request $request)
     {
         if ($request->user()->hasRole('admin')) {
-            $filters = $request->validate(['search' => 'nullable|string|max:150', 'statut' => 'nullable|string|max:100']);
+            $filters = $request->validate(['page'=>'nullable|integer|min:1|max:100000', 'search' => 'nullable|string|max:150', 'statut' => 'nullable|string|max:100']);
             $search = trim($filters['search'] ?? '');
             $status = $filters['statut'] ?? '';
             $statuses = Demande::query()->distinct()->orderBy('statut')->pluck('statut');
@@ -64,58 +67,19 @@ class DemandeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-{
-    $this->authorize('create', Demande::class);
-    if ($request->user()->hasAnyRole(\App\Support\StaffWorkspace::modernRoles())) {
-        $request->validate([
-            'structures_specialisees' => 'nullable|array',
-            'structures_specialisees.*' => 'integer|distinct|exists:structures_specialisees,id',
-        ]);
-    }
-    $validated = $request->validate([
-        'structure'            => 'required|string|max:255',
-        'unite_concernee'      => 'required|string|max:255',
-        'objet_modif'          => 'required|string|max:255',
-        'motif'                => 'required|string',
-        'repere'               => 'required|string|max:255',
-        'fonction'             => 'required|string|max:255',
-        'situation_existante'  => 'required|string',
-        'situation_souhaitee'  => 'required|string',
-        'pieces_jointes.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120',
-    ]);
-
-    // Remplissage automatique
-    $validated['nom'] = Auth::user()->name;
-    $validated['user_id'] = Auth::id();
-    $validated['date_creation'] = now();
-    $validated['statut'] = 'brouillon'; // par défaut
-
-    $demande = Demande::create($validated);
-
-     // 🔗 Attacher les structures sélectionnées
-    if ($request->has('structures_specialisees')) {
-        $demande->structuresSpecialisees()->attach($request->input('structures_specialisees'));
-    }
-
-        // 🔹 Enregistrement des pièces jointes
-    if ($request->hasFile('pieces_jointes')) {
-        foreach ($request->file('pieces_jointes') as $fichier) {
-            $chemin = $fichier->store('demandes', 'public');
-
-            DemandePieceJointe::create([
-                'demande_id' => $demande->id,
-                'chemin_fichier' => $chemin,
-                'type_document' => $fichier->extension(),
-                'uploaded_by' => Auth::id(),
+    public function store(DemandePayloadRequest $request)
+    {
+        $data = $request->validated();
+        DB::transaction(function () use ($data, $request) {
+            $demande = Demande::create(Arr::only($data, DemandePayloadRequest::FIELDS) + [
+                'nom'=>$request->user()->name, 'user_id'=>$request->user()->id,
+                'date_creation'=>now(), 'statut'=>'brouillon',
             ]);
-            
-        }
+            $demande->structuresSpecialisees()->attach($data['structures_specialisees'] ?? []);
+            $this->saveFiles($demande, $data['pieces_jointes'] ?? []);
+        });
+        return redirect()->route('demandes.index')->with('success', 'Demande créée avec succès.');
     }
-
-    return redirect()->route('demandes.index')
-        ->with('success', 'Demande créée avec succès.');
-}
     /**
      * Display the specified resource.
      */
@@ -147,63 +111,29 @@ class DemandeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Demande $demande)
+    public function update(DemandePayloadRequest $request, Demande $demande)
     {
-        //
-        $this->authorize('update', $demande);
-         // 🔒 Vérification : seul le créateur ou un admin peut modifier
-    if (Auth::id() !== $demande->user_id && !Auth::user()->hasRole('admin')) {
-        abort(403, 'Accès non autorisé.');
+        $data = $request->validated();
+        DB::transaction(function () use ($data, $demande) {
+            $locked = Demande::lockForUpdate()->findOrFail($demande->id);
+            $this->authorize('update', $locked);
+            $locked->update(array_replace(array_fill_keys(DemandePayloadRequest::FIELDS, null), Arr::only($data, DemandePayloadRequest::FIELDS)));
+            if (filter_var($data['structures_included'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                $locked->structuresSpecialisees()->sync($data['structures_specialisees'] ?? []);
+            }
+            $this->saveFiles($locked, $data['pieces_jointes'] ?? []);
+        });
+        return redirect()->route('demandes.index')->with('success', 'Demande mise à jour.');
     }
-        $request->validate([
-            'structures_included' => 'nullable|boolean',
-            'structures_specialisees' => 'nullable|array',
-            'structures_specialisees.*' => 'integer|distinct|exists:structures_specialisees,id',
-        ]);
-        $validated = $request->validate([
-        'structure' => 'required|string|max:255',
-        'unite_concernee' => 'nullable|string|max:255',
-        'objet_modif' => 'required|string|max:255',
-        'motif' => 'nullable|string',
-        'repere' => 'nullable|string|max:255',
-        'fonction' => 'nullable|string|max:255',
-        'situation_existante' => 'nullable|string',
-        'situation_souhaitee' => 'nullable|string',
-        'pieces_jointes.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120'
-        ]);
 
-        $demande->update([
-        'structure' => $validated['structure'],
-        'unite_concernee' => $validated['unite_concernee'] ?? null,
-        'objet_modif' => $validated['objet_modif'],
-        'motif' => $validated['motif'] ?? null,
-        'repere' => $validated['repere'] ?? null,
-        'fonction' => $validated['fonction'] ?? null,
-        'situation_existante' => $validated['situation_existante'] ?? null,
-        'situation_souhaitee' => $validated['situation_souhaitee'] ?? null,
-        ]);
-
-         // 📎 Ajout de nouvelles pièces jointes si présentes
-    if ($request->hasFile('pieces_jointes')) {
-        foreach ($request->file('pieces_jointes') as $fichier) {
-            $chemin = $fichier->store('demandes', 'public');
-
+    private function saveFiles(Demande $demande, array $files): void
+    {
+        foreach ($files as $file) {
             DemandePieceJointe::create([
-                'demande_id' => $demande->id,
-                'chemin_fichier' => $chemin,
-                'type_document' => $fichier->getClientOriginalExtension(),
-                'uploaded_by' => Auth::id(),
+                'demande_id'=>$demande->id, 'chemin_fichier'=>$file->store('demandes', 'public'),
+                'type_document'=>$file->extension(), 'uploaded_by'=>Auth::id(),
             ]);
         }
-    }
-        if ($request->boolean('structures_included')) {
-            $demande->structuresSpecialisees()->sync($request->input('structures_specialisees', []));
-        }
-        return redirect()->route('demandes.index')
-            ->with('success', 'Demande mise à jour.');
-        
-           //  return redirect()->route('demandes.show', $demande)
-        //->with('success', 'Demande mise à jour.');
     }
 
     /**

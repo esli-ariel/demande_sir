@@ -15,10 +15,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::pattern('demande', '[0-9]+');
 Route::pattern('user', '[0-9]+');
+Route::pattern('piece', '[0-9]+');
+Route::pattern('notification', '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}');
 
 Route::get('/', fn () => redirect()->route(auth()->check() ? 'dashboard' : 'login'));
 
 Route::middleware('auth')->group(function () {
+    Route::get('/archives', [\App\Http\Controllers\ArchiveController::class, 'index'])->name('archives.index');
+    Route::get('/archives/{demande}', [\App\Http\Controllers\ArchiveController::class, 'show'])->name('archives.show');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -33,6 +37,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:demandeur|controle_avancee|reception')->name('demandes.cloture');
 
     Route::middleware('role:admin')->group(function () {
+        Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('users.reactivate');
         Route::resource('users', UserController::class)->except('show');
         Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
         Route::get('/dashboard/admin', [AdminController::class, 'index'])->name('dashboard.admin');

@@ -20,6 +20,8 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): View
     {
+        $request->validate(['email'=>['nullable','string','email','max:255']]);
+        validator(['token'=>$request->route('token')], ['token'=>['required','string','max:512']])->validate();
         return view('auth.reset-password', ['request' => $request]);
     }
 
@@ -30,20 +32,21 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $validated = $request->validate([
+            'token' => ['required', 'string', 'max:512'],
+            'email' => ['bail', 'required', 'string', 'email', 'max:255'],
+            'password' => ['bail', 'required', 'string', 'max:4096', 'not_regex:/\x00/', 'confirmed', Rules\Password::defaults()],
+            'password_confirmation' => ['required', 'string', 'max:4096'],
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
+            $validated,
+            function (User $user) use ($validated) {
                 $user->forceFill([
-                    'password' => Hash::make($request->password),
+                    'password' => Hash::make($validated['password']),
                     'remember_token' => Str::random(60),
                 ])->save();
 

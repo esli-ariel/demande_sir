@@ -122,7 +122,8 @@ class DemandePolicy
 
     public function receptionner(User $user, Demande $demande): bool
     {
-        return $user->hasRole('reception') && in_array($demande->statut, ['terminee_agent','cloturee'], true);
+        return $user->hasRole('demandeur') && $user->id === $demande->user_id
+            && in_array($demande->statut, ['terminee_agent','cloturee'], true);
     }
 
     /**

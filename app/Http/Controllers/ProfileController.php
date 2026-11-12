@@ -43,14 +43,13 @@ class ProfileController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+            'password' => ['bail', 'required', 'string', 'max:4096', 'not_regex:/\x00/', 'current_password'],
         ]);
 
         $user = $request->user();
 
+        app(\App\Services\UserAccountStatus::class)->deactivate($user, $user);
         Auth::logout();
-
-        $user->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

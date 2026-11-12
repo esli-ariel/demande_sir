@@ -8,7 +8,7 @@
     @endif
     @if($staffRole === 'controle_avancee')
         @can('cloturer', $demande)
-        <section class="admin-panel requester-next-action"><div class="admin-panel-heading"><h2>Vérification des travaux</h2></div><form class="admin-form" method="POST" action="{{ route('demandes.cloturer', $demande) }}">@csrf<div class="admin-form-grid"><div><label for="control-visa">Votre visa</label><input id="control-visa" name="visa" value="{{ old('visa', auth()->user()->prenom.' '.auth()->user()->name) }}" required maxlength="255"></div><div><label for="control-analysis">Analyse finale</label><textarea id="control-analysis" name="analyse" rows="3" maxlength="5000" required>{{ old('analyse') }}</textarea></div></div><div class="admin-form-actions"><button class="admin-button admin-button-primary">Transmettre à la réception</button></div></form></section>
+        <section class="admin-panel requester-next-action"><div class="admin-panel-heading"><h2>Vérification des travaux</h2></div><form class="admin-form" method="POST" action="{{ route('demandes.cloturer', $demande) }}">@csrf<div class="admin-form-grid"><div><label for="control-visa">Votre visa</label><input id="control-visa" name="visa" value="{{ old('visa', auth()->user()->prenom.' '.auth()->user()->name) }}" required maxlength="255"></div><div><label for="control-analysis">Analyse finale</label><textarea id="control-analysis" name="analyse" rows="3" maxlength="5000" required>{{ old('analyse') }}</textarea></div></div><div class="admin-form-actions"><button class="admin-button admin-button-primary">Transmettre au demandeur</button></div></form></section>
         @endcan
     @endif
 @endif
@@ -23,11 +23,4 @@
 <div class="admin-form-actions"><button class="admin-button admin-button-primary">{{ $title }}</button></div></form></section>
 @endcan
 @endforeach
-@endif
-
-@if($staffRole === 'reception')
-@can('receptionner', $demande)
-<section class="admin-panel requester-next-action"><div class="admin-panel-heading"><h2>Clôture définitive</h2></div><form class="admin-form" method="POST" action="{{ route('reception.cloturer', $demande) }}" onsubmit="return confirm('Clôturer définitivement cette DMA après réception des travaux ?');">@csrf
-<div class="admin-form-grid"><div><label for="final-visa">Votre visa de réception</label><input id="final-visa" name="visa" value="{{ old('visa', auth()->user()->prenom.' '.auth()->user()->name) }}" maxlength="255" required></div><div><label for="final-comment">Compte rendu de réception</label><textarea id="final-comment" name="commentaire" rows="3" maxlength="5000">{{ old('commentaire') }}</textarea></div></div><div class="admin-form-actions"><button class="admin-button admin-button-orange">Clôturer définitivement la DMA</button></div></form></section>
-@endcan
 @endif

@@ -64,14 +64,15 @@ it('reports refusal to the requester without alerting the next team', function (
     expect($this->owner->notifications()->first()->data['commentaire'])->toBe('À revoir')->and($dts->notifications()->count())->toBe(0);
 });
 
-it('alerts reception and control after work and only the owner after final closure', function () {
+it('invites the owner to close after work and informs teams when the owner confirms', function () {
     $service=($this->account)('service',['service_technique']);$control=($this->account)('control',['controle_avancee']);$reception=($this->account)('reception',['reception']);
     $demande=($this->makeDemande)(['statut'=>'en_cours_traitement','date_debut'=>'2026-11-10']);
     $this->actingAs($service)->post(route('travaux.terminer',$demande),['visa'=>'Visa','date_fin'=>'2026-11-11','travaux_realises'=>'Modification terminée'])->assertSessionHasNoErrors();
     expect($control->notifications()->count())->toBe(1)->and($reception->notifications()->count())->toBe(1)->and($this->owner->notifications()->count())->toBe(1);
-    $this->actingAs($reception)->post(route('reception.cloturer',$demande),['visa'=>'Visa'])->assertSessionHasNoErrors();
-    expect($this->owner->notifications()->count())->toBe(2)->and($control->notifications()->count())->toBe(1)->and($reception->notifications()->count())->toBe(1);
-    expect($this->owner->notifications()->get()->pluck('data.statut')->all())->toContain('cloturee_receptionnee');
+    $this->actingAs($this->owner)->post(route('demandes.receptionner',$demande),['visa_demandeur'=>'Visa','confirmation_reception'=>1])->assertSessionHasNoErrors();
+    expect($this->owner->notifications()->count())->toBe(1)->and($control->notifications()->count())->toBe(2)->and($reception->notifications()->count())->toBe(2)->and($service->notifications()->count())->toBe(1);
+    expect($this->owner->notifications()->first()->data['message'])->toBe('Confirmez la réception pour clôturer votre DMA');
+    expect($service->notifications()->first()->data['statut'])->toBe('cloturee_receptionnee');
 });
 
 it('scopes filters counters read all and opening notifications to the signed in user', function () {

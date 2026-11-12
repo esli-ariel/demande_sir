@@ -1,6 +1,10 @@
 # Progression — Gestion des DMA
 
-Dernière mise à jour : **2026-11-11**
+Dernière mise à jour : **2026-11-12**
+
+## Revue actuelle
+
+Contrôle du 12 novembre 2026 : projet relancé, MySQL connecté, aucune migration en attente ; **141 tests réussis, 1 614 assertions**. Les dernières modifications restent non commitées dans ce checkout. Le visa, les fichiers privés, le pipeline de sauvegarde/restauration et la recette métier restent à terminer. Voir [REVUE_PROJET.md](REVUE_PROJET.md) pour le détail et les priorités.
 
 ## Où en est-on ?
 
@@ -30,7 +34,17 @@ Dernière mise à jour : **2026-11-11**
 - Diagramme d’avancement ajouté à chaque fiche DMA (DMA-021), adapté aux thèmes et au mobile ; 53 tests réussis, 432 assertions. Publié dans `fe657f3`.
 - Notifications du circuit raccordées (DMA-022) : prochains intervenants, suivi du demandeur, structures ciblées, lecture et compteur automatique ; 60 tests réussis, 498 assertions. Publié dans `fe657f3`.
 - Nettoyage des routes et contrôles des accès réalisé (DMA-003) : 69 tests réussis et 1 013 assertions, noms uniques, cache des routes vérifié.
-- Prochaine action : préciser les accès par structure/unité et les règles après refus, puis protéger les fichiers joints et compléter la recette métier.
+- Sécurité debug/CORS préparée (DMA-024) : aucune production encore déployée ; debug production désactivé et origines CORS externes interdites par défaut, tests de sécurité et régression réussis. Changements locaux.
+- Axios corrigé (DMA-025) : version unique 1.21.1, audit Axios/OSV sans avis et compilation réussie ; disponible en local. Les 16 alertes npm restantes ont ensuite été corrigées dans DMA-026.
+- Dépendances sécurisées (DMA-026/DMA-027) : Laravel 12.72.0, Axios 1.21.1 et mises à jour compatibles ; audits npm/Composer à zéro, OSV sans avis Laravel, 92 tests réussis et 1 086 assertions. Disponible en local.
+- Entrées HTTP et requêtes contrôlées (DMA-028) : schéma DMA partagé, types/limites/authentification renforcés et SQL paramétré vérifié ; 110 tests réussis, 1 241 assertions et compilation validée. Changements locaux.
+- Docker préparé pour un usage ultérieur (DMA-029) : non-root, digests vérifiés et secrets hors build ; Compose/script contrôlés et 113 tests réussis, 1 274 assertions. Aucun conteneur lancé ni image construite ; validation d’exécution reportée à un futur usage Docker.
+- Audit de la base terminé (DMA-030) : écarts schéma/migrations et données historiques identifiés en lecture seule ; voir AUDIT_BASE_DONNEES.md. DMA-031/DMA-032 corrigées ensuite ; reprise des données et exploitation DMA-033/DMA-034 encore à faire.
+- Conservation et schéma corrigés en local (DMA-031/DMA-032) : désactivation/réactivation, accès SQL restreint, numérotation annuelle atomique et contraintes réconciliées ; 122 tests réussis, 1 359 assertions. Sauvegarde restaurée, installation neuve et mise à niveau comparées sur MySQL ; détails dans EXPLOITATION_BASE_DONNEES.md.
+- Archives ajoutées (DMA-035) : menu commun, recherche et filtres par unité/année/période de clôture, consultation en lecture seule et périmètres existants conservés ; 131 tests réussis, 1 481 assertions, migration locale appliquée après restauration sur copie ; rendu jour/nuit/mobile et navigation vérifiés sur données synthétiques.
+- Clôture finale confiée au demandeur propriétaire (DMA-037) : visa et confirmation explicite sur Mes réceptions et sur la fiche, autorisation sous verrou et rôle réception en suivi ; historique/date/notifications/archives raccordés. 137 tests réussis, 1 570 assertions ; recette jour/nuit/mobile et clôture depuis la page vérifiées sur données synthétiques.
+- Pages de connexion/inscription harmonisées (DMA-038) avec photo de raffinerie et coloration vert/orange d’origine conservées, jour/nuit/mobile et erreurs accessibles ; 141 tests réussis, 1 614 assertions, recette Chrome complète sur données synthétiques.
+- Prochaine étape demandée : revoir le visa (DMA-039). Le pipeline de sauvegarde/restauration (DMA-036) reste prévu, en coordination avec DMA-034. Restent la protection/récupération des pièces jointes (DMA-023), la qualification des dossiers historiques (DMA-033), les accès par unité et les règles après refus.
 
 ## État des fonctionnalités
 
@@ -42,7 +56,7 @@ Dernière mise à jour : **2026-11-11**
 | Création et modification des demandes | Vérifiées avec et sans pièces jointes | Recette utilisateur |
 | Circuit de validation | Transitions et affectations des structures testées | Recette métier et périmètres par unité |
 | Travaux du service technique | Début et fin distincts, dates et compte rendu testés | Recette utilisateur |
-| Clôture et réception | Réception clôture définitivement après travaux, contrôle final possible avant réception | Recette métier |
+| Clôture et réception | Le demandeur propriétaire réceptionne et clôture après travaux ; contrôle final possible avant sa confirmation, rôle réception en suivi | Recette métier |
 | Tableaux de bord et notifications | Espaces harmonisés pour les neuf rôles, notifications de suivi vérifiées | Compléter la recette métier |
 | Autres parties manquantes | À préciser | Recueillir les besoins avant de créer les tâches |
 
@@ -61,11 +75,11 @@ Les statuts détaillés et les critères de fin se trouvent dans [SUIVI_PROJET.m
 ## Points à clarifier
 
 - Quelles parties ne sont pas encore créées ?
-- Quelles règles supplémentaires de périmètre métier doivent être appliquées aux équipes ? Chef : visibilité après exploitation ; réception : clôture définitive après travaux, règles confirmées.
+- Quelles règles supplémentaires de périmètre métier doivent être appliquées aux équipes ? Chef : visibilité après exploitation ; clôture finale : confirmation du demandeur propriétaire après travaux (règle corrigée dans DMA-037).
 - Quels scénarios doivent être opérationnels pour la première livraison ?
 
 Le périmètre étant encore à préciser, aucun pourcentage global ni date de fin ne sont annoncés.
 
 ## Dernière séance
 
-Notifications et workflow publiés (`fe657f3`), puis routes et accès nettoyés (DMA-003) ; 69 tests réussis et 1 013 assertions sur base isolée. Voir [JOURNAL.md](JOURNAL.md) et [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md).
+12 novembre 2026 : relance du serveur natif, revue du code/suivi/Git et contrôle MySQL en lecture seule. 28 utilisateurs, 34 demandes et huit fichiers référencés toujours absents ; 141 tests réussis, 1 614 assertions. Compte applicatif distinct de root, migrations sans attente, pages publiques HTTP 200. Revue dans [REVUE_PROJET.md](REVUE_PROJET.md), visa en prochaine étape fonctionnelle et consolidation Git à prévoir.

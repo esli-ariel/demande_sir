@@ -11,6 +11,9 @@ class DemandeTestSeeder extends Seeder
 {
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing'])) {
+            throw new \RuntimeException('Ce seeder de démonstration est réservé aux environnements local et testing.');
+        }
         // Récupération ou création d’utilisateurs avec les rôles
         $demandeur   = User::firstOrCreate(
             ['email' => 'demandeur@test.com'],

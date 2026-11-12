@@ -73,13 +73,14 @@ it('keeps an incomplete request as a draft', function () {
     expect($demande->fresh()->statut)->toBe('brouillon');
 });
 
-it('shows only owned receptions and reserves final closure to reception staff', function () {
+it('shows only owned receptions and lets the requester confirm and close their own dossier', function () {
     $mine = ($this->makeDemande)($this->requester, ['statut'=>'cloturee','objet_modif'=>'Ma réception']);
     $other = ($this->makeDemande)($this->other, ['statut'=>'cloturee','objet_modif'=>'Autre réception']);
-    $this->get(route('demandeur.receptions'))->assertOk()->assertSee('Ma réception')->assertDontSee('Autre réception');
-    $this->get(route('demandes.show',$mine))->assertOk()->assertDontSee('Confirmer la réception');
-    foreach ([$mine,$other] as $demande) $this->post(route('demandes.receptionner',$demande),['visa_demandeur'=>'Test'])->assertForbidden();
-    expect($mine->fresh()->statut)->toBe('cloturee')->and(DB::table('demandes_validations')->count())->toBe(0);
+    $this->get(route('demandeur.receptions'))->assertOk()->assertSee('Ma réception')->assertDontSee('Autre réception')->assertSee('Réceptionner et clôturer ma DMA');
+    $this->get(route('demandes.show',$mine))->assertOk()->assertSee('Confirmer la réception des travaux');
+    $this->post(route('demandes.receptionner',$other),['visa_demandeur'=>'Test','confirmation_reception'=>1])->assertForbidden();
+    $this->post(route('demandes.receptionner',$mine),['visa_demandeur'=>'Test','confirmation_reception'=>1])->assertRedirect(route('demandeur.receptions'));
+    expect($mine->fresh()->statut)->toBe('cloturee_receptionnee')->and(DB::table('demandes_validations')->where('role','demandeur')->count())->toBe(1);
 });
 
 it('prevents removing an attachment after submission', function () {

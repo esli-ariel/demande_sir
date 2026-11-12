@@ -14,7 +14,9 @@ final class DmaNotifications
     {
         $recipients = collect();
         if ($demande->user) {
-            $recipients->put($demande->user->id, ['user'=>$demande->user, 'title'=>'Mise à jour de votre DMA']);
+            $title = in_array($demande->statut,['terminee_agent','cloturee'],true)
+                ? 'Confirmez la réception pour clôturer votre DMA' : 'Mise à jour de votre DMA';
+            $recipients->put($demande->user->id, ['user'=>$demande->user, 'title'=>$title]);
         }
         $roles = match ($demande->statut) {
             'soumise' => ['exploitant'],
@@ -24,6 +26,7 @@ final class DmaNotifications
             'validee_controle_avancee' => ['service_technique'],
             'terminee_agent' => ['reception', 'controle_avancee'],
             'cloturee' => ['reception'],
+            'cloturee_receptionnee' => ['reception','service_technique','controle_avancee'],
             default => [],
         };
         $users = User::whereHas('roles', fn ($query) => $query->whereIn('name', $roles))->get();
@@ -31,8 +34,12 @@ final class DmaNotifications
             if ($demande->statut === 'validee_dts' && ! \App\Support\StaffWorkspace::structuresForDecision($user, $demande)->exists()) {
                 continue;
             }
-            $title = $demande->statut === 'validee_exploitation' && $user->hasRole('chef_structure') && ! $user->hasRole('dts')
-                ? 'Une DMA entre dans votre suivi' : 'Une DMA attend votre intervention';
+            $title = match (true) {
+                $demande->statut === 'cloturee_receptionnee' => 'Une DMA a été clôturée par son demandeur',
+                in_array($demande->statut,['terminee_agent','cloturee'],true) && $user->hasRole('reception') => 'Une DMA attend la réception de son demandeur',
+                $demande->statut === 'validee_exploitation' && $user->hasRole('chef_structure') && ! $user->hasRole('dts') => 'Une DMA entre dans votre suivi',
+                default => 'Une DMA attend votre intervention',
+            };
             $recipients->put($user->id, ['user'=>$user, 'title'=>$title]);
         }
         foreach ($recipients as ['user'=>$user, 'title'=>$title]) {

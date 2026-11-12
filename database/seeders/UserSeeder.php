@@ -11,6 +11,9 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing'])) {
+            throw new \RuntimeException('Ce seeder de démonstration est réservé aux environnements local et testing.');
+        }
         // Crée le rôle admin si pas encore créé
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
 

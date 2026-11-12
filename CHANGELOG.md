@@ -6,6 +6,31 @@ Ce journal résume les changements du projet. Le détail technique reste dans Gi
 
 ### Ajouts
 
+- Revue d’avancement datée dans REVUE_PROJET.md : réalisations locales, travaux restants, état des données et consolidation Git ; relance du serveur et 141 tests vérifiés.
+
+- Connexion et inscription harmonisées avec la charte orange/verte, thème jour/nuit partagé avec l’application et photo de raffinerie conservée en filigrane avec sa coloration vert/orange d’origine. Formulaires mobiles, visibilité indépendante des mots de passe, erreurs associées aux champs et focus sur le résumé ; inscription limitée au rôle demandeur, règles d’authentification préservées.
+
+- Règle de clôture corrigée : le demandeur propriétaire réceptionne et clôture sa DMA après travaux depuis Mes réceptions ou la fiche, avec visa et confirmation explicite. Autorisation recontrôlée sous verrou, décision/date/notifications transactionnelles ; rôle réception en suivi sans pouvoir de clôture, archives et diagramme cohérents.
+
+- Archives des demandes définitivement clôturées : navigation commune jour/nuit/mobile, recherche, filtres par unité/année/période de clôture et pagination ; dossier complet en lecture seule avec droits existants conservés.
+- Date de clôture enregistrée à la réception définitive et index de consultation ; les dates historiques inconnues restent non renseignées. L’historique des décisions stockées au jour n’affiche plus une heure de minuit artificielle.
+
+- Conservation des dossiers : désactivation/réactivation des utilisateurs, contrôle des comptes actifs à la connexion/session/récupération et quatre références métier RESTRICT ; sessions et jetons révoqués.
+- Numérotation DMA annuelle atomique et unique, sélections spécialisées sans doublons et statut non nullable ; références historiques conservées, aucune obligation de structure spécialisée.
+- Accès MySQL applicatif restreint en local, commande de migration administrative séparée et création confidentielle d’un administrateur ; seeders de démonstration réservés à local/testing et modèle d’environnement sans secrets.
+
+- Audit documentaire des migrations et de la base MySQL locale : mesures d’intégrité, écarts du schéma, conservation des dossiers, numérotation et plan entreprise dans AUDIT_BASE_DONNEES.md ; aucune donnée ni migration modifiée.
+
+- Configuration Docker optionnelle durcie : exécution non-root, images officielles épinglées par digest, secrets à l’exécution, build multi-stage avec verrouillages et contexte nettoyé ; aucun conteneur démarré.
+
+- Validation HTTP renforcée : schéma partagé des DMA, limites de listes/fichiers/textes, authentification et pagination typées ; tests prouvant la liaison des valeurs SQL et le rejet sans écriture des entrées invalides.
+
+- Dépendances corrigées : Laravel 12.72.0 verrouillé, mises à jour npm compatibles et outils PHP de développement corrigés ; audits npm et Composer sans alerte, 92 tests réussis.
+
+- Sécurité des dépendances : Axios mis à jour et verrouillé en version 1.21.1 ; les cinq avis GHSA signalés sont absents pour cette version dans OSV et npm.
+
+- Préparation sécurité : debug désactivé hors local/testing, CORS fermé par défaut avec origines exactes configurables et réglages de déploiement corrigés ; secret en clair retiré du manifeste Render.
+
 - Routes et accès : déclarations dédupliquées, protections par rôle, anciennes actions hors circuit neutralisées, alias de clôture distincts et tests des accès croisés entre les neuf rôles.
 
 - Notifications du circuit DMA aux intervenants concernés et au demandeur, avec affectations des structures respectées ; filtres, lecture globale, ouverture sécurisée et compteur actualisé automatiquement.

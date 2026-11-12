@@ -28,6 +28,15 @@ Au premier contrôle : toutes les migrations du dépôt sont déjà appliquées,
 
 Les comptes de connexion existants sont conservés. Aucun mot de passe utilisateur n’a été réinitialisé.
 
+Depuis le 11 novembre 2026, les deux migrations de conservation/numérotation sont appliquées. L’application utilise un compte SQL limité à la lecture/écriture ; `migrate:status` reste utilisable, mais les migrations DDL exigent désormais le compte administratif séparé :
+
+```sh
+php artisan dma:migrate-local --admin-config=../work/private-database-backups/migration-connection.json --pretend
+php artisan dma:migrate-local --admin-config=../work/private-database-backups/migration-connection.json
+```
+
+Le fichier administratif est privé et hors dépôt. Ne pas le copier dans l’application ni le publier. Procédure et limites dans [EXPLOITATION_BASE_DONNEES.md](EXPLOITATION_BASE_DONNEES.md). Les comptes de démonstration sont interdits hors local/testing ; pour une initialisation entreprise, utiliser `php artisan dma:create-admin` avec saisie confidentielle.
+
 ## Préparation déjà effectuée
 
 - Dépendances PHP installées depuis `composer.lock`.
@@ -44,3 +53,15 @@ Le formulaire de connexion et ses fichiers CSS/JS répondent en HTTP 200. Le cir
 Les notifications sont enregistrées dans la base MySQL existante, au moment des nouvelles actions du circuit. Aucune relance des seeders ni migration supplémentaire n’est nécessaire pour cette fonctionnalité. Aucun serveur mail ou worker de file d’attente n’est requis.
 
 La page `/notifications` permet de filtrer les messages non lus, de les marquer comme lus et d’ouvrir la DMA associée. Le compteur dans la navbar se met à jour toutes les 30 secondes lorsque l’onglet est visible ; la liste se recharge en naviguant ou en actualisant la page. Les actions antérieures à l’ajout de cette fonctionnalité ne génèrent pas de nouvelles alertes rétroactives.
+
+## Debug et CORS
+
+Le mode local conserve le debug de développement. Les règles de production et l’autorisation éventuelle d’un front sur une autre origine sont décrites dans [SECURITE_DEPLOIEMENT.md](SECURITE_DEPLOIEMENT.md). Aucun domaine externe n’est autorisé par défaut ; aucun changement n’est nécessaire pour le front Blade servi par Laravel à la même adresse.
+
+## Docker optionnel
+
+Les fichiers Docker ont été préparés pour un futur usage avec exécution non-root et secrets à l’exécution. Ils ne remplacent pas le lancement natif PHP/MySQL décrit ci-dessus. Voir [docker/README.md](docker/README.md) pour les vérifications effectuées et les contrôles restant à faire avant usage.
+
+## Réception et clôture par le demandeur
+
+Le demandeur propriétaire confirme les travaux et clôture sa DMA dans **Réceptions**, ou depuis la fiche, avec visa et confirmation explicite. Les travaux doivent être terminés ; la vérification finale par le contrôle reste facultative. Le rôle réception ne clôture plus. La demande confirmée rejoint les archives, avec sa date et sa décision ; les dossiers déjà clôturés restent inchangés. Cette correction ne nécessite aucune nouvelle migration.

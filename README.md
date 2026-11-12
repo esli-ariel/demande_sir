@@ -16,6 +16,7 @@ Voir [DEMARRAGE_LOCAL.md](DEMARRAGE_LOCAL.md) pour lancer le projet avec PHP et 
 - [Charte graphique](CHARTE_GRAPHIQUE.md)
 
 - [Progression et prochaine étape](PROGRESSION.md)
+- [Revue du projet : terminé et reste à faire](REVUE_PROJET.md)
 - [Journal des séances](JOURNAL.md)
 - [Tâches et critères de fin](SUIVI_PROJET.md)
 - [Historique des modifications](CHANGELOG.md)

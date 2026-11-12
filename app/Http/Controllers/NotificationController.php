@@ -10,8 +10,8 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $request->validate(['vue'=>'nullable|in:toutes,non_lues']);
-        $scope = $request->input('vue', 'toutes');
+        $filters = $request->validate(['page'=>'nullable|integer|min:1|max:100000', 'vue'=>'nullable|string|in:toutes,non_lues']);
+        $scope = $filters['vue'] ?? 'toutes';
         $notifications = $request->user()->notifications()
             ->when($scope === 'non_lues', fn ($query) => $query->whereNull('read_at'))
             ->latest()->orderByDesc('id')->paginate(12)->withQueryString();

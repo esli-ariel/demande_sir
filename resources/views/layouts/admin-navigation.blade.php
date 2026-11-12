@@ -25,6 +25,7 @@
                 <a href="{{ route('demandes.index') }}" @class(['is-active' => request()->routeIs('demandes.*')])>Demandes</a>
                 <a href="{{ route('users.index') }}" @class(['is-active' => request()->routeIs('users.*')])>Utilisateurs</a>
             @endif
+            <a href="{{ route('archives.index') }}" @class(['is-active' => request()->routeIs('archives.*')])>Archives</a>
         </div>
         <div class="admin-nav-account">
             <a href="{{ route('notifications.index') }}" aria-label="Notifications, {{ $notificationCount }} non lues" :aria-label="`Notifications, ${unread} non lues`">Notifications <span x-text="unread" aria-live="polite">{{ $notificationCount }}</span></a>
@@ -44,6 +45,7 @@
         <a href="{{ route('dashboard') }}">{{ $demandeurSpace ? 'Mon tableau de bord' : ($staffSpace ? 'Tableau de bord' : 'Vue d’ensemble') }}</a>
         <a href="{{ $staffSpace ? route('staff.demandes') : route('demandes.index') }}">{{ $demandeurSpace ? 'Mes demandes' : ($staffSpace ? ($staffTaskLabel) : 'Demandes') }}</a>
         @if($staffSpace)<a href="{{ route('staff.demandes', ['vue'=>'mes_decisions']) }}">{{ $staffHistoryLabel }}</a>@elseif($demandeurSpace)<a href="{{ route('demandeur.receptions') }}">Réceptions</a>@else<a href="{{ route('users.index') }}">Utilisateurs</a>@endif
+        <a href="{{ route('archives.index') }}" @if(request()->routeIs('archives.*')) aria-current="page" @endif>Archives</a>
         <a href="{{ route('notifications.index') }}">Notifications <span x-text="unread">{{ $notificationCount }}</span></a>
         <a href="{{ route('profile.edit') }}">Mon profil</a>
         <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Déconnexion</button></form>

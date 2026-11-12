@@ -24,11 +24,19 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    protected function prepareForValidation(): void
+    {
+        if (in_array($this->input('remember'), ['on','off','true','false'], true)) {
+            $this->merge(['remember'=>filter_var($this->input('remember'), FILTER_VALIDATE_BOOLEAN)]);
+        }
+    }
+
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'email' => ['bail', 'required', 'string', 'email', 'max:255'],
+            'remember' => ['sometimes', 'nullable', 'boolean'],
+            'password' => ['bail', 'required', 'string', 'max:4096', 'not_regex:/\x00/'],
         ];
     }
 
@@ -41,7 +49,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        if (! Auth::attempt($this->safe()->only(['email', 'password']), (bool) ($this->validated('remember') ?? false))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

@@ -151,7 +151,7 @@ it('requires a control refusal reason and preserves existing DMA numbers', funct
 it('checks completed works without bypassing final reception', function () {
     Role::firstOrCreate(['name'=>'controle_avancee','guard_name'=>'web']);$this->staff->syncRoles(['controle_avancee']);$this->staff->unsetRelation('roles');
     $demande=($this->makeDemande)(['statut'=>'terminee_agent']);
-    $this->get(route('demandes.show',$demande))->assertOk()->assertSee('Transmettre à la réception');
+    $this->get(route('demandes.show',$demande))->assertOk()->assertSee('Transmettre au demandeur');
     $this->post(route('demandes.cloturer',$demande),['visa'=>'Test'])->assertSessionHasErrors('analyse');
     $this->post(route('demandes.cloturer',$demande),['visa'=>'Test','analyse'=>'Travaux conformes'])->assertSessionHasNoErrors();
     expect($demande->fresh()->statut)->toBe('cloturee')->and(DB::table('demandes_validations')->where('commentaire','Travaux conformes')->count())->toBe(1);
@@ -196,25 +196,18 @@ it('shows the chief only requests already approved by exploitation without decis
     $this->get(route('staff.demandes',['vue'=>'mes_decisions']))->assertOk()->assertViewHas('demandes',fn($items)=>$items->total()===2);
 });
 
-it('lets reception definitively close completed works once and notify the requester', function () {
+it('keeps reception staff in read-only follow-up without final closure rights', function () {
     Role::firstOrCreate(['name'=>'reception','guard_name'=>'web']);$this->staff->syncRoles(['reception']);
     $early=($this->makeDemande)(['statut'=>'en_cours_traitement','objet_modif'=>'Travaux non terminés']);
     $done=($this->makeDemande)(['statut'=>'terminee_agent','objet_modif'=>'Travaux réceptionnables']);
     foreach (['dashboard','dashboard.reception','notifications.index','profile.edit'] as $route) $this->get(route($route))->assertOk();
     $this->get(route('staff.demandes'))->assertOk()->assertSee('Travaux réceptionnables')->assertDontSee('Travaux non terminés');
     $this->get(route('demandes.show',$early))->assertForbidden();
-    $this->post(route('reception.cloturer',$early),['visa'=>'Test'])->assertForbidden();
-    $this->get(route('demandes.show',$done))->assertOk()->assertSee('Clôturer définitivement la DMA');
-    $this->post(route('reception.cloturer',$done),[])->assertSessionHasErrors('visa');
-    $this->post(route('reception.cloturer',$done),['visa'=>'Réception Test','commentaire'=>'Travaux reçus'])->assertSessionHasNoErrors();
-    expect($done->fresh()->statut)->toBe('cloturee_receptionnee')->and(DB::table('demandes_validations')->where('role','reception')->count())->toBe(1)->and($this->owner->notifications()->count())->toBe(1);
-    $this->post(route('reception.cloturer',$done),['visa'=>'Test'])->assertForbidden();
-    $this->get(route('demandes.show',$done))->assertOk()->assertDontSee('Clôturer définitivement la DMA');
-    $this->get(route('staff.demandes',['vue'=>'mes_decisions']))->assertOk()->assertSee('Travaux réceptionnables');
-    $legacy=($this->makeDemande)(['statut'=>'cloturee']);
-    $this->post(route('demandes.cloturer_reception',$legacy),['visa'=>'Test'])->assertSessionHasNoErrors();
-    expect($legacy->fresh()->statut)->toBe('cloturee_receptionnee');
-    $this->actingAs($this->owner)->post(route('reception.cloturer',($this->makeDemande)(['statut'=>'terminee_agent'])),['visa'=>'Test'])->assertForbidden();
+    $this->get(route('demandes.show',$done))->assertOk()->assertDontSee('Clôturer définitivement la DMA')->assertDontSee('Réceptionner et clôturer ma DMA');
+    foreach (['reception.cloturer','demandes.cloturer_reception','demandes.receptionner'] as $route) {
+        $this->post(route($route,$done),['visa'=>'Test','visa_demandeur'=>'Test','confirmation_reception'=>1])->assertForbidden();
+    }
+    expect($done->fresh()->statut)->toBe('terminee_agent')->and(DB::table('demandes_validations')->count())->toBe(0);
 });
 
 it('carries one DMA through the entire approval work and final reception circuit', function () {
@@ -233,7 +226,7 @@ it('carries one DMA through the entire approval work and final reception circuit
     $this->actingAs($accounts['service_technique'])->post(route('demandes.traiter_agent',$demande),['visa'=>'Circuit','date_debut'=>'2026-11-10'])->assertSessionHasNoErrors();
     $this->post(route('travaux.terminer',$demande),['visa'=>'Circuit','date_fin'=>'2026-11-11','travaux_realises'=>'Modification du circuit'])->assertSessionHasNoErrors();
     expect($demande->fresh()->statut)->toBe('terminee_agent');
-    $this->actingAs($accounts['reception'])->post(route('reception.cloturer',$demande),['visa'=>'Circuit','commentaire'=>'Conforme'])->assertSessionHasNoErrors();
+    $this->actingAs($this->owner)->post(route('demandes.receptionner',$demande),['visa_demandeur'=>'Circuit','confirmation_reception'=>1,'commentaire'=>'Conforme'])->assertSessionHasNoErrors();
     expect($demande->fresh()->statut)->toBe('cloturee_receptionnee')->and(DB::table('demandes_validations')->where('demande_id',$demande->id)->count())->toBe(7);
     $this->actingAs($this->owner)->get(route('demandes.show',$demande))->assertOk()->assertSee('Clôturée et réceptionnée')->assertSee('Modification du circuit');
 });

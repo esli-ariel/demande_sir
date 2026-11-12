@@ -15,6 +15,9 @@ class StructuresSpecialiseesSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing'])) {
+            throw new \RuntimeException('Ce seeder de démonstration est réservé aux environnements local et testing.');
+        }
         //
         // Récupérer tous les utilisateurs ayant le rôle 'structure'
         $structures = User::role('structure_specialisee')->get();

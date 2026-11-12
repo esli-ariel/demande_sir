@@ -14,9 +14,9 @@ class AdminController extends Controller
     {
         abort_unless($request->user()?->hasRole('admin'), 403);
 
-        $filters = $request->validate([
+        $filters = $request->validate(['page'=>'nullable|integer|min:1|max:100000',
             'q' => ['nullable', 'string', 'max:150'],
-            'etat' => ['nullable', Rule::in(array_keys(DmaStatus::GROUP_LABELS))],
+            'etat' => ['nullable', 'string', Rule::in(array_keys(DmaStatus::GROUP_LABELS))],
         ]);
         $search = trim($filters['q'] ?? '');
         $category = $filters['etat'] ?? '';
@@ -42,10 +42,11 @@ class AdminController extends Controller
         $demandes = $query->latest()->orderByDesc('id')->paginate(8)->withQueryString();
 
         $year = now()->year;
-        $monthExpression = \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite'
-            ? "CAST(strftime('%m', created_at) AS INTEGER)" : 'MONTH(created_at)';
-        $monthly = Demande::query()->whereYear('created_at', $year)
-            ->selectRaw($monthExpression.' as mois, COUNT(*) as total')->groupBy('mois')->pluck('total', 'mois');
+        $monthlyQuery = Demande::query()->whereYear('created_at', $year);
+        $monthly = (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite'
+            ? $monthlyQuery->selectRaw("CAST(strftime('%m', created_at) AS INTEGER) as mois, COUNT(*) as total")
+            : $monthlyQuery->selectRaw('MONTH(created_at) as mois, COUNT(*) as total'))
+            ->groupBy('mois')->pluck('total', 'mois');
         $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
         $monthlyCounts = collect(range(1, 12))->map(fn ($month) => (int) ($monthly[$month] ?? 0));
         $usersCount = User::count();

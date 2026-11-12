@@ -51,7 +51,7 @@ class StaffController extends Controller
         $role = StaffWorkspace::role($request->user());
         abort_unless($role, 403);
         $workspace = StaffWorkspace::ROLES[$role];
-        $filters = $request->validate(['q' => 'nullable|string|max:150', 'vue' => ['nullable', Rule::in(['a_traiter', 'mes_decisions', 'tous', 'cloturees', 'refusees'])]]);
+        $filters = $request->validate(['page'=>'nullable|integer|min:1|max:100000', 'q' => 'nullable|string|max:150', 'vue' => ['nullable', 'string', Rule::in(['a_traiter', 'mes_decisions', 'tous', 'cloturees', 'refusees'])]]);
         $search = trim($filters['q'] ?? '');
         $scope = $filters['vue'] ?? 'a_traiter';
         $query = StaffWorkspace::query($request->user())->with('user');
