@@ -63,13 +63,15 @@ Ces constats ne prouvent pas une corruption de tous ces dossiers : le seeder de 
 
 ## État Git et livraison
 
-Le HEAD local est `334ba56`, sur `main`. Les modifications récentes sont encore non commitées dans ce checkout ; les nouveaux contrôleurs, migrations, tests et documents font partie de ce travail local. Aucun commit, push ou déploiement n’a été effectué pendant cette revue, et l’état distant n’a pas été actualisé par un fetch.
+Le point de consolidation du code est **43ae8dd**, publié sur `main` de `esli-ariel/demande_sir` le 12 novembre 2026 à la demande explicite du porteur du projet. Il regroupe 105 fichiers de code, tests et documentation, notamment sécurité, archives, clôture par le demandeur et pages d’accès. Secrets de configuration, sauvegardes et données locales exclus après contrôle des contenus indexés.
 
-La version reste **0.1.0-dev**. Aucun pourcentage global ni date de livraison n’est annoncé : le périmètre final, le visa et les critères de recette entreprise restent à confirmer.
+La revue préalable avait constaté un HEAD local `334ba56` et les changements non commitées. Ce constat est désormais résolu : fetch avant publication sans divergence, commit et push normal confirmés. Les fichiers de suivi sont actualisés après la publication du point de code.
+
+La version reste **0.1.0-dev** ; ce push n’est pas une livraison en production. Aucun pourcentage global ni date de livraison n’est annoncé : le périmètre final, le visa et les critères de recette entreprise restent à confirmer.
 
 ## Ordre proposé
 
-1. Consolider un point de version du travail actuel.
+1. Point de version du travail actuel : **réalisé**, commit `43ae8dd` publié sur `main`.
 2. Traiter le visa, prochaine fonctionnalité demandée.
 3. Protéger les pièces jointes et qualifier/récupérer les documents manquants.
 4. Mettre en place le pipeline de sauvegarde et restauration, en incluant base et fichiers.

@@ -342,11 +342,11 @@ Ce fichier conserve les séances dans l’ordre chronologique. Ajouter une entr�
 
 ## 2026-11-12 — Consolidation et publication Git
 
-- **Tâche :** DMA-041 en cours, push explicitement demandé par le porteur du projet.
+- **Tâche :** DMA-041 terminée, push explicitement demandé par le porteur du projet.
 - **Périmètre :** correctifs sécurité et dépendances, conservation des comptes/dossiers, contraintes et numérotation, archives, clôture par le demandeur, refonte des accès, tests et documentation.
 - **Avant commit :** fetch de main effectué, aucune divergence avec origin/main ; 105 fichiers modifiés/nouveaux contrôlés, aucun secret de configuration correspondant ni motif de clé privée/token détecté, aucun dump/SQLite/.env privé inclus. Sauvegardes et prévisualisations restent hors dépôt.
 - **Validation disponible :** 141 tests réussis, 1 614 assertions lors de la revue du jour ; dernière compilation Vite réussie et diff sans erreur de whitespace. Aucun code métier modifié depuis ces contrôles.
-- **Publication :** commit de consolidation et vérification du push en cours ; résultat à inscrire après confirmation distante.
+- **Publication :** commit `43ae8dd` — « feat: sécuriser le circuit DMA et ajouter les archives », 105 fichiers ; push sur `origin/main` confirmé (`334ba56..43ae8dd`), sans forcer l’historique. Journal, progression, tâches et revue actualisés dans un commit documentaire de suivi. Version conservée à 0.1.0-dev ; aucun déploiement en production effectué.
 
 ## Modèle pour les prochaines séances
 

@@ -4,7 +4,7 @@ Dernière mise à jour : **2026-11-12**
 
 ## Revue actuelle
 
-Contrôle du 12 novembre 2026 : projet relancé, MySQL connecté, aucune migration en attente ; **141 tests réussis, 1 614 assertions**. Les dernières modifications restent non commitées dans ce checkout. Le visa, les fichiers privés, le pipeline de sauvegarde/restauration et la recette métier restent à terminer. Voir [REVUE_PROJET.md](REVUE_PROJET.md) pour le détail et les priorités.
+Contrôle du 12 novembre 2026 : projet relancé, MySQL connecté, aucune migration en attente ; **141 tests réussis, 1 614 assertions**. Les corrections sont regroupées dans le point de consolidation **43ae8dd**, poussé sur `main` le 12 novembre 2026. Le visa, les fichiers privés, le pipeline de sauvegarde/restauration et la recette métier restent à terminer. Voir [REVUE_PROJET.md](REVUE_PROJET.md) pour le détail et les priorités.
 
 ## Où en est-on ?
 
@@ -82,4 +82,4 @@ Le périmètre étant encore à préciser, aucun pourcentage global ni date de f
 
 ## Dernière séance
 
-12 novembre 2026 : relance du serveur natif, revue du code/suivi/Git et contrôle MySQL en lecture seule. 28 utilisateurs, 34 demandes et huit fichiers référencés toujours absents ; 141 tests réussis, 1 614 assertions. Compte applicatif distinct de root, migrations sans attente, pages publiques HTTP 200. Revue dans [REVUE_PROJET.md](REVUE_PROJET.md), visa en prochaine étape fonctionnelle et consolidation Git à prévoir.
+12 novembre 2026 : relance du serveur natif, revue du code/suivi/Git et contrôle MySQL en lecture seule. 28 utilisateurs, 34 demandes et huit fichiers référencés toujours absents ; 141 tests réussis, 1 614 assertions. Compte applicatif distinct de root, migrations sans attente, pages publiques HTTP 200. Revue dans [REVUE_PROJET.md](REVUE_PROJET.md). Consolidation publiée sur GitHub dans `43ae8dd` après demande explicite ; visa en prochaine étape fonctionnelle.

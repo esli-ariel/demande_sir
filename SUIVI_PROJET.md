@@ -56,7 +56,7 @@ Statuts : **À préciser**, **À faire**, **En cours**, **Bloqué**, **À vérif
 | DMA-038 | Normale | Harmoniser la connexion et l’inscription | Terminé | Photo de raffinerie conservée en filigrane, charte orange/verte et jour/nuit/mobile ; erreurs/champs accessibles et visibilité des mots de passe ; 141 tests réussis, 1 614 assertions et parcours Chrome inscription/connexion/déconnexion vérifiés sur données synthétiques |
 | DMA-039 | Haute | Revoir la gestion du visa | À préciser | Prochaine étape demandée après les pages d’accès ; format du visa et exigences de traçabilité à définir |
 | DMA-040 | Normale | Relancer le projet et établir la revue d’avancement | Terminé | Serveur/MySQL vérifiés, migrations sans attente, 141 tests réussis et revue datée des réalisations, limites et travaux restants dans REVUE_PROJET.md |
-| DMA-041 | Haute | Consolider les modifications locales dans Git | En cours | Diff et secrets relus, commit de consolidation et point de contrôle GitHub ; fichiers de sauvegarde et données locales exclus |
+| DMA-041 | Haute | Consolider les modifications locales dans Git | Terminé | 105 fichiers contrôlés et regroupés dans 43ae8dd, poussé sur main le 12 novembre 2026 après fetch sans divergence ; secrets et sauvegardes exclus, 141 tests validés lors de la revue |
 | DMA-010 | Haute | Refonte du tableau de bord administrateur | Terminé | Recherche, filtres, pagination et consultation vérifiés ; rendu ordinateur et mobile contrôlé ; tests des indicateurs réussis |
 | DMA-009 | Normale | Mettre en place les fichiers de suivi | Terminé | Version, journal, suivi et liens README créés et relus |
 
