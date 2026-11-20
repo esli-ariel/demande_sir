@@ -7,7 +7,8 @@ use App\Support\DmaStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use App\Models\DemandeValidation;
+use App\Models\User;
+use App\Services\DmaVisa;
 
 class DemandeurController extends Controller
 {
@@ -51,22 +52,17 @@ class DemandeurController extends Controller
     public function receptionner(Request $request, Demande $demande)
     {
         Gate::authorize('receptionner', $demande);
-        $data = $request->validate([
-            'visa_demandeur'=>['required','string','max:255'],
+        $visa = app(DmaVisa::class);
+        $data = $visa->validate($request,[
             'commentaire'=>['nullable','string','max:5000'],
-            'confirmation_reception'=>['bail','required','boolean','accepted'],
-        ]);
-        DB::transaction(function () use ($request, $demande, $data) {
+        ],'confirmation_reception');
+        $visa->run($request,function (User $actor) use ($demande,$data,$visa) {
             $locked = Demande::lockForUpdate()->findOrFail($demande->id);
-            Gate::authorize('receptionner', $locked);
-            DemandeValidation::create([
-                'demande_id'=>$locked->id, 'user_id'=>$request->user()->id, 'role'=>'demandeur',
-                'decision'=>'accord', 'visa'=>$data['visa_demandeur'],
-                'commentaire'=>$data['commentaire'] ?? null, 'date_validation'=>now(),
-            ]);
-            $locked->update(['statut'=>'cloturee_receptionnee','closed_at'=>now()]);
-            app(\App\Services\DmaNotifications::class)->transition($locked, $request->user(), $data['commentaire'] ?? null);
-        });
+            Gate::forUser($actor)->authorize('receptionner',$locked);
+            $signed = $visa->record($locked,$actor,'requester_receipt','cloturee_receptionnee',$data['commentaire'] ?? null);
+            $locked->update(['statut'=>'cloturee_receptionnee','closed_at'=>$signed->signed_at]);
+            app(\App\Services\DmaNotifications::class)->transition($locked, $actor, $data['commentaire'] ?? null);
+        },'confirmation_reception');
 
         return redirect()->route('demandeur.receptions')->with('success','Réception confirmée. Votre DMA est clôturée et disponible dans les archives.');
     }

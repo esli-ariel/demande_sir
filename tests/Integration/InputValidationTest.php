@@ -93,7 +93,7 @@ it('rejects bad role types and nul bytes in passwords before creating accounts',
 it('rejects malformed dates before changing technical work state or notifying anyone', function () {
     Role::firstOrCreate(['name'=>'service_technique','guard_name'=>'web']);$this->admin->syncRoles(['service_technique']);
     $demande=Demande::create($this->payload+['user_id'=>$this->owner->id,'nom'=>'Owner','statut'=>'validee_controle_avancee']);
-    $this->actingAs($this->admin)->postJson(route('demandes.traiter_agent',$demande),['visa'=>'Test','date_debut'=>'11/11/2026'])->assertUnprocessable()->assertJsonValidationErrors('date_debut');
+    $this->actingAs($this->admin)->postJson(route('demandes.traiter_agent',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Test','date_debut'=>'11/11/2026'])->assertUnprocessable()->assertJsonValidationErrors('date_debut');
     expect($demande->fresh()->statut)->toBe('validee_controle_avancee')->and(DB::table('notifications')->count())->toBe(0);
 });
 

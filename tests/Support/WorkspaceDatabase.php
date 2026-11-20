@@ -33,6 +33,7 @@ function resetWorkspaceDatabase(): User
         '2026_11_11_000001_preserve_user_business_records.php',
         '2026_11_11_000002_secure_dma_numbering_and_constraints.php',
         '2026_11_11_000003_record_dma_final_closure.php',
+        '2026_11_12_000001_add_nominative_visas.php',
     ] as $migration) {
         (require database_path('migrations/'.$migration))->up();
     }

@@ -66,7 +66,8 @@ test('user can delete their account', function () {
         ->assertRedirect('/');
 
     $this->assertGuest();
-    $this->assertNull($user->fresh());
+    // Accounts are deactivated, never deleted, so business records are preserved.
+    expect($user->fresh()->deactivated_at)->not->toBeNull();
 });
 
 test('correct password must be provided to delete account', function () {

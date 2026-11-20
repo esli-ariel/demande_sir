@@ -78,8 +78,8 @@ it('shows only owned receptions and lets the requester confirm and close their o
     $other = ($this->makeDemande)($this->other, ['statut'=>'cloturee','objet_modif'=>'Autre réception']);
     $this->get(route('demandeur.receptions'))->assertOk()->assertSee('Ma réception')->assertDontSee('Autre réception')->assertSee('Réceptionner et clôturer ma DMA');
     $this->get(route('demandes.show',$mine))->assertOk()->assertSee('Confirmer la réception des travaux');
-    $this->post(route('demandes.receptionner',$other),['visa_demandeur'=>'Test','confirmation_reception'=>1])->assertForbidden();
-    $this->post(route('demandes.receptionner',$mine),['visa_demandeur'=>'Test','confirmation_reception'=>1])->assertRedirect(route('demandeur.receptions'));
+    $this->post(route('demandes.receptionner',$other),['password'=>'test-password','visa_demandeur'=>'Test','confirmation_reception'=>1])->assertForbidden();
+    $this->post(route('demandes.receptionner',$mine),['password'=>'test-password','visa_demandeur'=>'Test','confirmation_reception'=>1])->assertRedirect(route('demandeur.receptions'));
     expect($mine->fresh()->statut)->toBe('cloturee_receptionnee')->and(DB::table('demandes_validations')->where('role','demandeur')->count())->toBe(1);
 });
 

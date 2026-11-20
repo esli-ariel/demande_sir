@@ -6,10 +6,7 @@
             @csrf
             <input type="hidden" name="_reception_demande_id" value="{{ $demande->id }}">
             <div class="admin-form-grid">
-                <div>
-                    <label for="requester-visa-{{ $demande->id }}">Votre visa de réception</label>
-                    <input id="requester-visa-{{ $demande->id }}" name="visa_demandeur" maxlength="255" required value="{{ $receiptHasOld && is_string(old('visa_demandeur')) ? old('visa_demandeur') : mb_substr(trim(auth()->user()->prenom.' '.auth()->user()->name), 0, 255) }}">
-                </div>
+                <x-visa-confirmation :id="'requester-visa-'.$demande->id" role="demandeur" :confirmation="false" />
                 <div>
                     <label for="requester-comment-{{ $demande->id }}">Commentaire de réception</label>
                     <textarea id="requester-comment-{{ $demande->id }}" name="commentaire" rows="3" maxlength="5000">{{ $receiptHasOld && is_string(old('commentaire')) ? old('commentaire') : '' }}</textarea>

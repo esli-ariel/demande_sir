@@ -13,13 +13,13 @@ beforeEach(function () {
     $this->owner=User::create(['name'=>'Propriétaire','prenom'=>'Test','email'=>'closure-owner@example.invalid','password'=>'test-password']);
     $this->owner->assignRole('demandeur');
     $this->makeDemande=fn(array $extra=[])=>Demande::create(array_replace(['user_id'=>$this->owner->id,'nom'=>'Test','objet_modif'=>'Ma DMA à réceptionner','statut'=>'terminee_agent'],$extra));
-    $this->payload=['visa_demandeur'=>'Visa propriétaire','confirmation_reception'=>1,'commentaire'=>'Travaux reçus et vérifiés'];
+    $this->payload=['password'=>'test-password','visa_demandeur'=>'Visa propriétaire','confirmation_reception'=>1,'commentaire'=>'Travaux reçus et vérifiés'];
 });
 
 it('requires an explicit confirmation and bounded typed fields without writing any decision', function () {
     $demande=($this->makeDemande)();
     $this->actingAs($this->owner);
-    foreach ([[],['visa_demandeur'=>'Visa'],['visa_demandeur'=>'Visa','confirmation_reception'=>0],['visa_demandeur'=>['bad'],'confirmation_reception'=>1],['visa_demandeur'=>str_repeat('x',256),'confirmation_reception'=>1],['visa_demandeur'=>'Visa','confirmation_reception'=>1,'commentaire'=>['bad']],['visa_demandeur'=>'Visa','confirmation_reception'=>1,'commentaire'=>str_repeat('x',5001)]] as $data) {
+    foreach ([[],['visa_demandeur'=>'Visa'],['visa_demandeur'=>'Visa','confirmation_reception'=>0],['password'=>['bad'],'confirmation_reception'=>1],['password'=>str_repeat('x',4097),'confirmation_reception'=>1],['visa_demandeur'=>'Visa','confirmation_reception'=>1,'commentaire'=>['bad']],['visa_demandeur'=>'Visa','confirmation_reception'=>1,'commentaire'=>str_repeat('x',5001)]] as $data) {
         $this->postJson(route('demandes.receptionner',$demande),$data)->assertUnprocessable();
     }
     expect($demande->fresh()->statut)->toBe('terminee_agent')->and($demande->fresh()->closed_at)->toBeNull()
@@ -55,7 +55,7 @@ it('closes eligible owner dossiers through both aliases with an immutable server
     $decision=DB::table('demandes_validations')->where('demande_id',$demande->id)->first();
     expect($demande->fresh()->statut)->toBe('cloturee_receptionnee')->and($demande->fresh()->user_id)->toBe($this->owner->id)
         ->and($demande->fresh()->closed_at->format('Y-m-d H:i:s'))->toBe('2026-11-11 18:23:45')
-        ->and($decision->role)->toBe('demandeur')->and($decision->user_id)->toBe($this->owner->id)->and($decision->visa)->toBe('Visa propriétaire');
+        ->and($decision->role)->toBe('demandeur')->and($decision->user_id)->toBe($this->owner->id)->and($decision->signer_name)->toBe('Test Propriétaire');
     $this->get(route('demandeur.receptions'))->assertOk()->assertDontSee('Ma DMA à réceptionner');
     $this->get(route('archives.index'))->assertOk()->assertSee('Ma DMA à réceptionner');
     $this->travel(1)->days();

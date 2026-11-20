@@ -1311,3 +1311,10 @@ html[data-admin-theme='dark'] .dma-workflow-step.is-refused .dma-workflow-marker
 
 .admin-form label.requester-receipt-confirmation { display:flex;align-items:flex-start;gap:12px;line-height:1.7;cursor:pointer; }
 .requester-receipt-confirmation input[type='checkbox'] { flex:0 0 18px;width:18px;height:18px;margin-top:2px;accent-color:#2E8B57; }
+
+.dma-visa-identity { display:flex;flex-direction:column;gap:5px;padding:12px 16px;border-left:3px solid #FF8C00;background:rgb(46 139 87 / 7%);margin-bottom:18px;overflow-wrap:anywhere;font-size:12px; }
+.dma-visa-identity strong { font-size:15px;color:#18251E; }
+.admin-form .dma-visa-consent { margin-top:18px; }
+html[data-admin-theme='dark'] .dma-visa-identity { background:#242428;color:#D4D4DB; }
+html[data-admin-theme='dark'] .dma-visa-identity strong { color:#FAFAFA; }
+html[data-admin-theme='dark'] .dma-visa-confirmation .text-red-600 { color:#FFA296; }

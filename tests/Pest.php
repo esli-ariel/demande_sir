@@ -11,8 +11,12 @@
 |
 */
 
+// The migrations contain MySQL-only triggers, so tests build the same SQLite
+// schema as tests/Integration instead of replaying every migration.
+require_once __DIR__.'/Support/WorkspaceDatabase.php';
+
 pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->beforeEach(fn () => \Tests\Support\resetWorkspaceDatabase())
     ->in('Feature');
 
 /*

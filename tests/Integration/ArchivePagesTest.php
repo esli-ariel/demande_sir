@@ -123,10 +123,10 @@ it('records the final reception timestamp once and immediately exposes the close
     $reception->assignRole('reception');
     $demande=($this->makeDemande)(['statut'=>'terminee_agent','closed_at'=>null]);
     $this->travelTo(\Carbon\Carbon::parse('2026-11-11 15:20:30'));
-    $this->actingAs($this->owner)->post(route('demandes.receptionner',$demande),['visa_demandeur'=>'Visa final','confirmation_reception'=>1])->assertSessionHasNoErrors()->assertRedirect();
+    $this->actingAs($this->owner)->post(route('demandes.receptionner',$demande),['password'=>'test-password','visa_demandeur'=>'Visa final','confirmation_reception'=>1])->assertSessionHasNoErrors()->assertRedirect();
     expect($demande->fresh()->closed_at->format('Y-m-d H:i:s'))->toBe('2026-11-11 15:20:30');
     $this->travel(1)->days();
-    $this->post(route('demandes.receptionner',$demande),['visa_demandeur'=>'Deuxième visa','confirmation_reception'=>1])->assertForbidden();
+    $this->post(route('demandes.receptionner',$demande),['password'=>'test-password','visa_demandeur'=>'Deuxième visa','confirmation_reception'=>1])->assertForbidden();
     expect($demande->fresh()->closed_at->format('Y-m-d H:i:s'))->toBe('2026-11-11 15:20:30');
     $this->get(route('archives.index',['annee'=>2026]))->assertOk()->assertViewHas('demandes',fn($rows)=>$rows->total()===1);
     $this->travelBack();

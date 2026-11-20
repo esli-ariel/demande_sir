@@ -35,7 +35,7 @@ it('alerts exploitation once when a draft is submitted without notifying the sen
 it('notifies DTS and chiefs after exploitation while deduplicating recipients', function () {
     $actor=($this->account)('exploitation',['exploitant']);$dts=($this->account)('dts-chief',['dts','chef_structure']);$chief=($this->account)('chief',['chef_structure']);
     $reception=($this->account)('reception',['reception']);$demande=($this->makeDemande)();
-    $this->actingAs($actor)->post(route('demandes.validerExploitation',$demande),['visa'=>'Visa'])->assertSessionHasNoErrors();
+    $this->actingAs($actor)->post(route('demandes.validerExploitation',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Visa'])->assertSessionHasNoErrors();
     expect($dts->notifications()->count())->toBe(1)->and($chief->notifications()->count())->toBe(1)->and($this->owner->notifications()->count())->toBe(1)->and($actor->notifications()->count())->toBe(0)->and($reception->notifications()->count())->toBe(0);
     expect($chief->notifications()->first()->data['message'])->toBe('Une DMA entre dans votre suivi');
 });
@@ -48,28 +48,28 @@ it('targets only selected structures and forwards to control after all selected 
         $id=DB::table('structures_specialisees')->insertGetId(['nom'=>$user->name]);$user->structuresSpecialisees()->attach($id);$ids[]=$id;
     }
     $demande=($this->makeDemande)(['statut'=>'validee_exploitation']);$demande->structuresSpecialisees()->attach([$ids[0],$ids[1]]);
-    $this->actingAs($dts)->post(route('demandes.valider_dts',$demande),['visa'=>'Visa'])->assertSessionHasNoErrors();
+    $this->actingAs($dts)->post(route('demandes.valider_dts',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Visa'])->assertSessionHasNoErrors();
     expect($a->notifications()->count())->toBe(1)->and($b->notifications()->count())->toBe(1)->and($other->notifications()->count())->toBe(0)->and($control->notifications()->count())->toBe(0);
-    $this->actingAs($a)->post(route('demandes.validerStructure',$demande),['visa'=>'Visa','decision'=>'accord','structure_id'=>$ids[0]])->assertSessionHasNoErrors();
+    $this->actingAs($a)->post(route('demandes.validerStructure',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Visa','decision'=>'accord','structure_id'=>$ids[0]])->assertSessionHasNoErrors();
     expect($this->owner->notifications()->count())->toBe(2)->and($b->notifications()->count())->toBe(1)->and($control->notifications()->count())->toBe(0);
-    $this->actingAs($b)->post(route('demandes.validerStructure',$demande),['visa'=>'Visa','decision'=>'accord','structure_id'=>$ids[1]])->assertSessionHasNoErrors();
+    $this->actingAs($b)->post(route('demandes.validerStructure',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Visa','decision'=>'accord','structure_id'=>$ids[1]])->assertSessionHasNoErrors();
     expect($control->notifications()->count())->toBe(1)->and($this->owner->notifications()->count())->toBe(3);
-    $this->post(route('demandes.validerStructure',$demande),['visa'=>'Visa','decision'=>'accord','structure_id'=>$ids[1]])->assertForbidden();
+    $this->post(route('demandes.validerStructure',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Visa','decision'=>'accord','structure_id'=>$ids[1]])->assertForbidden();
     expect($control->notifications()->count())->toBe(1);
 });
 
 it('reports refusal to the requester without alerting the next team', function () {
     $actor=($this->account)('exploitation',['exploitant']);$dts=($this->account)('dts',['dts']);$demande=($this->makeDemande)();
-    $this->actingAs($actor)->post(route('demandes.rejeterExploitation',$demande),['visa'=>'Visa','commentaire'=>'À revoir'])->assertSessionHasNoErrors();
+    $this->actingAs($actor)->post(route('demandes.rejeterExploitation',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Visa','commentaire'=>'À revoir'])->assertSessionHasNoErrors();
     expect($this->owner->notifications()->first()->data['commentaire'])->toBe('À revoir')->and($dts->notifications()->count())->toBe(0);
 });
 
 it('invites the owner to close after work and informs teams when the owner confirms', function () {
     $service=($this->account)('service',['service_technique']);$control=($this->account)('control',['controle_avancee']);$reception=($this->account)('reception',['reception']);
     $demande=($this->makeDemande)(['statut'=>'en_cours_traitement','date_debut'=>'2026-11-10']);
-    $this->actingAs($service)->post(route('travaux.terminer',$demande),['visa'=>'Visa','date_fin'=>'2026-11-11','travaux_realises'=>'Modification terminée'])->assertSessionHasNoErrors();
+    $this->actingAs($service)->post(route('travaux.terminer',$demande),['password'=>'test-password','visa_confirmation'=>1,'visa'=>'Visa','date_fin'=>'2026-11-11','travaux_realises'=>'Modification terminée'])->assertSessionHasNoErrors();
     expect($control->notifications()->count())->toBe(1)->and($reception->notifications()->count())->toBe(1)->and($this->owner->notifications()->count())->toBe(1);
-    $this->actingAs($this->owner)->post(route('demandes.receptionner',$demande),['visa_demandeur'=>'Visa','confirmation_reception'=>1])->assertSessionHasNoErrors();
+    $this->actingAs($this->owner)->post(route('demandes.receptionner',$demande),['password'=>'test-password','visa_demandeur'=>'Visa','confirmation_reception'=>1])->assertSessionHasNoErrors();
     expect($this->owner->notifications()->count())->toBe(1)->and($control->notifications()->count())->toBe(2)->and($reception->notifications()->count())->toBe(2)->and($service->notifications()->count())->toBe(1);
     expect($this->owner->notifications()->first()->data['message'])->toBe('Confirmez la réception pour clôturer votre DMA');
     expect($service->notifications()->first()->data['statut'])->toBe('cloturee_receptionnee');
